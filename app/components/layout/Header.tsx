@@ -1,72 +1,40 @@
 "use client"
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { useState } from "react";
+import { Button } from "@mui/material";
+import Link from "next/link";
+import Image from "next/image";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const menuItems = [
+    "ตำแหน่งงาน",
+    "สวัสดิการ",
+    "ติดต่อ HRX",
+  ];
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   return (
-    <header className="bg-white shadow-md">
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <Image src="/logo.png" alt="Logo" width={120} height={40} />
-          </div>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-4">
-            <Link href="/positions" className="text-gray-600 hover:text-gray-900">
-              ตำแหน่งงาน
-            </Link>
-            <Link href="/benefits" className="text-gray-600 hover:text-gray-900">
-              สวัสดิการ
-            </Link>
-          </nav>
-
-          {/* Application Status Button */}
-          <button
-            className="hidden md:block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-            onClick={() => {/* Open modal logic here */}}
-          >
-            ตรวจสอบสถานะการสมัคร
-          </button>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-gray-500 hover:text-gray-700"
-            onClick={toggleMenu}
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+    <section id="header" className="bg-white py-4 shadow-md">
+      <div className="container flex justify-between">
+        <div className="logo-wrapper">
+          <Link href="#" title="">
+            <Image src="/images/logo.png" alt="" width={172} height={36} className="h-auto w-auto"/>
+          </Link>
         </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <nav className="md:hidden mt-4 space-y-2">
-            <Link href="/positions" className="block text-gray-600 hover:text-gray-900 py-2">
-              ตำแหน่งงาน
-            </Link>
-            <Link href="/benefits" className="block text-gray-600 hover:text-gray-900 py-2">
-              สวัสดิการ
-            </Link>
-            <button
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2"
-              onClick={() => {/* Open modal logic here */}}
-            >
-              ตรวจสอบสถานะการสมัคร
-            </button>
+        <div className="menu-wrapper flex gap-4">
+          <nav className="flex gap-4 items-center">
+            <a href="#" title="">ตำแหน่งงาน</a>
+            <a href="#" title="">สวัสดิการ</a>
           </nav>
-        )}
+          <Button variant="contained" color="success" size="medium" className="leading-none rounded-xl px-4 font-semibold">ตรวจสอบสถานะ</Button>
+        </div>
       </div>
-    </header>
+    </section>
   );
 };
 

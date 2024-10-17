@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import ThemeProvider from "@mui/material/styles";
+import { CssBaseline } from "@mui/material";
+import theme from "./theme";
+import MUIProvider from './components/MUIProvider';
 import Header from "./components/layout/Header";
-import { Providers } from "./providers";
+import Footer from "./components/layout/Footer";
 
 const fontSans = localFont({
   src: [
@@ -62,14 +66,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={fontSans.variable}
-      >
-        <Providers>
-          <Header/>
-          {children}
-        </Providers>
-      </body>
+      <MUIProvider>
+        <body className={fontSans.variable}>
+            <Header/>
+            {children}
+            <Footer/>
+        </body>
+      </MUIProvider>
     </html>
   );
 }
