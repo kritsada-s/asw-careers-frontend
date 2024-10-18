@@ -19,15 +19,15 @@ const Header = () => {
   };
 
   return (
-    <section id="header" className="bg-white py-4 shadow-md">
-      <div className="container flex justify-between">
-        <div className="logo-wrapper">
+    <section id="header" className="bg-white py-3 md:py-4 shadow-md">
+      <div className="container flex justify-between px-3 lg:px-0">
+        <div className="logo-wrapper flex items-center">
           <Link href="#" title="">
-            <Image src="/images/logo.png" alt="" width={172} height={36} className="h-auto w-auto"/>
+            <Image src="/images/logo.png" alt="" width={172} height={36} className="w-24 h-auto md:w-auto"/>
           </Link>
         </div>
         <div className="menu-wrapper flex gap-4">
-          <nav className="flex gap-4 items-center">
+          <nav className="hidden md:flex gap-4 items-center">
             <a href="#" title="">ตำแหน่งงาน</a>
             <a href="#" title="">สวัสดิการ</a>
           </nav>

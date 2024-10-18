@@ -95,7 +95,7 @@ const footerMenus = {
 function Footer() {
     return (
         <footer className="bg-neutral-800 pt-9 pb-4">
-            <div className="container">
+            <div className="container px-4 lg:px-0">
                 <div className="w-full flex flex-col md:flex-row">
                     <div className="w-full md:w-4/12 flex flex-col gap-3 mb-5 md:mb-0">
                         <Image src='/images/logo-asw-footer.png' alt="" width={160} height={35} />
