@@ -16,7 +16,10 @@ const theme = createTheme({
     h3: {
       fontFamily: 'DB Heavent, sans-serif',
       fontSize: '40px',
-      fontWeight: 'bold'
+      fontWeight: 'bold',
+      '@media (max-width:480px)': {
+        fontSize: '30px',
+      },
     },
     h4: {
       fontFamily: 'DB Heavent, sans-serif',

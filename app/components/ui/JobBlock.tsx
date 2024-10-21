@@ -16,12 +16,12 @@ function testCall() {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'https://dev-career.assetwise.co.th/api/Company/DropdownItems',
+        url: 'https://dev-career.assetwise.co.th/api/Company/Companies',
         headers: { 
             'Content-Type': 'multipart/form-data', 
             //...data.getHeaders?.() ?? { 'Content-Type': 'multipart/form-data' }
         },
-        body: { bConnectionID : data.get('bConnectionID') }
+        data: { bConnectionID : data.get('bConnectionID') }
     };
 
     console.log(config);
@@ -40,7 +40,7 @@ function JobBlock({children, className = ''}: JobBlockProps) {
     }, [])
     
     return (
-        <div className={`job-block ${className}`.trim()}>
+        <div className={`job-block p-4 ${className}`.trim()}>
             { children }
         </div>
     );

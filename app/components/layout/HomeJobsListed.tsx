@@ -84,22 +84,39 @@ function HomeJobsListed() {
                 <Typography variant="h3" className="text-primary mb-4">ตำแหน่งงานที่มีการประกาศล่าสุด</Typography>
                 {loading && (
                     <div className="flex gap-4">
-                        <Skeleton variant="rounded" className="w-1/3 h-[250px]"></Skeleton>
-                        <Skeleton variant="rounded" className="w-1/3 h-[250px]"></Skeleton>
-                        <Skeleton variant="rounded" className="w-1/3 h-[250px]"></Skeleton>
+                        <Skeleton variant="rounded" className="w-1/3" height={230}></Skeleton>
+                        <Skeleton variant="rounded" className="w-1/3" height={230}></Skeleton>
+                        <Skeleton variant="rounded" className="w-1/3" height={230}></Skeleton>
                     </div>
                 )}
                 
                 {error && <Typography color="error">{error}</Typography>}
                 
                 {!loading && !error && (
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid lg:grid-cols-3 gap-4 mb-7">
                         {jobs.slice(0,3).map((job, key) => (
-                            <JobBlock className="bg-gray-300" key={key}>
+                            <JobBlock className="bg-white aspect-video border border-gray-300 rounded-md" key={key}>
                                 <Typography key={job.jobID}>{job.jobPosition}</Typography>
                             </JobBlock>
                         ))}
                     </div>
+                )}
+
+                <Typography variant="h3" className="text-primary mb-4">ตำแหน่งงานทั้งหมด</Typography>
+                {loading && (
+                    <p>Loading...</p>
+                )}
+
+                {error && <Typography color="error">{error}</Typography>}
+
+                {!loading && !error && (
+                    <>
+                        {jobs.slice(4,10).map((job, key) => (
+                            <JobBlock className="bg-white border border-gray-300 rounded-md mb-4" key={key}>
+                                <Typography key={job.jobID}>{job.jobPosition}</Typography>
+                            </JobBlock>
+                        ))}
+                    </>
                 )}
             </div>
         </div>
