@@ -3,31 +3,11 @@
 import { CircularProgress, Skeleton, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { bConnectionID, defaultID, devUrl } from "@/lib/utils";
+import { bConnectionID, devUrl } from "@/lib/utils";
 import JobBlock from "../ui/JobBlock";
-
-interface Job {
-    jobID: string;
-    companyID: string;
-    deparmentID: string;
-    companyLocationID: string;
-    jobContractID: string;
-    jobPosition: string;
-    jobPositionLevelID: string;
-    requiredQuantity: number;
-    jobDetails: string;
-    requirements: string;
-    requiredRequirements: string;
-    appliedQuantity: number;
-    interviewQuantity: number;
-    addedNewQuantity: number;
-    visitsQuantity: number;
-    urgently: boolean;
-    announce: boolean;
-    createBy: string;
-    updateBy: string;
-    createDate: string;
-    }
+import LastestPositions from "./LastestPositions";
+import { getCompanies } from "@/lib/api";
+import { Job } from "@/lib/types";
 
 interface JobResponse {
     jobs: Job[];
@@ -42,7 +22,7 @@ function HomeJobsListed() {
     const path = "/JobAnnouncement/JobAnnouncementsByPage";
 
     useEffect(() => {
-        let dataObj = {
+        const dataObj = {
             companyID: "00000000-0000-0000-0000-000000000000",
             bConnectionID: bConnectionID,
             departmentName: "",
@@ -56,7 +36,7 @@ function HomeJobsListed() {
             published: true
         };
 
-        let config = {
+        const config = {
             method: 'post',
             maxBodyLength: Infinity,
             url: devUrl+path,
@@ -84,9 +64,9 @@ function HomeJobsListed() {
                 <Typography variant="h3" className="text-primary mb-4">ตำแหน่งงานที่มีการประกาศล่าสุด</Typography>
                 {loading && (
                     <div className="flex gap-4">
-                        <Skeleton variant="rounded" className="w-1/3" height={230}></Skeleton>
-                        <Skeleton variant="rounded" className="w-1/3" height={230}></Skeleton>
-                        <Skeleton variant="rounded" className="w-1/3" height={230}></Skeleton>
+                        <Skeleton variant="rounded" className="w-1/3" height={230} animation="wave"></Skeleton>
+                        <Skeleton variant="rounded" className="w-1/3" height={230} animation="wave"></Skeleton>
+                        <Skeleton variant="rounded" className="w-1/3" height={230} animation="wave"></Skeleton>
                     </div>
                 )}
                 
@@ -95,9 +75,7 @@ function HomeJobsListed() {
                 {!loading && !error && (
                     <div className="grid lg:grid-cols-3 gap-4 mb-7">
                         {jobs.slice(0,3).map((job, key) => (
-                            <JobBlock className="bg-white aspect-video border border-gray-300 rounded-md" key={key}>
-                                <Typography key={job.jobID}>{job.jobPosition}</Typography>
-                            </JobBlock>
+                            <JobBlock key={key} job={job}></JobBlock>
                         ))}
                     </div>
                 )}
@@ -110,14 +88,15 @@ function HomeJobsListed() {
                 {error && <Typography color="error">{error}</Typography>}
 
                 {!loading && !error && (
-                    <>
-                        {jobs.slice(4,10).map((job, key) => (
-                            <JobBlock className="bg-white border border-gray-300 rounded-md mb-4" key={key}>
-                                <Typography key={job.jobID}>{job.jobPosition}</Typography>
-                            </JobBlock>
-                        ))}
-                    </>
+                    <LastestPositions items={jobs.slice(3,10)}/>
                 )}
+                <div className="h-14"></div>
+                <div className="flex justify-center items-center gap-2">
+                    <Typography variant="h5">ไม่พบตำแหน่งงานที่สนใจ ?</Typography>
+                    <button className="bg-orange-600 text-white px-5 py-1 rounded-full transition hover:scale-105 duration-300">
+                        <Typography variant="h5">ลงทะเบียนฝากประวัติ</Typography>
+                    </button>
+                </div>
             </div>
         </div>
     );

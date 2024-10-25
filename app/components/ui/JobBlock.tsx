@@ -1,47 +1,54 @@
-import { getCompanies } from "@/lib/api";
-import { bConnectionID } from "@/lib/utils";
-import { ReactNode, useEffect } from "react";
-import axios from "axios";
+import { fetchCompanyName, getCompanyByID, getCompanyCi } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { Job } from "@/lib/types";
+import { Typography } from "@mui/material";
+import { MapPin, Building, CircleDollarSign } from 'lucide-react';
+import CustomButton from "./Button";
+import { fetchCompanyLocations, fetchLocationByID } from "@/lib/api";
 
 interface JobBlockProps {
-    children: ReactNode;
     className?: string;
+    job: Job;
 }
 
-function testCall() {
-    let data = new FormData;
-    data.append('bConnectionID', '7B93F134-D373-4227-B5A6-6B619FF0E355');
-    console.log(data.get('bConnectionID'));
+function JobBlock({className = '', job}: JobBlockProps) {
+    const [companyThName, setCompanythName] = useState('');
+    const [borderColor, setBorderColor] = useState<string>();
+    const [location, setLocation] = useState('');
 
-    let config = {
-        method: 'get',
-        maxBodyLength: Infinity,
-        url: 'https://dev-career.assetwise.co.th/api/Company/Companies',
-        headers: { 
-            'Content-Type': 'multipart/form-data', 
-            //...data.getHeaders?.() ?? { 'Content-Type': 'multipart/form-data' }
-        },
-        data: { bConnectionID : data.get('bConnectionID') }
-    };
-
-    console.log(config);
-    
-    axios.request(config).then((response:any) => {
-        console.log(JSON.stringify(response.data));
-    }).catch((error:any) => {
-        console.log(error);
-    });
-
-}
-
-function JobBlock({children, className = ''}: JobBlockProps) {
     useEffect(()=>{
-        testCall();
-    }, [])
-    
+
+        const getCompanyData = async () => {
+            const thName = await fetchCompanyName(job.companyID)
+            const location = await fetchLocationByID(job.companyID, job.companyLocationID)
+            setCompanythName(thName.nameTH || 'N/A')
+            setLocation(location)
+        }
+
+        const bcolor = getCompanyCi(job.companyID);
+        setBorderColor(bcolor)
+
+        getCompanyData().catch(console.error)
+
+    })
+
     return (
-        <div className={`job-block p-4 ${className}`.trim()}>
-            { children }
+        <div className={`job-block p-4 flex flex-col justify-between bg-white border-2 rounded-[20px] hover:shadow-xl transition-shadow duration-300 ${className}`.trim()} style={{ borderColor: borderColor }}>
+            <div className="details">
+                <Typography variant="h4" className="leading-none" key={job.jobID}>{job.jobPosition}</Typography>
+                <Typography variant="body1" className="flex gap-1 items-center text-gray-500">
+                    <Building size={18} /> {companyThName}
+                </Typography>
+                <Typography variant="body1" className="flex gap-1 items-center text-gray-500">
+                    <MapPin size={18}/> {location}
+                </Typography>
+                <Typography variant="body1" className="flex gap-1 items-center text-gray-500">
+                    <CircleDollarSign size={18} /> เงินเดือนตามตกลง
+                </Typography>
+            </div>
+            <div className="footer text-right">
+                <CustomButton link="/jobs" varient="bordered">สมัครงาน</CustomButton>
+            </div>
         </div>
     );
 }

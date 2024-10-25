@@ -97,3 +97,49 @@ body {
   background-image: url('/images/welfare_benefit-bg_1-5x.webp');
   @apply bg-right bg-cover;
 }
+
+/* styles/swiper-custom.css */
+
+.swiper-fade.swiper-free-mode .swiper-slide {
+  transition-timing-function: ease-out;
+}
+
+.swiper-fade .swiper-slide {
+  pointer-events: none;
+  transition-property: opacity;
+}
+
+.swiper-fade .swiper-slide .swiper-slide {
+  pointer-events: none;
+}
+
+.swiper-fade .swiper-slide-active,
+.swiper-fade .swiper-slide-active .swiper-slide-active {
+  pointer-events: auto;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: theme('colors.blue.500');
+  transition: all 0.3s ease;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  transform: scale(1.1);
+}
+
+.swiper-pagination-bullet {
+  background: theme('colors.gray.300');
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+  background: theme('colors.blue.500');
+  opacity: 1;
+}
+
+.swiper-slide {
+  height: auto;
+}

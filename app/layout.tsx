@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
-import ThemeProvider from "@mui/material/styles";
-import { CssBaseline } from "@mui/material";
-import theme from "./theme";
 import MUIProvider from './components/MUIProvider';
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";

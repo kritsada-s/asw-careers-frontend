@@ -22,7 +22,7 @@ const Header = () => {
     <section id="header" className="bg-white py-3 md:py-4 shadow-md">
       <div className="container flex justify-between px-3 lg:px-0">
         <div className="logo-wrapper flex items-center">
-          <Link href="#" title="">
+          <Link href="/" title="">
             <Image src="/images/logo.png" alt="" width={172} height={36} className="w-24 h-auto md:w-auto"/>
           </Link>
         </div>
