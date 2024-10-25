@@ -99,7 +99,9 @@ body {
 }
 
 /* styles/swiper-custom.css */
-
+.swiper {
+  --swiper-pagination-bottom: 0;
+}
 .swiper-fade.swiper-free-mode .swiper-slide {
   transition-timing-function: ease-out;
 }
@@ -142,4 +144,13 @@ body {
 
 .swiper-slide {
   height: auto;
+}
+
+.image-transition {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.image-transition.loaded {
+  opacity: 1;
 }
