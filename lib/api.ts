@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import { bConnectionID } from './utils';
 import { devUrl, default_params } from './utils';
-import { Company, Job, JobResponse} from './types';
+import { Company, Job, JobResponse, Position} from './types';
 import React from 'react';
 
 interface ApiResponse<T> {
@@ -132,6 +132,26 @@ export async function fetchedJobs(): Promise<JobResponse> {
   
   try {
     const response = await axios.request<JobResponse>(config);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching jobs:', error);
+    throw error;
+  }
+}
+
+export async function fetchPosition(id:string) {
+  const config = {
+    method: 'get',
+    maxBodyLength: Infinity,
+    url: devUrl+'/JobAnnouncement/JobAnnouncement/'+id,
+    headers: { 
+      'Content-Type': 'application/json'
+    },
+    data: JSON.stringify(default_params)
+  };
+  
+  try {
+    const response = await axios.request<Position>(config);
     return response.data;
   } catch (error) {
     console.error('Error fetching jobs:', error);

@@ -47,7 +47,7 @@ function JobBlock({className = '', job}: JobBlockProps) {
                 </Typography>
             </div>
             <div className="footer text-right">
-                <CustomButton link="/jobs" varient="bordered">สมัครงาน</CustomButton>
+                <CustomButton link={'/apply-job/'+job.jobID} varient="bordered">สมัครงาน</CustomButton>
             </div>
         </div>
     );

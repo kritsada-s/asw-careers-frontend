@@ -46,7 +46,7 @@ export interface JobResponse {
     jobs: Job[];
 }
 
-export interface SingleJob {
+export interface Position {
     jobID: string,
     companyID: string,
     deparmentID: string,
@@ -67,4 +67,35 @@ export interface SingleJob {
     createBy: string,
     updateBy: string,
     createDate: Date
+}
+
+
+export interface FormData {
+    personalInfo?: {
+        firstName?: string;
+        lastName?: string;
+        // Add more fields as needed
+    };
+    workHistory?: {
+        // Work history fields
+    };
+    education?: {
+        // Education fields
+    };
+    // Add more sections as needed
+}
+
+export interface FormStepProps {
+    formData: FormData;
+    updateFormData: (sectionKey: keyof FormData, data: any) => void;
+    onNext: () => void;
+    onPrevious: () => void;
+    isLastStep: boolean;
+}
+
+export interface FormStep {
+    id: number;
+    title: string;
+    description: string;
+    component: React.ComponentType<FormStepProps>;
 }

@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { fetchedJobs } from '@/lib/api';
-import { Job, SingleJob } from '@/lib/types';
+import { Job } from '@/lib/types';
 
 interface fetchedJobs {
   jobs: Job
