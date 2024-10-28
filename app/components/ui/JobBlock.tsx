@@ -30,7 +30,7 @@ function JobBlock({className = '', job}: JobBlockProps) {
 
         getCompanyData().catch(console.error)
 
-    })
+    }, [job.companyID, job.companyLocationID])
 
     return (
         <div className={`job-block p-4 flex flex-col justify-between bg-white border-2 rounded-[20px] hover:shadow-xl transition-shadow duration-300 ${className}`.trim()} style={{ borderColor: borderColor }}>
