@@ -4,9 +4,11 @@ import { useState } from "react";
 import { Button } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
+import AuthModal from "../Auth/AuthModal";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthopen, setIsAuthOpen] = useState(false);
 
   const menuItems = [
     "ตำแหน่งงาน",
@@ -31,9 +33,10 @@ const Header = () => {
             <a href="#" title="">ตำแหน่งงาน</a>
             <a href="#" title="">สวัสดิการ</a>
           </nav>
-          <Button variant="contained" color="success" size="medium" className="leading-none rounded-xl px-4 font-semibold">ตรวจสอบสถานะ</Button>
+          <Button onClick={()=>setIsAuthOpen(true)} variant="contained" color="success" size="medium" className="leading-none rounded-xl px-4 font-semibold">ตรวจสอบสถานะ</Button>
         </div>
       </div>
+      <AuthModal isOpen={isAuthopen} onClose={()=>setIsAuthOpen(false)}/>
     </section>
   );
 };

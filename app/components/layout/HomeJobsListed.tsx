@@ -74,9 +74,13 @@ function HomeJobsListed() {
                 
                 {!loading && !error && (
                     <div className="grid lg:grid-cols-3 gap-4 mb-7">
-                        {jobs.slice(0,3).map((job, key) => (
-                            <JobBlock key={key} job={job}></JobBlock>
-                        ))}
+                        { jobs.length > 0 ? (
+                            jobs.slice(0,3).map((job, key) => (
+                                <JobBlock key={key} job={job}></JobBlock>
+                            ))
+                        ) : (
+                            <p>ไม่พบข้อมูล</p>
+                        )}
                     </div>
                 )}
 
