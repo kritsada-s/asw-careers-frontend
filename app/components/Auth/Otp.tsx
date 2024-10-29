@@ -1,4 +1,3 @@
-// components/auth/OtpStep.tsx
 import React, { useState } from 'react';
 
 interface OtpStepProps {

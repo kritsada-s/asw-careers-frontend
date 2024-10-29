@@ -1,4 +1,3 @@
-// components/auth/EmailStep.tsx
 import React, { useState } from 'react';
 
 interface EmailStepProps {
