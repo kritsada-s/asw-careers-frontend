@@ -1,3 +1,5 @@
+import { devUrl } from '@/lib/utils';
+import axios from 'axios';
 import React, { useState } from 'react';
 
 interface EmailStepProps {
@@ -21,13 +23,22 @@ export default function EmailStep({ onSubmit, isLoading, setIsLoading }: EmailSt
 
     try {
       setIsLoading(true);
-      const response = await fetch('/api/auth/email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
 
-      if (!response.ok) throw new Error('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+      const formData = new FormData();
+      formData.append('email', email);
+
+      const config = {
+        method: 'post',
+        url: devUrl+'/Authorization/RequestOTP',
+        headers: { 
+          'Content-Type': 'multipart/form-data'
+        },
+        data: formData
+      };
+
+      const response = await axios.request(config);      
+
+      if (!response.status) throw new Error('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
 
       onSubmit(email);
     } catch (err) {

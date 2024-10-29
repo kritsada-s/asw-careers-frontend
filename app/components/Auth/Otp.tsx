@@ -1,3 +1,5 @@
+import { devUrl } from '@/lib/utils';
+import axios from 'axios';
 import React, { useState } from 'react';
 
 interface OtpStepProps {
@@ -29,15 +31,26 @@ export default function OtpStep({
 
     try {
       setIsLoading(true);
-      const response = await fetch('/api/auth/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp })
-      });
 
-      if (!response.ok) throw new Error('Invalid OTP');
+      const formData = new FormData();
+      formData.append('keyPass', otp);
+      formData.append('email', email);
 
-      const { token } = await response.json();
+      const config = {
+        method: 'post',
+        url: devUrl+'/Authorization/OTPSubmit',
+        headers: { 
+          'Content-Type': 'multipart/form-data'
+        },
+        data: formData
+      };
+
+      const response = await axios.request(config);
+
+      if (!response.status) throw new Error('Invalid OTP');
+
+      const token = await response.data;
+    
       onSubmit(token);
     } catch (err) {
       setError('Invalid OTP code');

@@ -20,6 +20,14 @@ const Header = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const checkLogin = () => {
+    if (localStorage.authToken) {
+      window.location.href = '/profile'
+    } else {
+      setIsAuthOpen(true)
+    }
+  }
+
   return (
     <section id="header" className="bg-white py-3 md:py-4 shadow fixed w-full top-0 z-10">
       <div className="container flex justify-between px-3 lg:px-0">
@@ -33,7 +41,7 @@ const Header = () => {
             <a href="#" title="">ตำแหน่งงาน</a>
             <a href="#" title="">สวัสดิการ</a>
           </nav>
-          <Button onClick={()=>setIsAuthOpen(true)} variant="contained" color="success" size="medium" className="leading-none rounded-xl px-4 font-semibold">ตรวจสอบสถานะ</Button>
+          <Button onClick={()=>checkLogin()} variant="contained" color="success" size="medium" className="leading-none rounded-xl px-4 font-semibold">ตรวจสอบสถานะ</Button>
         </div>
       </div>
       <AuthModal isOpen={isAuthopen} onClose={()=>setIsAuthOpen(false)}/>

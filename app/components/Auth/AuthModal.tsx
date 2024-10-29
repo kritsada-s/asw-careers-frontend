@@ -31,13 +31,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   // Success handler
   const handleSuccess = (token: string) => {
     // Store token in session
-    sessionStorage.setItem('authToken', token);
+    localStorage.setItem('authToken', token);    
     // Show success state briefly before redirecting
     setCurrentStep('success');
     setTimeout(() => {
       handleClose();
       router.push('/profile');
-    }, 2000);
+    }, 5000);
   };
 
   return (

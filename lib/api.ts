@@ -158,3 +158,30 @@ export async function fetchPosition(id:string) {
     throw error;
   }
 }
+
+export interface ProfileData {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export async function fetchProfileData(email: string): Promise<ProfileData> {
+  const formData = new FormData();
+  formData.append('email', email);
+
+  const config = {
+    method: 'get',
+    url: devUrl+'/secure/Candidate/GetCandidate/'+email,
+    headers: { 
+      'Authorization': 'Bearer '+localStorage.authToken
+    }
+  };
+
+  try {
+    const response = await axios.request(config);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    throw error;
+  }
+}
