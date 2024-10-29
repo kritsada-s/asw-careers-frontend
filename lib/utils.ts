@@ -112,3 +112,62 @@ export const decrypt = (cipherText: string, secret: string = 'r8ek7iUfQ035C5w7cB
   });
   return decryptedBytes.toString(CryptoJS.enc.Utf8);
 };
+
+export function timeAgo(date: string | Date): string {
+  const now = new Date();
+  const past = new Date(date);
+  const msPerMinute = 60 * 1000;
+  const msPerHour = msPerMinute * 60;
+  const msPerDay = msPerHour * 24;
+  const msPerWeek = msPerDay * 7;
+  const msPerMonth = msPerDay * 30;
+  const msPerYear = msPerDay * 365;
+
+  const elapsed = now.getTime() - past.getTime();
+
+  // Handle invalid dates
+  if (isNaN(elapsed) || elapsed < 0) {
+    return 'Invalid date';
+  }
+
+  // Less than a minute
+  if (elapsed < msPerMinute) {
+    return 'Just now';
+  }
+  
+  // Less than an hour
+  else if (elapsed < msPerHour) {
+    const minutes = Math.floor(elapsed / msPerMinute);
+    return `${minutes} นาทีที่ผ่านมา`;
+  }
+  
+  // Less than a day
+  else if (elapsed < msPerDay) {
+    const hours = Math.floor(elapsed / msPerHour);
+    return `${hours} ชั่วโมงที่ผ่านมา`;
+  }
+  
+  // Less than a week
+  else if (elapsed < msPerWeek) {
+    const days = Math.floor(elapsed / msPerDay);
+    return `${days} วันที่ผ่านมา`;
+  }
+  
+  // Less than a month
+  else if (elapsed < msPerMonth) {
+    const weeks = Math.floor(elapsed / msPerWeek);
+    return `${weeks} สัปดาห์ที่ผ่านมา`;
+  }
+  
+  // Less than a year
+  else if (elapsed < msPerYear) {
+    const months = Math.floor(elapsed / msPerMonth);
+    return `${months} เดือนที่ผ่านมา`;
+  }
+  
+  // More than a year
+  else {
+    const years = Math.floor(elapsed / msPerYear);
+    return `${years} ปีที่ผ่านมา`;
+  }
+}
