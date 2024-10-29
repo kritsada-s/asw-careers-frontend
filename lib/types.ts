@@ -99,3 +99,11 @@ export interface FormStep {
     description: string;
     component: React.ComponentType<FormStepProps>;
 }
+
+export interface TokenProps {
+    KeyType: string;
+    CandidateID: string;
+    Email: string;
+    CreateDate: string;
+    ExpiredDate: string;
+  }

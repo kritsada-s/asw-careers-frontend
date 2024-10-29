@@ -28,7 +28,7 @@ function WelfareBenefit() {
                 <div className="welfare-benefit-box w-full lg:w-1/2 py-7 px-4 bg-primary h-full rounded-tl-3xl lg:rounded-tl-none -mt-4 lg:mt-0 lg:rounded-bl-3xl flex flex-col justify-center items-center">
                     <Typography variant="h2" sx={{ fontWeight: '500', color: 'white', lineHeight: 1 }}>สวัสดิการ</Typography>
                     <p className="font-light text-[20px] text-neutral-300 mb-5">เงื่อนไขตามรายละเอียดแต่ละบริษัท</p>
-                    <div className="core-benefit-boxes grid grid-cols-2 grid-rows-2 gap-4 lg:gap-y-7 lg:gap-x-10">
+                    <div className="core-benefit-boxes grid lg:grid-cols-2 lg:grid-rows-2 gap-y-6 lg:gap-y-7 lg:gap-x-10">
                     { benefits.map((item, key)=>(
                         <div className="benefit-box flex items-start gap-4" key={key}>
                             <Image src={`/images/${item.icon}.png`} alt="" width={iconW} height={iconW}/>

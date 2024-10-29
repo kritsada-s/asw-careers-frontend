@@ -3,6 +3,7 @@ import { twMerge } from "tailwind-merge"
 import { getCompanies } from "./api";
 import { Company } from "./types";
 import { useEffect } from "react";
+import CryptoJS from "crypto-js";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -81,3 +82,33 @@ export function getCompanyCi(companyID:string) {
     }
   }
 }
+
+/**
+ * Encrypts text using AES encryption
+ * @param {string} plainText - Text to encrypt
+ * @param {string} secret - Secret key for encryption
+ * @returns {string} Encrypted text
+ */
+export const encrypt = (plainText: string, secret: string = 'r8ek7iUfQ035C5w7cBSQSFDBsPs1wW5e'): string => {
+  const key = CryptoJS.enc.Utf8.parse(secret);
+  const encryptedBytes = CryptoJS.AES.encrypt(plainText, key, {
+    mode: CryptoJS.mode.ECB,
+    padding: CryptoJS.pad.Pkcs7
+  });
+  return encryptedBytes.toString();
+};
+
+/**
+ * Decrypts AES encrypted text
+ * @param {string} cipherText - Encrypted text to decrypt
+ * @param {string} secret - Secret key used for encryption
+ * @returns {string} Decrypted text
+ */
+export const decrypt = (cipherText: string, secret: string = 'r8ek7iUfQ035C5w7cBSQSFDBsPs1wW5e'): string => {
+  const key = CryptoJS.enc.Utf8.parse(secret);
+  const decryptedBytes = CryptoJS.AES.decrypt(cipherText, key, {
+    mode: CryptoJS.mode.ECB,
+    padding: CryptoJS.pad.Pkcs7
+  });
+  return decryptedBytes.toString(CryptoJS.enc.Utf8);
+};

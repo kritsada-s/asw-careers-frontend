@@ -95,7 +95,7 @@ function HomeJobsListed() {
                     <LastestPositions items={jobs.slice(3,10)}/>
                 )}
                 <div className="h-14"></div>
-                <div className="flex justify-center items-center gap-2">
+                <div className="flex justify-center items-center gap-2 flex-col md:flex-row">
                     <Typography variant="h5">ไม่พบตำแหน่งงานที่สนใจ ?</Typography>
                     <button className="bg-orange-600 text-white px-5 py-1 rounded-full transition hover:scale-105 duration-300">
                         <Typography variant="h5">ลงทะเบียนฝากประวัติ</Typography>

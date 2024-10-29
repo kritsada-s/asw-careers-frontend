@@ -37,13 +37,13 @@ const LastestPositions: React.FC<LastestPositionsProps> = ({items}) => {
 
     return (
         <div className="lastest-positions-listed">
-            <div className="listed-header flex font-medium text-xl -ml-4 -mr-4">
+            <div className="listed-header flex font-medium text-xl md:-ml-4 md:-mr-4">
                 <PositionCell>ตำแหน่ง</PositionCell>
                 <PositionCell>ทีม / แผนก</PositionCell>
                 <PositionCell>Location</PositionCell>
             </div>
             { items.map((item, key)=>(
-                <Link href={{ pathname: '/jobs' }} className="text-[24px] lastest-position-item -ml-4 -mr-4 flex justify-between hover:bg-primary-600 hover:text-white hover:shadow-md cursor-pointer rounded-sm" key={key}>
+                <Link href={{ pathname: '/jobs' }} className="text-[24px] lastest-position-item md:-ml-4 md:-mr-4 flex justify-between hover:bg-primary-600 hover:text-white hover:shadow-md cursor-pointer rounded-sm" key={key}>
                     <PositionCell><strong>{ item.jobPosition }</strong></PositionCell>
                     <PositionCell><Department comp={item.companyID} did={item.deparmentID}/></PositionCell>
                     <PositionCell><WorkLocation comp={item.companyID} loc={item.companyLocationID} /></PositionCell>

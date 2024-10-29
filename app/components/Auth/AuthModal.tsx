@@ -49,7 +49,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       />
 
       {/* Modal Content */}
-      <div className="relative bg-white rounded-lg shadow-xl flex w-full max-w-3xl mx-4 overflow-hidden min-h-[650px]">
+      <div className="relative bg-white rounded-lg shadow-xl flex w-full max-w-3xl mx-4 overflow-hidden lg:min-h-[650px]">
         {/* Left Side - Image */}
         <div className="w-1/2 relative hidden md:flex md:justify-center md:items-center bg-custom-light-blue">
           <div className={`img-wrapper relative `+(currentStep === 'email' ? 'w-2/3 h-2/3':'w-1/2 h1/2')}>
