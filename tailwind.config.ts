@@ -10,6 +10,9 @@ const config: Config = {
   theme: {
 	container: {
 		center: true,
+		screens: {
+			xl: '1200px'
+		}
 	},
   	extend: {
   		colors: {

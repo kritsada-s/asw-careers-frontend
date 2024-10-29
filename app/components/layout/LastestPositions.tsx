@@ -10,9 +10,9 @@ interface LastestPositionsProps {
     items: Job[]
 }
 
-const PositionCell = ({children}:{children:ReactNode}) => {
+const PositionCell = ({children, className = 'w-1/3'}:{children:ReactNode, className?:string}) => {
     return (
-        <div className="w-1/3 px-4 py-3">{ children }</div>
+        <div className={`md:px-4 md:py-3 ${className}`}>{ children }</div>
     )
 }
 
@@ -37,16 +37,17 @@ const LastestPositions: React.FC<LastestPositionsProps> = ({items}) => {
 
     return (
         <div className="lastest-positions-listed">
-            <div className="listed-header flex font-medium text-xl md:-ml-4 md:-mr-4">
+            <div className="listed-header hidden md:flex font-medium text-xl md:-ml-4 md:-mr-4">
                 <PositionCell>ตำแหน่ง</PositionCell>
                 <PositionCell>ทีม / แผนก</PositionCell>
                 <PositionCell>Location</PositionCell>
             </div>
             { items.map((item, key)=>(
-                <Link href={{ pathname: '/jobs' }} className="text-[24px] lastest-position-item md:-ml-4 md:-mr-4 flex justify-between hover:bg-primary-600 hover:text-white hover:shadow-md cursor-pointer rounded-sm" key={key}>
-                    <PositionCell><strong>{ item.jobPosition }</strong></PositionCell>
-                    <PositionCell><Department comp={item.companyID} did={item.deparmentID}/></PositionCell>
-                    <PositionCell><WorkLocation comp={item.companyID} loc={item.companyLocationID} /></PositionCell>
+                <Link href={{ pathname: '/jobs' }} className="text-[24px] lastest-position-item -ml-4 -mr-4 flex flex-wrap md:flex-nowrap px-4 py-2 md:p-0 justify-between lg:hover:bg-primary-600 lg:hover:text-white lg:hover:shadow-md cursor-pointer rounded-sm" key={key}>
+                    <PositionCell className="w-full md:w-1/3"><strong>{ item.jobPosition }</strong></PositionCell>
+                    <PositionCell className="w-1/2 md:w-1/3"><Department comp={item.companyID} did={item.deparmentID}/></PositionCell>
+                    <PositionCell className="w-1/2 md:w-1/3"><WorkLocation comp={item.companyID} loc={item.companyLocationID} /></PositionCell>
+                    <hr className="w-full mt-3 md:hidden border-neutral-300" />
                 </Link>
             )) }
         </div>

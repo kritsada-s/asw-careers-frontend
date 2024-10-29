@@ -63,10 +63,10 @@ function HomeJobsListed() {
             <div className="container px-4 lg:px-0">
                 <Typography variant="h3" className="text-primary mb-4">ตำแหน่งงานที่มีการประกาศล่าสุด</Typography>
                 {loading && (
-                    <div className="flex gap-4">
-                        <Skeleton variant="rounded" className="w-1/3" height={230} animation="wave"></Skeleton>
-                        <Skeleton variant="rounded" className="w-1/3" height={230} animation="wave"></Skeleton>
-                        <Skeleton variant="rounded" className="w-1/3" height={230} animation="wave"></Skeleton>
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <Skeleton variant="rounded" className="w-full md:w-1/3" height={230} animation="wave"></Skeleton>
+                        <Skeleton variant="rounded" className="w-full md:w-1/3" height={230} animation="wave"></Skeleton>
+                        <Skeleton variant="rounded" className="w-full md:w-1/3" height={230} animation="wave"></Skeleton>
                     </div>
                 )}
                 
@@ -94,7 +94,7 @@ function HomeJobsListed() {
                 {!loading && !error && (
                     <LastestPositions items={jobs.slice(3,10)}/>
                 )}
-                <div className="h-14"></div>
+                <div className="h-5 lg:h-14"></div>
                 <div className="flex justify-center items-center gap-2 flex-col md:flex-row">
                     <Typography variant="h5">ไม่พบตำแหน่งงานที่สนใจ ?</Typography>
                     <button className="bg-orange-600 text-white px-5 py-1 rounded-full transition hover:scale-105 duration-300">
