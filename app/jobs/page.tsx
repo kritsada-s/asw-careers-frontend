@@ -2,8 +2,10 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { fetchedJobs } from '@/lib/api';
+import { fetchCompanyLocations, fetchedJobs, fetchLocationByID } from '@/lib/api';
 import { Job } from '@/lib/types';
+import { WorkLocation } from '../components/ui/WorkLocation';
+import { timeAgo } from '@/lib/utils';
 
 interface fetchedJobs {
   jobs: Job
@@ -57,19 +59,19 @@ export default function JobsPage() {
         <div className="p-4 border-b border-gray-200">
           <h2 className="text-xl font-semibold">ตำแหน่งงานทั้งหมด</h2>
         </div>
-        <div className="overflow-y-auto h-[calc(100vh-64px)]">
+        <div className="overflow-y-auto h-[calc(100vh-64px)] p-6 bg-[#f6f6f6] flex flex-col gap-4">
           {jobs.map((job) => (
             <div
               key={job.jobID}
               onClick={() => handleJobSelect(job)}
-              className={`p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors
-                ${selectedJob?.jobID === job.jobID ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''}
-              `}
+              className={`p-4 cursor-pointer bg-white hover:bg-gray-50 rounded transition-colors ${selectedJob?.jobID === job.jobID ? 'bg-gradient-to-br from-primary-400 to-primary-700' : ''}`}
             >
-              <h3 className="font-medium text-lg text-gray-900">
+              <h3 className={`font-medium text-lg ${selectedJob?.jobID === job.jobID ? 'text-white' : 'text-gray-900'}`}>
                 {job.jobPosition}
               </h3>
-              <div className="mt-1 text-sm text-gray-500">
+              <p className={`${selectedJob?.jobID === job.jobID ? 'text-neutral-300' : 'text-neutral-500'}`}><WorkLocation comp={job.companyID} loc={job.companyLocationID} /></p>
+              <small className={`${selectedJob?.jobID === job.jobID ? 'text-neutral-300' : 'text-neutral-500'}`}>{timeAgo(job.createDate)}</small>
+              <div className={`mt-1 text-xs ${selectedJob?.jobID === job.jobID ? 'text-neutral-300' : 'text-neutral-600'}`}>
                 คลิกเพื่อดูรายละเอียด
               </div>
             </div>
@@ -78,17 +80,17 @@ export default function JobsPage() {
       </div>
 
       {/* Right Content */}
-      <div className="flex-1 bg-white">
+      <div id="jobDetails" className="flex-1 bg-white">
         {selectedJob ? (
           <div className="h-full flex flex-col">
             {/* Header */}
-            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-gray-900">
+            <div id='detailsHeader' className="p-6 border-b border-gray-200 flex justify-between items-center bg-primary-700 min-h-[200px]">
+              <h1 className="text-2xl font-bold text-white">
                 {selectedJob.jobPosition}
               </h1>
               <button
                 onClick={handleJobSubmit}
-                className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                className="px-5 py-1 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors"
               >
                 สมัครงาน
               </button>

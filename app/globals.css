@@ -16,6 +16,17 @@ body {
   line-height: normal;
   font-family: var(--font-sans);
 }
+
+#header + div, #header + section {
+  margin-top: 64px;
+}
+
+@media screen and (min-width: 820px) {
+  #header + div, #header + section {
+    margin-top: 80px;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -153,4 +164,9 @@ body {
 
 .image-transition.loaded {
   opacity: 1;
+}
+
+#jobDetails #detailsHeader {
+  background-image: url('/images/w-bg.png');
+  background-size: cover;
 }

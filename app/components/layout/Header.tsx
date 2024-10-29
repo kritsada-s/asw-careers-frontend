@@ -21,7 +21,7 @@ const Header = () => {
   };
 
   return (
-    <section id="header" className="bg-white py-3 md:py-4 shadow-md">
+    <section id="header" className="bg-white py-3 md:py-4 shadow fixed w-full top-0 z-10">
       <div className="container flex justify-between px-3 lg:px-0">
         <div className="logo-wrapper flex items-center">
           <Link href="/" title="">
