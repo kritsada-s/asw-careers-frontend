@@ -23,7 +23,7 @@ export function ProgressSteps({ steps, currentStep }: ProgressStepsProps) {
                   ${index <= currentStep 
                     ? 'bg-green-700 border-green-700 text-white' 
                     : 'border-gray-300 text-gray-400'
-                  } relative z-10 bg-white
+                  } relative z-10
                 `}
               >
                 {index + 1}

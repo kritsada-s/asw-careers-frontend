@@ -44,8 +44,7 @@ export default function JobsPage() {
 
   const handleJobSubmit = () => {
     if (selectedJob) {
-      const subject = encodeURIComponent(`[สมัครงาน]: ${selectedJob.jobPosition}`);
-      window.location.href = `mailto:careers@assetwise.co.th?subject=${subject}`;
+      console.log('job submitting');
     }
   };
 

@@ -118,7 +118,7 @@ export default function ApplyJobPage() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <span className="loader"></span>;
   if (error) return <div>Error: {error}</div>;
 
   const CurrentStepComponent = formSteps[currentStep].component;
@@ -126,6 +126,11 @@ export default function ApplyJobPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <ProgressSteps currentStep={currentStep} steps={formSteps}/>
+      <div className="flex">
+        <span className="loader"></span>
+        <span className="loader"></span>
+        <span className="loader"></span>
+      </div>
 
       <h2 className="text-[30px] lg:text-[40px] text-gray-600 text-center mb-6">สมัครงานตำแหน่ง <strong className='text-primary-700 text-[1.2em] relative underline decoration-1'>{jobTitle}</strong></h2>
 

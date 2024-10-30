@@ -12,6 +12,16 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [tokenDate, setTokenDate] = useState<string | null>(null);
 
+  const logOut = () => {
+    if (localStorage.authToken) {
+      localStorage.removeItem('authToken')
+
+      console.log('logout redirecting...');
+      
+      redirectToHome();
+    }
+  }
+
   useEffect(() => {
     async function initializeProfile() {
       // Check authentication
@@ -68,6 +78,7 @@ export default function ProfilePage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Profile</h1>
       <p>Token will expired at: {tokenDate}</p>
+      <button className='bg-red-500 text-white' onClick={()=>logOut()}>ออกจากระบบ</button>
       <div className="space-y-4">
         <div>
           <label className="font-medium">Name:</label>

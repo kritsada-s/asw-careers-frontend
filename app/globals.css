@@ -17,6 +17,10 @@ body {
   font-family: var(--font-sans);
 }
 
+:root {
+  --primary: #123F6D;
+}
+
 #header + div, #header + section {
   margin-top: 64px;
 }
@@ -170,3 +174,29 @@ body {
   background-image: url('/images/w-bg.png');
   background-size: cover;
 }
+
+.loader {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #fff;
+  box-shadow: 32px 0 #fff, -32px 0 #fff;
+  position: relative;
+  animation: flash 0.5s ease-out infinite alternate;
+}
+
+@keyframes flash {
+  0% {
+    background-color: var(--primary);
+    box-shadow: 32px 0 #FFF2, -32px 0 #FFF;
+  }
+  50% {
+    background-color: #FFF;
+    box-shadow: 32px 0 #FFF2, -32px 0 #FFF2;
+  }
+  100% {
+    background-color: var(--primary);
+    box-shadow: 32px 0 #FFF, -32px 0 #FFF2;
+  }
+}
+      
