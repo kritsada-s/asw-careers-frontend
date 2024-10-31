@@ -57,7 +57,7 @@ export default function JobsPage() {
 
   const handleJobSubmit = () => {
     if (localStorage.getItem('authToken')) {
-      window.location.href = '/apply-job/id='+selectedJob;
+      window.location.href = '/apply-job/'+selectedJob?.jobID;
     } else {
       console.log('can not submit please login.');
       openModal({

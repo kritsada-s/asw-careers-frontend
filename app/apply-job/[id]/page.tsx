@@ -1,6 +1,7 @@
 "use client";
 
 import { fetchPosition } from '@/lib/api';
+import { Position } from '@/lib/types';
 import { useParams } from 'next/navigation';
 import React, { useState, useEffect, useCallback } from 'react';
 import BasicInfoForm from '@/app/components/form/BasicInfoForm';
@@ -22,6 +23,9 @@ export default function ApplyJobPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [jobTitle, setJobTitle] = useState('');
+  const [jobId, setJobId] = useState<string>(params.id as string | '');
+  const [positions, setPositions] = useState<Position>();
+  const [selectedPosition, setSelectedPosition] = useState<string>('');
 
   // Initialize form data state
   const [formData, setFormData] = useState<FormData>({
@@ -59,6 +63,30 @@ export default function ApplyJobPage() {
       setCurrentStep(prev => prev - 1);
     }
   };
+
+  // Fetch positions on mount
+  useEffect(() => {
+    async function fetchPositions() {
+      try {
+        const response = await fetchPosition(jobId) as Position;
+        
+        setPositions(response);
+        
+        //If jobId exists, set the selected position
+        if (jobId) {
+          const position = response.jobPosition;
+          if (position) {
+            setJobTitle(position)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching positions:', error);
+      }
+    }
+
+    fetchPositions();
+  }, [jobId]);
+  
 
   // Final submit handler
   const handleSubmit = async () => {
@@ -103,7 +131,6 @@ export default function ApplyJobPage() {
     {
       component: BasicInfoForm,
       props: {
-        jobId: params.id,
         data: formData.basicInfo,
         updateData: (data: Partial<BasicInfo>) => updateFormData('basicInfo', data),
         onNext: handleNext,
@@ -157,6 +184,8 @@ export default function ApplyJobPage() {
           onNext={handleNext}
           onPrevious={handlePrevious}
           isLastStep={currentStep === formSteps.length - 1}
+          jobId={jobId}
+          jobTitle={jobTitle}
         />
       </div>
     </div>

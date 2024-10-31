@@ -69,20 +69,86 @@ export interface Position {
     createDate: Date
 }
 
+// Basic interfaces for nested objects
+interface Gender {
+    genderID: number;
+    description: string;
+}
 
+interface MaritalStatus {
+    maritalStatusID: number;
+    description: string;
+}
+
+interface Province {
+    provinceID: number;
+    nameTH: string;
+    nameEN: string;
+}
+
+interface District {
+    districtID: number;
+    provinceID: number;
+    nameTH: string;
+    nameEN: string;
+}
+
+interface Subdistrict {
+    subdistrictID: number;
+    districtID: number;
+    postCode: string | null;
+    nameTH: string;
+    nameEN: string;
+}
+
+interface SourceInformation {
+    sourceInformationID: number;
+    description: string;
+}
+
+interface CandidateEducation {
+    candidateID: string;
+    revision: number;
+    educationID: number;
+    major: string;
+}
+
+interface CandidateLanguage {
+    candidateID: string;
+    revision: number;
+    languageID: number;
+    level: number;
+}
+
+// Main FormData interface
 export interface FormData {
-    personalInfo?: {
-        firstName?: string;
-        lastName?: string;
-        // Add more fields as needed
-    };
-    workHistory?: {
-        // Work history fields
-    };
-    education?: {
-        // Education fields
-    };
-    // Add more sections as needed
+    candidateID: string;
+    expectedSalary: number;
+    experience: number;
+    revision: number;
+    email: string;
+    titleID: number;
+    firstName: string;
+    lastName: string;
+    nickName: string | null;
+    tel: string;
+    dateOfBirth: string;
+    gender: Gender;
+    maritalStatus: MaritalStatus;
+    imageUrl: string;
+    image: string | null;
+    cvUrl: string;
+    cv: string | null;
+    addressDetails: string;
+    province: Province;
+    district: District;
+    subdistrict: Subdistrict;
+    postalCode: string | null;
+    sourceInformation: SourceInformation;
+    pdpaAccepted: boolean;
+    pdpaAcceptedDate: string;
+    candidateEducations: CandidateEducation[];
+    candidateLanguages: CandidateLanguage[];
 }
 
 export interface FormStepProps {
@@ -91,6 +157,8 @@ export interface FormStepProps {
     onNext: () => void;
     onPrevious: () => void;
     isLastStep: boolean;
+    jobId: string;
+    jobTitle: string;
 }
 
 export interface BasicInfo {
