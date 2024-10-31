@@ -6,6 +6,7 @@ import { fetchCompanyLocations, fetchedJobs, fetchLocationByID } from '@/lib/api
 import { Job } from '@/lib/types';
 import { WorkLocation } from '../components/ui/WorkLocation';
 import { timeAgo } from '@/lib/utils';
+import { useSearchParams } from 'next/navigation';
 
 interface fetchedJobs {
   jobs: Job
@@ -16,6 +17,11 @@ export default function JobsPage() {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const params = useSearchParams();
+
+  const findJobById = (jobs: Job[], searchId: string | null): Job | null => {
+    return jobs.find(job => job.jobID === searchId) || null;
+  };
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -24,8 +30,13 @@ export default function JobsPage() {
         if (response) {
           setJobs(response.jobs);
           if (response.jobs.length > 0) {
-            setSelectedJob(response.jobs[0]);
-          }
+            if (params.get('id')) {
+              const paramsId = params.get('id');
+              setSelectedJob(findJobById(response.jobs, paramsId))
+            } else {
+              setSelectedJob(response.jobs[0]);
+            }
+          }          
         }
       } catch (err) {
         setError('Failed to fetch jobs');

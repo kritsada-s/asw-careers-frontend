@@ -5,10 +5,12 @@ import { Button } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
 import AuthModal from "../Auth/AuthModal";
+import { useModal } from "../MUIProvider";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthopen, setIsAuthOpen] = useState(false);
+  const { openModal } = useModal();
 
   const menuItems = [
     "ตำแหน่งงาน",
@@ -24,7 +26,18 @@ const Header = () => {
     if (localStorage.authToken) {
       window.location.href = '/profile'
     } else {
-      setIsAuthOpen(true)
+      openModal({
+        type: 'auth',
+        props: {
+          initialStep: 'otp'
+        },
+        onSuccess: (data) => {
+          console.log('Login successful:', data);
+        },
+        onError: (error) => {
+          console.error('Login failed:', error);
+        }
+      });
     }
   }
 

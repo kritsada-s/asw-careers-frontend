@@ -10,11 +10,13 @@ import OtpStep from './Otp';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: (data:any) => void;
+  onError?: (data:any) => void;
 }
 
 type AuthStep = 'email' | 'otp' | 'success';
 
-export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, onSuccess, onError }: AuthModalProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<AuthStep>('email');
   const [email, setEmail] = useState('');

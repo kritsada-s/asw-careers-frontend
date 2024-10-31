@@ -107,3 +107,12 @@ export interface TokenProps {
     CreateDate: string;
     ExpiredDate: string;
   }
+
+export type ModalType = 'auth' | 'confirm' | 'alert';
+
+export interface ModalConfig {
+  type: ModalType;
+  props?: Record<string, any>;
+  onSuccess?: (data?: any) => void;
+  onError?: (error?: any) => void;
+}
