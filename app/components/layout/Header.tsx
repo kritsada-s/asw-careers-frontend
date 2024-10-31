@@ -51,10 +51,10 @@ const Header = () => {
         </div>
         <div className="menu-wrapper flex gap-4">
           <nav className="hidden md:flex gap-4 items-center">
-            <Link href={{ pathname:'jobs' }} title="">ตำแหน่งงาน</Link>
+            <Link href={{ pathname:'/jobs' }} title="">ตำแหน่งงาน</Link>
             <Link href="/#welfareBenefit" title="">สวัสดิการ</Link>
           </nav>
-          <Button onClick={()=>checkLogin()} variant="contained" color="success" size="medium" className="leading-none rounded-xl px-4 font-semibold">ตรวจสอบสถานะ</Button>
+          <Button onClick={()=>checkLogin()} variant="contained" color="success" size="medium" className="leading-none px-4 font-semibold" sx={{ borderRadius: '30px' }}>ตรวจสอบสถานะ</Button>
         </div>
       </div>
       <AuthModal isOpen={isAuthopen} onClose={()=>setIsAuthOpen(false)}/>

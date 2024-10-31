@@ -2,95 +2,48 @@
 
 import { fetchPosition } from '@/lib/api';
 import { useParams } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
-import PersonalInfoForm from '@/app/components/form/PersonalInfoForm';
-import { FormStep, FormStepProps } from '@/lib/types';
+import React, { useState, useEffect, useCallback } from 'react';
 import BasicInfoForm from '@/app/components/form/BasicInfoForm';
+import PersonalInfoForm from '@/app/components/form/PersonalInfoForm';
+import AddressInfoForm from '@/app/components/form/AddressInfoForm';
+import OthersInfoForm from '@/app/components/form/OthersInfoForm';
+import { FormStep, FormStepProps, BasicInfo, AddressInfo, PersonalInfo, OtherInfo} from '@/lib/types';
 import { ProgressSteps } from '@/app/components/layout/FormProgress';
 
-// Types for form data
 interface FormData {
-  personalInfo?: {
-    firstName?: string;
-    lastName?: string;
-    // Add more fields as needed
-  };
-  workHistory?: {
-    // Work history fields
-  };
-  education?: {
-    // Education fields
-  };
-  // Add more sections as needed
+  basicInfo: BasicInfo;
+  addressInfo: AddressInfo;
+  personalInfo: PersonalInfo;
+  otherInfo: OtherInfo;
 }
 
 export default function ApplyJobPage() {
   const params = useParams();
-  const jobId = params.id as string;
-
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState<FormData>({});
-  const [jobTitle, setJobTitle] = useState<string>('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [jobTitle, setJobTitle] = useState('');
 
-  // Fetch job details
-  useEffect(() => {
-    const fetchJobDetails = async () => {
-      try {
-        const response = await fetchPosition(jobId);
-        if (response) {
-          setJobTitle(response.jobPosition);
-        }
-      } catch (err) {
-        setError('Failed to load job details');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Initialize form data state
+  const [formData, setFormData] = useState<FormData>({
+    basicInfo: {},
+    addressInfo: {},
+    personalInfo: {},
+    otherInfo: {}
+  });
 
-    fetchJobDetails();
-  }, [jobId]);
-
-  // Form steps configuration - you can add more steps here
-  const formSteps: FormStep[] = [
-    {
-      id: 1,
-      title: "ข้อมูลเบื้องต้น",
-      description: "กรอกข้อมูลให้ครบถ้วน",
-      component: BasicInfoForm // You'll create this component later
-    },
-    {
-      id: 2,
-      title: "ข้อมูลส่วนตัว",
-      description: "กรอกข้อมูลให้ครบถ้วน",
-      component: PersonalInfoForm // You'll create this component later
-    },
-    {
-      id: 3,
-      title: "ที่อยู่",
-      description: "กรอกข้อมูลให้ครบถ้วน",
-      component: PersonalInfoForm // You'll create this component later
-    },
-    {
-      id: 4,
-      title: "ข้อมูลอื่น ๆ",
-      description: "กรอกข้อมูลให้ครบถ้วน",
-      component: PersonalInfoForm // You'll create this component later
-    },
-  ];
-
-  // Update form data
-  const updateFormData = (sectionKey: keyof FormData, data: any) => {
+  // Form update handler
+  const updateFormData = useCallback((
+    section: keyof FormData,
+    data: Partial<BasicInfo | AddressInfo | PersonalInfo | OtherInfo>
+  ) => {
     setFormData(prev => ({
       ...prev,
-      [sectionKey]: {
-        ...(prev[sectionKey] || {}),
+      [section]: {
+        ...prev[section],
         ...data
       }
     }));
-  };
+  }, []);
 
   // Navigation handlers
   const handleNext = () => {
@@ -107,19 +60,87 @@ export default function ApplyJobPage() {
     }
   };
 
-  // Form submission
+  // Final submit handler
   const handleSubmit = async () => {
+    setIsSubmitting(true);
     try {
-      // Add your submission logic here
-      console.log('Form data to submit:', formData);
-      // await submitApplication(jobId, formData);
+      // Create FormData instance for file uploads
+      const submitData = new FormData();
+
+      // Append basic form data
+      Object.entries(formData).forEach(([section, data]) => {
+        Object.entries(data).forEach(([key, value]) => {
+          if (value instanceof File) {
+            submitData.append(`${section}.${key}`, value);
+          } else if (Array.isArray(value)) {
+            value.forEach((item, index) => {
+              if (item instanceof File) {
+                submitData.append(`${section}.${key}.${index}`, item);
+              } else {
+                submitData.append(`${section}.${key}.${index}`, String(item));
+              }
+            });
+          } else {
+            submitData.append(`${section}.${key}`, String(value));
+          }
+        });
+      });
+
+      // Your API call here
+      // await submitApplication(submitData);
+
+      // Handle success (e.g., redirect or show success message)
     } catch (error) {
       console.error('Error submitting application:', error);
+      // Handle error
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  if (loading) return <div className="min-h-[600px] flex justify-center items-center"><div className="loader"></div></div>;
-  if (error) return <div>Error: {error}</div>;
+  // Form step components with their props
+  const formSteps: FormStep[] = [
+    {
+      component: BasicInfoForm,
+      props: {
+        jobId: params.id,
+        data: formData.basicInfo,
+        updateData: (data: Partial<BasicInfo>) => updateFormData('basicInfo', data),
+        onNext: handleNext,
+        isSubmitting: isSubmitting
+      }
+    },
+    {
+      component: AddressInfoForm,
+      props: {
+        data: formData.addressInfo,
+        updateData: (data: Partial<AddressInfo>) => updateFormData('addressInfo', data),
+        onNext: handleNext,
+        onPrevious: handlePrevious,
+        isSubmitting: isSubmitting
+      }
+    },
+    {
+      component: PersonalInfoForm,
+      props: {
+        data: formData.personalInfo,
+        updateData: (data: Partial<PersonalInfo>) => updateFormData('personalInfo', data),
+        onNext: handleNext,
+        onPrevious: handlePrevious,
+        isSubmitting: isSubmitting
+      }
+    },
+    {
+      component: OthersInfoForm,
+      props: {
+        data: formData.otherInfo,
+        updateData: (data: Partial<OtherInfo>) => updateFormData('otherInfo', data),
+        onSubmit: handleSubmit,
+        onPrevious: handlePrevious,
+        isSubmitting: isSubmitting
+      }
+    }
+  ];
 
   const CurrentStepComponent = formSteps[currentStep].component;
 

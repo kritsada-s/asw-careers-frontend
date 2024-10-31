@@ -12,7 +12,7 @@ export function ProgressSteps({ steps, currentStep }: ProgressStepsProps) {
     <div className="w-full lg:w-3/4 py-4 mx-auto">
       <div className="flex items-baseline z-10 relative">
         {steps.map((step, index) => (
-          <React.Fragment key={step.id}>
+          <React.Fragment key={index}>
             {/* Step Node */}
             <div className="flex flex-col items-center relative flex-1">
               {/* Circle */}
