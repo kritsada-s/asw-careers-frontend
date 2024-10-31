@@ -67,13 +67,16 @@ export default function HomeWorksLocation() {
             {/* Left side - Image */}
             <div className="w-full md:w-3/5 relative">
             <div className="image-wrapper h-[400px]">
+              { locationData.map((img, index)=>(
                 <Image
-                    src={locationData[realIndex].imagePath}
-                    alt={locationData[realIndex].title}
-                    fill
-                    className="object-cover rounded-lg transition-all duration-500 ease-in-out shadow-xl"
-                    priority
+                  src={img.imagePath}
+                  alt={img.title}
+                  fill
+                  className={`object-cover rounded-lg transition-all duration-500 ease-in-out shadow-xl ${ realIndex+1 === img.id ? 'opacity-100':'opacity-0' }`}
+                  priority
+                  key={index}
                 />
+              )) }
             </div>
             </div>
 
