@@ -38,8 +38,8 @@ const Header = () => {
         </div>
         <div className="menu-wrapper flex gap-4">
           <nav className="hidden md:flex gap-4 items-center">
-            <a href="#" title="">ตำแหน่งงาน</a>
-            <a href="#" title="">สวัสดิการ</a>
+            <Link href={{ pathname:'jobs' }} title="">ตำแหน่งงาน</Link>
+            <Link href="/#welfareBenefit" title="">สวัสดิการ</Link>
           </nav>
           <Button onClick={()=>checkLogin()} variant="contained" color="success" size="medium" className="leading-none rounded-xl px-4 font-semibold">ตรวจสอบสถานะ</Button>
         </div>

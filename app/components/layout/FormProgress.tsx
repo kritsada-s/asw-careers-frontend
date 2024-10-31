@@ -10,7 +10,7 @@ interface ProgressStepsProps {
 export function ProgressSteps({ steps, currentStep }: ProgressStepsProps) {
   return (
     <div className="w-full lg:w-3/4 py-4 mx-auto">
-      <div className="flex items-baseline">
+      <div className="flex items-baseline z-10 relative">
         {steps.map((step, index) => (
           <React.Fragment key={step.id}>
             {/* Step Node */}

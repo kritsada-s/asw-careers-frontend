@@ -176,27 +176,15 @@ body {
 }
 
 .loader {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  aspect-ratio: 1;
   border-radius: 50%;
-  background-color: #fff;
-  box-shadow: 32px 0 #fff, -32px 0 #fff;
-  position: relative;
-  animation: flash 0.5s ease-out infinite alternate;
+  animation: l5 1s infinite linear alternate;
 }
-
-@keyframes flash {
-  0% {
-    background-color: var(--primary);
-    box-shadow: 32px 0 #FFF2, -32px 0 #FFF;
-  }
-  50% {
-    background-color: #FFF;
-    box-shadow: 32px 0 #FFF2, -32px 0 #FFF2;
-  }
-  100% {
-    background-color: var(--primary);
-    box-shadow: 32px 0 #FFF, -32px 0 #FFF2;
-  }
+@keyframes l5 {
+    0%  {box-shadow: 20px 0 #000, -20px 0 #0002;background: #000 }
+    33% {box-shadow: 20px 0 #000, -20px 0 #0002;background: #0002}
+    66% {box-shadow: 20px 0 #0002,-20px 0 #000; background: #0002}
+    100%{box-shadow: 20px 0 #0002,-20px 0 #000; background: #000 }
 }
       

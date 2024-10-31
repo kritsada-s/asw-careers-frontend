@@ -47,7 +47,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({ onSearch }) => {
         endAdornment: (
           <InputAdornment position="end">
             <Button onClick={handleSearch}
-              className='bg-primary text-primary-foreground px-5 lg:px-8 py-2 text-[22px] rounded-[10px] flex gap-1 leading-none'>
+              className='bg-primary-700 text-primary-foreground px-5 lg:px-8 py-2 text-[22px] rounded-[10px] flex gap-1 leading-none'>
                 <svg className="text-white w-[18px] h-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeWidth="2" d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
                 ค้นหา
             </Button>
