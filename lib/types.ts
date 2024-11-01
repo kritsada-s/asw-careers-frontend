@@ -120,46 +120,49 @@ interface CandidateLanguage {
     level: number;
 }
 
-// Main FormData interface
-export interface FormData {
-    candidateID: string;
-    expectedSalary: number;
-    experience: number;
-    revision: number;
-    email: string;
-    titleID: number;
-    firstName: string;
-    lastName: string;
-    nickName: string | null;
-    tel: string;
-    dateOfBirth: string;
-    gender: Gender;
-    maritalStatus: MaritalStatus;
-    imageUrl: string;
-    image: string | null;
-    cvUrl: string;
-    cv: string | null;
-    addressDetails: string;
-    province: Province;
-    district: District;
-    subdistrict: Subdistrict;
-    postalCode: string | null;
-    sourceInformation: SourceInformation;
-    pdpaAccepted: boolean;
-    pdpaAcceptedDate: string;
-    candidateEducations: CandidateEducation[];
-    candidateLanguages: CandidateLanguage[];
+export interface ApplicationFormData {
+    // Basic Info
+    position?: string;
+    expectedSalary?: string;
+    experience?: string;
+    profileImage?: File;
+    cv?: File;
+
+    // Address Info
+    addressLine1?: string;
+    addressLine2?: string;
+    province?: string;
+    district?: string;
+    postalCode?: string;
+
+    // Personal Info
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    birthDate?: string;
+
+    // Other Info
+    education?: string;
+    skills?: string[];
+    certificates?: File[];
 }
 
+export type FormField = keyof ApplicationFormData;
+
 export interface FormStepProps {
-    formData: FormData;
-    updateFormData: (sectionKey: keyof FormData, data: any) => void;
+    formData: ApplicationFormData;
+    updateField: (field: keyof ApplicationFormData, value: any) => void;
+    markFieldTouched: (field: keyof ApplicationFormData) => void;
+    isFieldTouched: (field: keyof ApplicationFormData) => boolean;
     onNext: () => void;
-    onPrevious: () => void;
+    onPrevious?: () => void;
+    isSubmitting: boolean;
+    isFirstStep: boolean;
     isLastStep: boolean;
-    jobId: string;
-    jobTitle: string;
-}
+    jobId?: string;
+    jobTitle?: string;
+  }
 
 export interface BasicInfo {
     position?: string;

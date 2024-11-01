@@ -1,192 +1,197 @@
 "use client";
 
 import { fetchPosition } from '@/lib/api';
-import { Position } from '@/lib/types';
+import { Position, ApplicationFormData } from '@/lib/types';
 import { useParams } from 'next/navigation';
 import React, { useState, useEffect, useCallback } from 'react';
 import BasicInfoForm from '@/app/components/form/BasicInfoForm';
 import PersonalInfoForm from '@/app/components/form/PersonalInfoForm';
 import AddressInfoForm from '@/app/components/form/AddressInfoForm';
 import OthersInfoForm from '@/app/components/form/OthersInfoForm';
-import { FormStep, FormStepProps, BasicInfo, AddressInfo, PersonalInfo, OtherInfo} from '@/lib/types';
 import { ProgressSteps } from '@/app/components/layout/FormProgress';
+import { useApplicationForm } from '@/app/hooks/useForm';
 
-interface FormData {
-  basicInfo: BasicInfo;
-  addressInfo: AddressInfo;
-  personalInfo: PersonalInfo;
-  otherInfo: OtherInfo;
-}
+// Move to constants file later
+const FORM_STEPS = [
+  { id: 'basic', title: 'ข้อมูลเบื้องต้น' },
+  { id: 'address', title: 'ที่อยู่' },
+  { id: 'personal', title: 'ข้อมูลส่วนตัว' },
+  { id: 'others', title: 'ข้อมูลเพิ่มเติม' }
+] as const;
 
 export default function ApplyJobPage() {
   const params = useParams();
+  const jobId = params.id as string;
+  
+  // States
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [jobTitle, setJobTitle] = useState('');
-  const [jobId, setJobId] = useState<string>(params.id as string | '');
-  const [positions, setPositions] = useState<Position>();
-  const [selectedPosition, setSelectedPosition] = useState<string>('');
+  const [position, setPosition] = useState<Position | null>(null);
 
-  // Initialize form data state
-  const [formData, setFormData] = useState<FormData>({
-    basicInfo: {},
-    addressInfo: {},
-    personalInfo: {},
-    otherInfo: {}
-  });
-
-  // Form update handler
-  const updateFormData = useCallback((
-    section: keyof FormData,
-    data: Partial<BasicInfo | AddressInfo | PersonalInfo | OtherInfo>
-  ) => {
-    setFormData(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        ...data
-      }
-    }));
-  }, []);
+  const {
+    formData,
+    updateField,
+    markFieldTouched,
+    isFieldTouched
+  } = useApplicationForm();
 
   // Navigation handlers
-  const handleNext = () => {
-    if (currentStep < formSteps.length - 1) {
-      setCurrentStep(prev => prev + 1);
-    } else {
-      handleSubmit();
-    }
-  };
+  const handleNext = useCallback(() => {
+    setCurrentStep(prev => Math.min(prev + 1, FORM_STEPS.length - 1));
+  }, []);
 
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1);
-    }
-  };
+  const handlePrevious = useCallback(() => {
+    setCurrentStep(prev => Math.max(prev - 1, 0));
+  }, []);
 
-  // Fetch positions on mount
+  // Fetch position data
   useEffect(() => {
-    async function fetchPositions() {
+    if (!jobId) return;
+
+    async function loadPosition() {
       try {
-        const response = await fetchPosition(jobId) as Position;
-        
-        setPositions(response);
-        
-        //If jobId exists, set the selected position
-        if (jobId) {
-          const position = response.jobPosition;
-          if (position) {
-            setJobTitle(position)
-          }
-        }
+        const data = await fetchPosition(jobId);
+        setPosition(data);
+        setJobTitle(data.jobPosition);
       } catch (error) {
-        console.error('Error fetching positions:', error);
+        console.error('Error fetching position:', error);
       }
     }
 
-    fetchPositions();
+    loadPosition();
   }, [jobId]);
-  
 
-  // Final submit handler
+  // Form submission
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      // Create FormData instance for file uploads
       const submitData = new FormData();
 
-      // Append basic form data
-      Object.entries(formData).forEach(([section, data]) => {
-        Object.entries(data).forEach(([key, value]) => {
+      // Append form data
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== undefined) {
           if (value instanceof File) {
-            submitData.append(`${section}.${key}`, value);
+            submitData.append(key, value);
           } else if (Array.isArray(value)) {
             value.forEach((item, index) => {
               if (item instanceof File) {
-                submitData.append(`${section}.${key}.${index}`, item);
+                submitData.append(`${key}[${index}]`, item);
               } else {
-                submitData.append(`${section}.${key}.${index}`, String(item));
+                submitData.append(`${key}[${index}]`, String(item));
               }
             });
           } else {
-            submitData.append(`${section}.${key}`, String(value));
+            submitData.append(key, String(value));
           }
-        });
+        }
       });
+
+      // Add position data
+      if (position) {
+        submitData.append('positionId', position.jobID);
+        submitData.append('positionTitle', position.jobPosition);
+      }
 
       // Your API call here
       // await submitApplication(submitData);
-
+      
       // Handle success (e.g., redirect or show success message)
+      
     } catch (error) {
-      console.error('Error submitting application:', error);
-      // Handle error
+      console.error('Submission error:', error);
+      // Handle error (e.g., show error message)
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Form step components with their props
-  const formSteps: FormStep[] = [
+  // Form steps configuration
+  const formSteps = [
     {
       component: BasicInfoForm,
       props: {
-        data: formData.basicInfo,
-        updateData: (data: Partial<BasicInfo>) => updateFormData('basicInfo', data),
+        jobId,
+        jobTitle,
+        formData,
+        updateField,
+        markFieldTouched,
+        isFieldTouched,
         onNext: handleNext,
-        isSubmitting: isSubmitting
+        isSubmitting,
+        isFirstStep: true,
+        isLastStep: false
       }
     },
     {
       component: AddressInfoForm,
       props: {
-        data: formData.addressInfo,
-        updateData: (data: Partial<AddressInfo>) => updateFormData('addressInfo', data),
+        formData,
+        updateField,
+        markFieldTouched,
+        isFieldTouched,
         onNext: handleNext,
         onPrevious: handlePrevious,
-        isSubmitting: isSubmitting
+        isSubmitting,
+        isFirstStep: false,
+        isLastStep: false
       }
     },
     {
       component: PersonalInfoForm,
       props: {
-        data: formData.personalInfo,
-        updateData: (data: Partial<PersonalInfo>) => updateFormData('personalInfo', data),
+        formData,
+        updateField,
+        markFieldTouched,
+        isFieldTouched,
         onNext: handleNext,
         onPrevious: handlePrevious,
-        isSubmitting: isSubmitting
+        isSubmitting,
+        isFirstStep: false,
+        isLastStep: false
       }
     },
     {
       component: OthersInfoForm,
       props: {
-        data: formData.otherInfo,
-        updateData: (data: Partial<OtherInfo>) => updateFormData('otherInfo', data),
-        onSubmit: handleSubmit,
+        formData,
+        updateField,
+        markFieldTouched,
+        isFieldTouched,
+        onNext: handleSubmit,
         onPrevious: handlePrevious,
-        isSubmitting: isSubmitting
+        isSubmitting,
+        isFirstStep: false,
+        isLastStep: true
       }
     }
   ];
 
   const CurrentStepComponent = formSteps[currentStep].component;
+  const currentStepProps = formSteps[currentStep].props;
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <ProgressSteps currentStep={currentStep} steps={formSteps}/>
+      {/* Progress Steps */}
+      <ProgressSteps 
+        currentStep={currentStep} 
+        steps={FORM_STEPS.map((step, index) => ({
+          title: step.title,
+          isCompleted: index < currentStep
+        }))} 
+      />
 
-      <h2 className="text-[30px] lg:text-[40px] text-gray-600 text-center mb-6">สมัครงานตำแหน่ง <strong className='text-primary-700 text-[1.2em] relative underline decoration-1'>{jobTitle}</strong></h2>
+      {/* Title */}
+      <h2 className="text-[30px] lg:text-[40px] text-gray-600 text-center mb-6">
+        สมัครงานตำแหน่ง{' '}
+        <strong className='text-primary-700 text-[1.2em] relative underline decoration-1'>
+          {jobTitle}
+        </strong>
+      </h2>
 
+      {/* Form Container */}
       <div className="bg-[#F2F9FF] rounded-lg shadow p-3 lg:p-6">
-        <CurrentStepComponent
-          formData={formData}
-          updateFormData={updateFormData}
-          onNext={handleNext}
-          onPrevious={handlePrevious}
-          isLastStep={currentStep === formSteps.length - 1}
-          jobId={jobId}
-          jobTitle={jobTitle}
-        />
+        <CurrentStepComponent {...currentStepProps} />
       </div>
     </div>
   );

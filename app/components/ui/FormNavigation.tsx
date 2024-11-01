@@ -12,9 +12,9 @@ interface FormNavigationProps {
 export default function FormNavigation({
   onPrevious,
   onNext,
-  isFirstStep = false,
-  isLastStep = false,
-  isSubmitting = false
+  isFirstStep,
+  isLastStep,
+  isSubmitting
 }: FormNavigationProps) {
   return (
     <div className="flex justify-between mt-8 pt-4 border-t border-gray-200">
@@ -38,7 +38,7 @@ export default function FormNavigation({
         <button
           type="submit"
           className={`px-4 py-2 text-white font-medium border-[3px] rounded transition-colors w-full disabled:bg-blue-300 flex items-center justify-center gap-1 ` + (isLastStep ? 'bg-green-700 hover:bg-green-600 hover:border-green-600 border-green-700':'bg-primary-700 hover:bg-primary-600 border-primary-700')}
-          disabled={isSubmitting}
+          disabled={isSubmitting} onClick={onNext}
         >
           {isSubmitting ? (
             <span className="flex items-center justify-center">
