@@ -1,8 +1,8 @@
-// app/apply-job/[id]/page.tsx
 "use client";
 
 import { fetchPosition } from '@/lib/api';
 import { Position, ApplicationFormData } from '@/lib/types';
+import { Candidate } from '@/lib/form';
 import { useParams } from 'next/navigation';
 import React, { useState, useEffect, useCallback } from 'react';
 import BasicInfoForm from '@/app/components/form/BasicInfoForm';
@@ -15,10 +15,15 @@ import { useApplicationForm } from '@/app/hooks/useForm';
 // Move to constants file later
 const FORM_STEPS = [
   { id: 'basic', title: 'ข้อมูลเบื้องต้น' },
-  { id: 'address', title: 'ที่อยู่' },
   { id: 'personal', title: 'ข้อมูลส่วนตัว' },
+  { id: 'address', title: 'ที่อยู่' },
   { id: 'others', title: 'ข้อมูลเพิ่มเติม' }
 ] as const;
+
+interface FormStep {
+  id: number;
+  title: string;
+}
 
 export default function ApplyJobPage() {
   const params = useParams();
@@ -72,11 +77,11 @@ export default function ApplyJobPage() {
       Object.entries(formData).forEach(([key, value]) => {
         if (value !== undefined) {
           if (value instanceof File) {
-            submitData.append(key, value);
+            submitData.append(key, value, value.name);
           } else if (Array.isArray(value)) {
             value.forEach((item, index) => {
               if (item instanceof File) {
-                submitData.append(`${key}[${index}]`, item);
+                submitData.append(`${key}[${index}]`, item, item.name);
               } else {
                 submitData.append(`${key}[${index}]`, String(item));
               }
@@ -92,6 +97,64 @@ export default function ApplyJobPage() {
         submitData.append('positionId', position.jobID);
         submitData.append('positionTitle', position.jobPosition);
       }
+
+      console.log('Form Data Files:', {
+        profileImage: submitData.get('profileImage'),
+        cv: submitData.get('cv')
+      });
+
+      const candidateData: Candidate = {
+        JobID: jobId,
+        CandidateID: '', // Assuming this will be generated or fetched from somewhere
+        Revision: 1, // Assuming a default revision number
+        Email: formData.email || '',
+        TitleID: 0, // Assuming this will be set based on your application logic
+        FirstName: formData.firstName || '',
+        LastName: formData.lastName || '',
+        NickName: '', // Assuming this is optional or can be set later
+        Tel: formData.phone || '',
+        DateOfBirth: formData.birthDate || '',
+        Gender: {
+          GenderID: 0, // Assuming this will be set based on your application logic
+          Description: '' // Assuming this will be set based on your application logic
+        },
+        MaritalStatus: {
+          MaritalStatusID: 0, // Assuming this will be set based on your application logic
+          Description: '' // Assuming this will be set based on your application logic
+        },
+        ImageUrl: '', // Assuming this will be set based on your application logic
+        CVUrl: '', // Assuming this will be set based on your application logic
+        AddressDetails: `${formData.addressLine1 || ''}, ${formData.addressLine2 || ''}`,
+        Province: {
+          ProvinceID: 0, // Assuming this will be set based on your application logic
+          NameTH: formData.province || '',
+          NameEN: '' // Assuming this will be set based on your application logic
+        },
+        District: {
+          DistrictID: 0, // Assuming this will be set based on your application logic
+          ProvinceID: 0, // Assuming this will be set based on your application logic
+          NameTH: formData.district || '',
+          NameEN: '' // Assuming this will be set based on your application logic
+        },
+        Subdistrict: {
+          SubdistrictID: 0, // Assuming this will be set based on your application logic
+          DistrictID: 0, // Assuming this will be set based on your application logic
+          PostCode: formData.postalCode || '',
+          NameTH: '', // Assuming this will be set based on your application logic
+          NameEN: '' // Assuming this will be set based on your application logic
+        },
+        PostalCode: formData.postalCode || '',
+        SourceInformation: {
+          SourceInformationID: 0, // Assuming this will be set based on your application logic
+          Description: '' // Assuming this will be set based on your application logic
+        },
+        PDPAAccepted: false, // Assuming this will be set based on your application logic
+        PDPAAcceptedDate: '', // Assuming this will be set based on your application logic
+        CandidateEducations: [], // Assuming this will be set based on your application logic
+        CandidateLanguages: [] // Assuming this will be set based on your application logic
+      };
+
+      console.log('Candidate Data:', candidateData);
 
       // Your API call here
       // await submitApplication(submitData);
@@ -124,7 +187,7 @@ export default function ApplyJobPage() {
       }
     },
     {
-      component: AddressInfoForm,
+      component: PersonalInfoForm,
       props: {
         formData,
         updateField,
@@ -138,7 +201,7 @@ export default function ApplyJobPage() {
       }
     },
     {
-      component: PersonalInfoForm,
+      component: AddressInfoForm,
       props: {
         formData,
         updateField,
@@ -167,16 +230,8 @@ export default function ApplyJobPage() {
     }
   ];
 
-  const currentStepProps = formSteps[currentStep].props;
   const CurrentStepComponent = formSteps[currentStep].component;
   const currentStepProps = formSteps[currentStep].props;
-
-  const steps:FormStep[] = [
-    { id: 1, title: 'ข้อมูลเบื้องต้น' },
-    { id: 2, title: 'ที่อยู่' },
-    { id: 3, title: 'ข้อมูลส่วนตัว' },
-    { id: 4, title: 'ข้อมูลเพิ่มเติม' }
-  ];
 
   return (
     <div className="container mx-auto px-4 py-8">

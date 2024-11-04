@@ -54,3 +54,86 @@ export function useDepartment(comp: string, did: string) {
 
   return { department, isLoading };
 }
+
+export function useProvinces() {
+  interface Province {
+    districtID: number;
+    provinceID: number;
+    nameTH: string;
+    nameEN: string;
+  }
+
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProvinces() {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(devUrl+'/Address/Provinces');
+        setProvinces(response.data); // Assuming the response data is an array of province names
+      } catch (error) {
+        console.error('Error fetching provinces:', error);
+        setProvinces([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchProvinces();
+  }, []);
+
+  return { provinces, isLoading };
+}
+
+export function useDistricts(provinceId: number) {
+  const [districts, setDistricts] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchDistricts() {
+      if (provinceId === undefined) return; // Avoid fetching if provinceId is not provided
+      try {
+        setIsLoading(true);
+        const response = await axios.get(`/Address/Districts/${provinceId}`);
+        setDistricts(response.data); // Assuming the response data is an array of district names
+      } catch (error) {
+        console.error('Error fetching districts:', error);
+        setDistricts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchDistricts();
+  }, [provinceId]);
+
+  return { districts, isLoading };
+}
+
+export function useSubDistrict(districtId: number) {
+  const [subDistrict, setSubDistrict] = useState<any>(null); // Adjust type as necessary
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchSubDistrict() {
+      if (districtId === undefined) return; // Avoid fetching if districtId is not provided
+      try {
+        setIsLoading(true);
+        const response = await axios.get(`/Address/Districts/${districtId}`);
+        setSubDistrict(response.data); // Assuming the response data contains sub-district details
+      } catch (error) {
+        console.error('Error fetching sub-district details:', error);
+        setSubDistrict(null);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchSubDistrict();
+  }, [districtId]);
+
+  return { subDistrict, isLoading };
+}
+
+

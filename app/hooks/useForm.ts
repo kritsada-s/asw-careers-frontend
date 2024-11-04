@@ -1,6 +1,4 @@
-// hooks/useForm.ts
-
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ApplicationFormData, FormField } from '@/lib/types';
 
 export function useApplicationForm(initialData: Partial<ApplicationFormData> = {}) {
@@ -8,6 +6,11 @@ export function useApplicationForm(initialData: Partial<ApplicationFormData> = {
     initialData as ApplicationFormData
   );
   const [touchedFields, setTouchedFields] = useState<Set<FormField>>(new Set());
+
+  // Add debug logging
+  useEffect(() => {
+    console.log('Current form data:', formData);
+  }, [formData]);
 
   // Update single field
   const updateField = useCallback((field: FormField, value: any) => {
