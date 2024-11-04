@@ -7,6 +7,7 @@ import { Job } from '@/lib/types';
 import { WorkLocation } from '../components/ui/WorkLocation';
 import { timeAgo } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
+import { useModal } from '../components/MUIProvider';
 
 interface fetchedJobs {
   jobs: Job
@@ -18,6 +19,7 @@ export default function JobsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const params = useSearchParams();
+  const { openModal } = useModal()
 
   const findJobById = (jobs: Job[], searchId: string | null): Job | null => {
     return jobs.find(job => job.jobID === searchId) || null;
@@ -54,8 +56,16 @@ export default function JobsPage() {
   };
 
   const handleJobSubmit = () => {
-    if (selectedJob) {
-      console.log('job submitting');
+    if (localStorage.getItem('authToken')) {
+      window.location.href = '/apply-job/'+selectedJob?.jobID;
+    } else {
+      console.log('can not submit please login.');
+      openModal({
+        type: 'auth',
+        props: {
+          initialStep: 'email'
+        }
+      })
     }
   };
 

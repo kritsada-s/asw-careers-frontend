@@ -1,5 +1,7 @@
+// hooks/useForm.ts
+
 import { useState, useCallback } from 'react';
-import { ApplicationFormData, FormField } from '@/lib/form';
+import { ApplicationFormData, FormField } from '@/lib/types';
 
 export function useApplicationForm(initialData: Partial<ApplicationFormData> = {}) {
   const [formData, setFormData] = useState<ApplicationFormData>(

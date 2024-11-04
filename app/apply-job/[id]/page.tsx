@@ -1,22 +1,34 @@
 // app/apply-job/[id]/page.tsx
 "use client";
 
-import { useState, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useApplicationForm } from '@/app/hooks/useForm';
-import type { ApplicationFormData } from '@/lib/form';
+import { fetchPosition } from '@/lib/api';
+import { Position, ApplicationFormData } from '@/lib/types';
+import { useParams } from 'next/navigation';
+import React, { useState, useEffect, useCallback } from 'react';
 import BasicInfoForm from '@/app/components/form/BasicInfoForm';
-import AddressInfoForm from '@/app/components/form/AddressInfoForm';
 import PersonalInfoForm from '@/app/components/form/PersonalInfoForm';
+import AddressInfoForm from '@/app/components/form/AddressInfoForm';
 import OthersInfoForm from '@/app/components/form/OthersInfoForm';
 import { ProgressSteps } from '@/app/components/layout/FormProgress';
-import { FormStep } from '@/lib/types';
+import { useApplicationForm } from '@/app/hooks/useForm';
+
+// Move to constants file later
+const FORM_STEPS = [
+  { id: 'basic', title: 'ข้อมูลเบื้องต้น' },
+  { id: 'address', title: 'ที่อยู่' },
+  { id: 'personal', title: 'ข้อมูลส่วนตัว' },
+  { id: 'others', title: 'ข้อมูลเพิ่มเติม' }
+] as const;
 
 export default function ApplyJobPage() {
   const params = useParams();
-  const router = useRouter();
+  const jobId = params.id as string;
+  
+  // States
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [jobTitle, setJobTitle] = useState('');
+  const [position, setPosition] = useState<Position | null>(null);
 
   const {
     formData,
@@ -27,40 +39,85 @@ export default function ApplyJobPage() {
 
   // Navigation handlers
   const handleNext = useCallback(() => {
-    setCurrentStep(prev => prev + 1);
+    setCurrentStep(prev => Math.min(prev + 1, FORM_STEPS.length - 1));
   }, []);
 
   const handlePrevious = useCallback(() => {
-    if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1);
+    setCurrentStep(prev => Math.max(prev - 1, 0));
+  }, []);
+
+  // Fetch position data
+  useEffect(() => {
+    if (!jobId) return;
+
+    async function loadPosition() {
+      try {
+        const data = await fetchPosition(jobId);
+        setPosition(data);
+        setJobTitle(data.jobPosition);
+      } catch (error) {
+        console.error('Error fetching position:', error);
+      }
     }
-  }, [currentStep]);
+
+    loadPosition();
+  }, [jobId]);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      // Your submission logic
+      const submitData = new FormData();
+
+      // Append form data
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== undefined) {
+          if (value instanceof File) {
+            submitData.append(key, value);
+          } else if (Array.isArray(value)) {
+            value.forEach((item, index) => {
+              if (item instanceof File) {
+                submitData.append(`${key}[${index}]`, item);
+              } else {
+                submitData.append(`${key}[${index}]`, String(item));
+              }
+            });
+          } else {
+            submitData.append(key, String(value));
+          }
+        }
+      });
+
+      // Add position data
+      if (position) {
+        submitData.append('positionId', position.jobID);
+        submitData.append('positionTitle', position.jobPosition);
+      }
+
+      // Your API call here
+      // await submitApplication(submitData);
       
-      // After successful submission, redirect or show success
-      router.push('/success');
+      // Handle success (e.g., redirect or show success message)
+      
     } catch (error) {
       console.error('Submission error:', error);
+      // Handle error (e.g., show error message)
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Form steps configuration
   const formSteps = [
     {
       component: BasicInfoForm,
       props: {
-        jobId: params.id,
+        jobId,
+        jobTitle,
         formData,
         updateField,
         markFieldTouched,
         isFieldTouched,
         onNext: handleNext,
-        onPrevious: undefined, // First step doesn't need previous
         isSubmitting,
         isFirstStep: true,
         isLastStep: false
@@ -101,7 +158,7 @@ export default function ApplyJobPage() {
         updateField,
         markFieldTouched,
         isFieldTouched,
-        onNext: handleSubmit, // Last step submits instead of going next
+        onNext: handleSubmit,
         onPrevious: handlePrevious,
         isSubmitting,
         isFirstStep: false,
@@ -112,6 +169,7 @@ export default function ApplyJobPage() {
 
   const currentStepProps = formSteps[currentStep].props;
   const CurrentStepComponent = formSteps[currentStep].component;
+  const currentStepProps = formSteps[currentStep].props;
 
   const steps:FormStep[] = [
     { id: 1, title: 'ข้อมูลเบื้องต้น' },
@@ -122,32 +180,27 @@ export default function ApplyJobPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Progress Steps */}
       <ProgressSteps 
         currentStep={currentStep} 
-        steps={steps.map((step, index) => ({
-          id: step.id,
+        steps={FORM_STEPS.map((step, index) => ({
           title: step.title,
           isCompleted: index < currentStep
         }))} 
       />
-      {/* Your form step component */}
-      <CurrentStepComponent 
-          formData={formData}
-          updateField={updateField}
-          markFieldTouched={markFieldTouched}
-          isFieldTouched={isFieldTouched}
-          onNext={
-            currentStep === formSteps.length - 1 
-              ? handleSubmit 
-              : handleNext
-          }
-          onPrevious={handlePrevious}
-          isSubmitting={isSubmitting}
-          isFirstStep={currentStep === 0}
-          isLastStep={currentStep === formSteps.length - 1}
-          jobId={params.id as string}
-          //jobTitle={jobTitle}
-        />
+
+      {/* Title */}
+      <h2 className="text-[30px] lg:text-[40px] text-gray-600 text-center mb-6">
+        สมัครงานตำแหน่ง{' '}
+        <strong className='text-primary-700 text-[1.2em] relative underline decoration-1'>
+          {jobTitle}
+        </strong>
+      </h2>
+
+      {/* Form Container */}
+      <div className="bg-[#F2F9FF] rounded-lg shadow p-3 lg:p-6">
+        <CurrentStepComponent {...currentStepProps} />
+      </div>
     </div>
   );
 }

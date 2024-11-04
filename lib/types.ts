@@ -71,42 +71,162 @@ export interface Position {
     createDate: Date
 }
 
-
-export interface FormData {
-    expectedSalary: string;
-    personalInfo?: {
-        firstName?: string;
-        lastName?: string;
-        // Add more fields as needed
-    };
-    workHistory?: {
-        // Work history fields
-    };
-    education?: {
-        // Education fields
-    };
-    // Add more sections as needed
+// Basic interfaces for nested objects
+interface Gender {
+    genderID: number;
+    description: string;
 }
+
+interface MaritalStatus {
+    maritalStatusID: number;
+    description: string;
+}
+
+interface Province {
+    provinceID: number;
+    nameTH: string;
+    nameEN: string;
+}
+
+interface District {
+    districtID: number;
+    provinceID: number;
+    nameTH: string;
+    nameEN: string;
+}
+
+interface Subdistrict {
+    subdistrictID: number;
+    districtID: number;
+    postCode: string | null;
+    nameTH: string;
+    nameEN: string;
+}
+
+interface SourceInformation {
+    sourceInformationID: number;
+    description: string;
+}
+
+interface CandidateEducation {
+    candidateID: string;
+    revision: number;
+    educationID: number;
+    major: string;
+}
+
+interface CandidateLanguage {
+    candidateID: string;
+    revision: number;
+    languageID: number;
+    level: number;
+}
+
+export interface ApplicationFormData {
+    // Basic Info
+    position?: string;
+    expectedSalary?: string;
+    experience?: string;
+    profileImage?: File;
+    cv?: File;
+
+    // Address Info
+    addressLine1?: string;
+    addressLine2?: string;
+    province?: string;
+    district?: string;
+    postalCode?: string;
+
+    // Personal Info
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    birthDate?: string;
+
+    // Other Info
+    education?: string;
+    skills?: string[];
+    certificates?: File[];
+}
+
+export type FormField = keyof ApplicationFormData;
 
 export interface FormStepProps {
     formData: ApplicationFormData;
     updateField: (field: keyof ApplicationFormData, value: any) => void;
-    markFieldTouched: (field: ApplicationFormData) => void;
-    isFieldTouched: (field: ApplicationFormData) => boolean;
+    markFieldTouched: (field: keyof ApplicationFormData) => void;
+    isFieldTouched: (field: keyof ApplicationFormData) => boolean;
+    onNext: () => void;
+    onPrevious?: () => void;
     isSubmitting: boolean;
     isFirstStep: boolean;
-    jobId?: string | undefined;
-    jobTitle?: string | undefined;
-    onNext: () => void;
-    onPrevious: () => void;
     isLastStep: boolean;
+    jobId?: string;
+    jobTitle?: string;
+  }
+
+export interface BasicInfo {
+    position?: string;
+    expectedSalary?: string;
+    experience?: string;
+    profileImage?: File;
+    cv?: File;
+}
+
+export interface AddressInfo {
+    addressLine1?: string;
+    addressLine2?: string;
+    province?: string;
+    district?: string;
+    postalCode?: string;
+}
+
+export interface PersonalInfo {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    birthDate?: string;
+}
+
+export interface OtherInfo {
+    education?: string;
+    skills?: string[];
+    certificates?: File[];
+}
+
+export interface BaseFormProps {
+    onNext?: () => void;
+    onPrevious?: () => void;
+    isSubmitting: boolean;
+    updateData: (data: any) => void;
+}
+
+// Specific form step props
+export interface BasicInfoFormProps extends BaseFormProps {
+    jobId?: string | string[];
+    data: BasicInfo;
+}
+
+export interface AddressInfoFormProps extends BaseFormProps {
+    data: AddressInfo;
+}
+
+export interface PersonalInfoFormProps extends BaseFormProps {
+    data: PersonalInfo;
+}
+
+export interface OtherInfoFormProps extends BaseFormProps {
+    data: OtherInfo;
+    onSubmit: () => void;
 }
 
 export interface FormStep {
-    id: number;
-    title: string;
-    description?: string;
-    component?: React.ComponentType<FormStepProps>;
+    id?: number;
+    title?: string;
+    component: React.ComponentType<any>;
+    props: BasicInfoFormProps | AddressInfoFormProps | PersonalInfoFormProps | OtherInfoFormProps;
 }
 
 export interface TokenProps {
@@ -115,7 +235,7 @@ export interface TokenProps {
     Email: string;
     CreateDate: string;
     ExpiredDate: string;
-  }
+}
 
 export type ModalType = 'auth' | 'confirm' | 'alert';
 

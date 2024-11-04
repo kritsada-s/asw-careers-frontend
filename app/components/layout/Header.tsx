@@ -42,7 +42,7 @@ const Header = () => {
   }
 
   return (
-    <section id="header" className="bg-white py-3 md:py-4 shadow fixed w-full top-0 z-10">
+    <section id="header" className="bg-white py-3 md:py-4 shadow fixed w-full top-0 z-20">
       <div className="container flex justify-between px-3 lg:px-0">
         <div className="logo-wrapper flex items-center">
           <Link href="/" title="">
@@ -51,10 +51,10 @@ const Header = () => {
         </div>
         <div className="menu-wrapper flex gap-4">
           <nav className="hidden md:flex gap-4 items-center">
-            <Link href={{ pathname:'jobs' }} title="">ตำแหน่งงาน</Link>
+            <Link href={{ pathname:'/jobs' }} title="">ตำแหน่งงาน</Link>
             <Link href="/#welfareBenefit" title="">สวัสดิการ</Link>
           </nav>
-          <Button onClick={()=>checkLogin()} variant="contained" color="success" size="medium" className="leading-none rounded-xl px-4 font-semibold">ตรวจสอบสถานะ</Button>
+          <Button onClick={()=>checkLogin()} variant="contained" color="success" size="medium" className="leading-none px-4 font-semibold" sx={{ borderRadius: '30px' }}>ตรวจสอบสถานะ</Button>
         </div>
       </div>
       <AuthModal isOpen={isAuthopen} onClose={()=>setIsAuthOpen(false)}/>
