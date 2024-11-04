@@ -1,3 +1,5 @@
+import { ApplicationFormData, FormField } from "./form";
+
 export interface Company {
     companyID: string;
     nameTH: string;
@@ -71,6 +73,7 @@ export interface Position {
 
 
 export interface FormData {
+    expectedSalary: string;
     personalInfo?: {
         firstName?: string;
         lastName?: string;
@@ -86,8 +89,14 @@ export interface FormData {
 }
 
 export interface FormStepProps {
-    formData: FormData;
-    updateFormData: (sectionKey: keyof FormData, data: any) => void;
+    formData: ApplicationFormData;
+    updateField: (field: keyof ApplicationFormData, value: any) => void;
+    markFieldTouched: (field: ApplicationFormData) => void;
+    isFieldTouched: (field: ApplicationFormData) => boolean;
+    isSubmitting: boolean;
+    isFirstStep: boolean;
+    jobId?: string | undefined;
+    jobTitle?: string | undefined;
     onNext: () => void;
     onPrevious: () => void;
     isLastStep: boolean;
@@ -96,8 +105,8 @@ export interface FormStepProps {
 export interface FormStep {
     id: number;
     title: string;
-    description: string;
-    component: React.ComponentType<FormStepProps>;
+    description?: string;
+    component?: React.ComponentType<FormStepProps>;
 }
 
 export interface TokenProps {

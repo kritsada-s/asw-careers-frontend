@@ -1,143 +1,153 @@
+// app/apply-job/[id]/page.tsx
 "use client";
 
-import { fetchPosition } from '@/lib/api';
-import { useParams } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
-import PersonalInfoForm from '@/app/components/form/PersonalInfoForm';
-import { FormStep, FormStepProps } from '@/lib/types';
+import { useState, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useApplicationForm } from '@/app/hooks/useForm';
+import type { ApplicationFormData } from '@/lib/form';
 import BasicInfoForm from '@/app/components/form/BasicInfoForm';
+import AddressInfoForm from '@/app/components/form/AddressInfoForm';
+import PersonalInfoForm from '@/app/components/form/PersonalInfoForm';
+import OthersInfoForm from '@/app/components/form/OthersInfoForm';
 import { ProgressSteps } from '@/app/components/layout/FormProgress';
-
-// Types for form data
-interface FormData {
-  personalInfo?: {
-    firstName?: string;
-    lastName?: string;
-    // Add more fields as needed
-  };
-  workHistory?: {
-    // Work history fields
-  };
-  education?: {
-    // Education fields
-  };
-  // Add more sections as needed
-}
+import { FormStep } from '@/lib/types';
 
 export default function ApplyJobPage() {
   const params = useParams();
-  const jobId = params.id as string;
-
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState<FormData>({});
-  const [jobTitle, setJobTitle] = useState<string>('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch job details
-  useEffect(() => {
-    const fetchJobDetails = async () => {
-      try {
-        const response = await fetchPosition(jobId);
-        if (response) {
-          setJobTitle(response.jobPosition);
-        }
-      } catch (err) {
-        setError('Failed to load job details');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchJobDetails();
-  }, [jobId]);
-
-  // Form steps configuration - you can add more steps here
-  const formSteps: FormStep[] = [
-    {
-      id: 1,
-      title: "ข้อมูลเบื้องต้น",
-      description: "กรอกข้อมูลให้ครบถ้วน",
-      component: BasicInfoForm // You'll create this component later
-    },
-    {
-      id: 2,
-      title: "ข้อมูลส่วนตัว",
-      description: "กรอกข้อมูลให้ครบถ้วน",
-      component: PersonalInfoForm // You'll create this component later
-    },
-    {
-      id: 3,
-      title: "ที่อยู่",
-      description: "กรอกข้อมูลให้ครบถ้วน",
-      component: PersonalInfoForm // You'll create this component later
-    },
-    {
-      id: 4,
-      title: "ข้อมูลอื่น ๆ",
-      description: "กรอกข้อมูลให้ครบถ้วน",
-      component: PersonalInfoForm // You'll create this component later
-    },
-  ];
-
-  // Update form data
-  const updateFormData = (sectionKey: keyof FormData, data: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [sectionKey]: {
-        ...(prev[sectionKey] || {}),
-        ...data
-      }
-    }));
-  };
+  const {
+    formData,
+    updateField,
+    markFieldTouched,
+    isFieldTouched
+  } = useApplicationForm();
 
   // Navigation handlers
-  const handleNext = () => {
-    if (currentStep < formSteps.length - 1) {
-      setCurrentStep(prev => prev + 1);
-    } else {
-      handleSubmit();
-    }
-  };
+  const handleNext = useCallback(() => {
+    setCurrentStep(prev => prev + 1);
+  }, []);
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
     }
-  };
+  }, [currentStep]);
 
-  // Form submission
   const handleSubmit = async () => {
+    setIsSubmitting(true);
     try {
-      // Add your submission logic here
-      console.log('Form data to submit:', formData);
-      // await submitApplication(jobId, formData);
+      // Your submission logic
+      
+      // After successful submission, redirect or show success
+      router.push('/success');
     } catch (error) {
-      console.error('Error submitting application:', error);
+      console.error('Submission error:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  if (loading) return <div className="min-h-[600px] flex justify-center items-center"><div className="loader"></div></div>;
-  if (error) return <div>Error: {error}</div>;
+  const formSteps = [
+    {
+      component: BasicInfoForm,
+      props: {
+        jobId: params.id,
+        formData,
+        updateField,
+        markFieldTouched,
+        isFieldTouched,
+        onNext: handleNext,
+        onPrevious: undefined, // First step doesn't need previous
+        isSubmitting,
+        isFirstStep: true,
+        isLastStep: false
+      }
+    },
+    {
+      component: AddressInfoForm,
+      props: {
+        formData,
+        updateField,
+        markFieldTouched,
+        isFieldTouched,
+        onNext: handleNext,
+        onPrevious: handlePrevious,
+        isSubmitting,
+        isFirstStep: false,
+        isLastStep: false
+      }
+    },
+    {
+      component: PersonalInfoForm,
+      props: {
+        formData,
+        updateField,
+        markFieldTouched,
+        isFieldTouched,
+        onNext: handleNext,
+        onPrevious: handlePrevious,
+        isSubmitting,
+        isFirstStep: false,
+        isLastStep: false
+      }
+    },
+    {
+      component: OthersInfoForm,
+      props: {
+        formData,
+        updateField,
+        markFieldTouched,
+        isFieldTouched,
+        onNext: handleSubmit, // Last step submits instead of going next
+        onPrevious: handlePrevious,
+        isSubmitting,
+        isFirstStep: false,
+        isLastStep: true
+      }
+    }
+  ];
 
+  const currentStepProps = formSteps[currentStep].props;
   const CurrentStepComponent = formSteps[currentStep].component;
+
+  const steps:FormStep[] = [
+    { id: 1, title: 'ข้อมูลเบื้องต้น' },
+    { id: 2, title: 'ที่อยู่' },
+    { id: 3, title: 'ข้อมูลส่วนตัว' },
+    { id: 4, title: 'ข้อมูลเพิ่มเติม' }
+  ];
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <ProgressSteps currentStep={currentStep} steps={formSteps}/>
-
-      <h2 className="text-[30px] lg:text-[40px] text-gray-600 text-center mb-6">สมัครงานตำแหน่ง <strong className='text-primary-700 text-[1.2em] relative underline decoration-1'>{jobTitle}</strong></h2>
-
-      <div className="bg-[#F2F9FF] rounded-lg shadow p-3 lg:p-6">
-        <CurrentStepComponent
+      <ProgressSteps 
+        currentStep={currentStep} 
+        steps={steps.map((step, index) => ({
+          id: step.id,
+          title: step.title,
+          isCompleted: index < currentStep
+        }))} 
+      />
+      {/* Your form step component */}
+      <CurrentStepComponent 
           formData={formData}
-          updateFormData={updateFormData}
-          onNext={handleNext}
+          updateField={updateField}
+          markFieldTouched={markFieldTouched}
+          isFieldTouched={isFieldTouched}
+          onNext={
+            currentStep === formSteps.length - 1 
+              ? handleSubmit 
+              : handleNext
+          }
           onPrevious={handlePrevious}
+          isSubmitting={isSubmitting}
+          isFirstStep={currentStep === 0}
           isLastStep={currentStep === formSteps.length - 1}
+          jobId={params.id as string}
+          //jobTitle={jobTitle}
         />
-      </div>
     </div>
   );
 }

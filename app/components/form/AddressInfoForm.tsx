@@ -4,7 +4,7 @@ import FormNavigation from '../ui/FormNavigation';
 
 export default function AddressInfoForm({
   formData,
-  updateFormData,
+  updateField,
   onNext,
   onPrevious,
   isLastStep

@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 import { FormStepProps } from '@/lib/types';
 import FormNavigation from '../ui/FormNavigation';
+import CustomFormInput from '../ui/FormInput';
 
-export default function BasicInfoForm({
+const BasicInfoForm: React.FC<FormStepProps> = ({
   formData,
-  updateFormData,
+  updateField,
+  markFieldTouched,
+  isFieldTouched,
   onNext,
   onPrevious,
-  isLastStep
-}: FormStepProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  isSubmitting,
+  isFirstStep,
+  isLastStep,
+  jobId,
+  jobTitle
+}) => {
+  //const [isSubmitting, setIsSubmitting] = useState(false);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onNext();
@@ -17,8 +24,25 @@ export default function BasicInfoForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="space-y-4">
-        {/* Form fields will go here */}
+      <div className="form-step-wrapper">
+        <div className="top flex">
+          <div className="w-2/6">
+            <p>profile image</p>
+          </div>
+          <div className="w-4/6">
+          <CustomFormInput
+            label="Expected Salary"
+            name="expectedSalary"
+            value={formData.expectedSalary || ''}
+            type="text"
+            required
+            disabled={isSubmitting}
+            updateField={updateField}
+            markFieldTouched={markFieldTouched}
+            isFieldTouched={isFieldTouched}
+          />
+          </div>
+        </div>
         <FormNavigation
           onPrevious={onPrevious}
           onNext={onNext}
@@ -30,3 +54,5 @@ export default function BasicInfoForm({
     </form>
   );
 }
+
+export default BasicInfoForm
