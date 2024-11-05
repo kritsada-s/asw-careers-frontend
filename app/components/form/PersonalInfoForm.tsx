@@ -52,7 +52,8 @@ export default function PersonalInfoForm({
   updateField,
   onNext,
   onPrevious,
-  isLastStep
+  isLastStep,
+  decryptedToken
 }: FormStepProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
@@ -223,9 +224,9 @@ export default function PersonalInfoForm({
               id="birthDate"
               name="birthDate"
               type="date" 
-              value={formData.birthDate || ''}
-              onChange={(e) => updateField('birthDate', e.target.value)}
-              required
+              value={formData.birthDate ? new Date(formData.birthDate).toISOString().split('T')[0] : ''}
+              onChange={(e) => updateField('birthDate', new Date(e.target.value).toISOString())}
+                required 
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 leading-none ${
                 isFieldTouched('birthDate') && !formData.birthDate ? 'border-red-500' : ''
               }`}
@@ -245,13 +246,14 @@ export default function PersonalInfoForm({
               id="email"
               name="email"
               type="email" 
-              value={formData.email || ''}
-              onChange={(e) => updateField('email', e.target.value)}
+              value={decryptedToken?.Email || ''}
+              disabled
               required
-              className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 leading-none ${
+              className={`mt-1 block w-full text-gray-400 rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 leading-none cursor-not-allowed ${
                 isFieldTouched('email') && !formData.email ? 'border-red-500' : ''
               }`}
             />
+            <small className="text-gray-500 text-xs mt-1">อีเมลจะไม่สามารถแก้ไขได้</small>
           </div>
 
           <div className="form-input-wrapper md:w-1/2 w-full">

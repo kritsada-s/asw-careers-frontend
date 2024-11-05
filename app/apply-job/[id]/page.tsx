@@ -160,7 +160,7 @@ export default function ApplyJobPage() {
         JobID: jobId,
         CandidateID: decryptedToken.CandidateID, // Assuming this will be generated or fetched from somewhere
         Revision: 1, // Assuming a default revision number
-        Email: formData.email || '',
+        Email: decryptedToken.Email || '',
         TitleID: 0, // Assuming this will be set based on your application logic
         FirstName: formData.firstName || '',
         LastName: formData.lastName || '',
@@ -201,13 +201,15 @@ export default function ApplyJobPage() {
           SourceInformationID: 0, // Assuming this will be set based on your application logic
           Description: '' // Assuming this will be set based on your application logic
         },
-        PDPAAccepted: false, // Assuming this will be set based on your application logic
-        PDPAAcceptedDate: '', // Assuming this will be set based on your application logic
+        PDPAAccepted: true, // Assuming this will be set based on your application logic
+        PDPAAcceptedDate: new Date().toISOString(), // Assuming this will be set based on your application logic
         CandidateEducations: [{
           EducationID: formData.education ? Number(formData.education) : 1,
           // Add other required education fields based on your type definition
         }],
-        CandidateLanguages: []
+        CandidateLanguages: [{
+          LanguageID: formData.language ? Number(formData.language) : 1,
+        }]
       };
 
       console.log('Candidate Data:', candidateData);
@@ -252,7 +254,8 @@ export default function ApplyJobPage() {
         onPrevious: handlePrevious,
         isSubmitting,
         isFirstStep: false,
-        isLastStep: false
+        isLastStep: false,
+        decryptedToken // Pass the authToken to this component
       }
     },
     {

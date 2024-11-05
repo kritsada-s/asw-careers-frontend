@@ -1,5 +1,3 @@
-// import { ApplicationFormData } from "./form";
-
 export interface Company {
     companyID: string;
     nameTH: string;
@@ -153,6 +151,7 @@ export interface ApplicationFormData {
     skills?: string[];
     certificates?: File[];
     nationality: string;
+    language?: number;
 }
 
 export type FormField = keyof ApplicationFormData;
@@ -169,7 +168,8 @@ export interface FormStepProps {
     isLastStep: boolean;
     jobId?: string;
     jobTitle?: string;
-  }
+    decryptedToken?: TokenProps;
+}
 
 export interface BasicInfo {
     position?: string;
