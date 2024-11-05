@@ -70,7 +70,13 @@ export default function JobsPage() {
   };
 
   if (loading) return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  if (error) return <div className="flex items-center justify-center min-h-screen text-red-500">{error}</div>;
+  if (error) return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <iframe src="https://lottie.host/embed/5af278ce-be06-47cf-9901-95b1e823ba14/ZvF1yAFgYj.json" className='mb-3'></iframe>
+      <h4 className='text-xl font-medium text-red-500'>ไม่สามารถโหลดข้อมูลได้</h4>
+      <small className='text-gray-500'>กรุณาลองอีกครั้งภายหลัง</small>
+    </div>
+  );
 
   return (
     <div className="flex min-h-screen bg-gray-100">
