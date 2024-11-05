@@ -23,6 +23,8 @@ const config: Config = {
 				'primary-500': '#41658A',
 				'primary-400': '#597999',
 				'primary-300': '#718CA7',
+				'leadfrog-green': '#4caf50',
+				'kryptonite-green': '#419844',
 				'custom-light-gray': '#F1F1F1',
 				'custom-light-blue': '#F1F9FF',
 				background: 'hsl(var(--background))',

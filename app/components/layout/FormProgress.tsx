@@ -24,10 +24,10 @@ export function ProgressSteps({ currentStep, steps }: ProgressStepsProps) {
                   w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center
                   border-2 font-semibold text-md md:text-2xl transition-all duration-300 ease-in-out
                   ${index <= currentStep
-                    ? 'bg-green-700 border-green-700 text-white' 
+                    ? 'bg-leadfrog-green border-leadfrog-green text-white' 
                     : 'border-gray-300 text-gray-400'
                   } relative z-10
-                  ${step.isCompleted ? 'bg-primary-600 text-white' : ''}
+                  ${step.isCompleted ? 'bg-leadfrog-green text-white' : ''}
                 `}
               >
                 {step.isCompleted ? (
@@ -54,7 +54,7 @@ export function ProgressSteps({ currentStep, steps }: ProgressStepsProps) {
                 <div
                   className={`
                     h-full transition-all duration-500 ease-in-out
-                    ${index < currentStep ? 'bg-green-700' : 'bg-gray-300'}
+                    ${index < currentStep ? 'bg-leadfrog-green' : 'bg-gray-300'}
                   `}
                   style={{
                     width: index < currentStep ? '100%' : 

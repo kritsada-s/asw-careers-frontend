@@ -1,16 +1,30 @@
 import { useState, useCallback, useEffect } from 'react';
 import { ApplicationFormData, FormField } from '@/lib/types';
 
-export function useApplicationForm(initialData: Partial<ApplicationFormData> = {}) {
-  const [formData, setFormData] = useState<ApplicationFormData>(
-    initialData as ApplicationFormData
-  );
-  const [touchedFields, setTouchedFields] = useState<Set<FormField>>(new Set());
+export function useApplicationForm(
+  initialData: Partial<{
+    [K in keyof ApplicationFormData]: ApplicationFormData[K] | null;
+  }> = {}
+) {
+  // Create a default empty form data object
+  const defaultFormData: ApplicationFormData = {
+    expectedSalary: '',
+    experience: '',
+    nationality: '',
+    profileImage: undefined,
+    cv: undefined,
+    // Add other required fields with default values
+  };
 
-  // Add debug logging
-  useEffect(() => {
-    console.log('Current form data:', formData);
-  }, [formData]);
+  // Merge the initial data with default values
+  const [formData, setFormData] = useState<ApplicationFormData>({
+    ...defaultFormData,
+    ...Object.fromEntries(
+      Object.entries(initialData).map(([key, value]) => [key, value ?? undefined])
+    )
+  });
+  
+  const [touchedFields, setTouchedFields] = useState<Set<FormField>>(new Set());
 
   // Update single field
   const updateField = useCallback((field: FormField, value: any) => {

@@ -1,4 +1,3 @@
-// providers/MUIProvider.tsx
 "use client";
 
 import React, { createContext, useContext, useState, useCallback } from 'react';

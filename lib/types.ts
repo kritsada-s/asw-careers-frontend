@@ -82,7 +82,7 @@ interface MaritalStatus {
     description: string;
 }
 
-interface Province {
+export interface Province {
     provinceID: number;
     nameTH: string;
     nameEN: string;
@@ -133,21 +133,26 @@ export interface ApplicationFormData {
     // Address Info
     addressLine1?: string;
     addressLine2?: string;
-    province?: string;
-    district?: string;
-    postalCode?: string;
+    province?: number;
+    district?: number;
+    subdistrict?: number;
+    postalCode?: number;
 
     // Personal Info
     firstName?: string;
     lastName?: string;
+    nickname?: string;
     email?: string;
     phone?: string;
     birthDate?: string;
+    gender?: number;
+    maritalStatus?: number;
 
     // Other Info
-    education?: string;
+    education?: number;
     skills?: string[];
     certificates?: File[];
+    nationality: string;
 }
 
 export type FormField = keyof ApplicationFormData;
@@ -177,9 +182,9 @@ export interface BasicInfo {
 export interface AddressInfo {
     addressLine1?: string;
     addressLine2?: string;
-    province?: string;
-    district?: string;
-    postalCode?: string;
+    province?: number;
+    district?: number;
+    postalCode?: number;
 }
 
 export interface PersonalInfo {

@@ -37,7 +37,7 @@ export default function FormNavigation({
       <div className="w-24">
         <button
           type="submit"
-          className={`px-4 py-2 text-white font-medium border-[3px] rounded transition-colors w-full disabled:bg-blue-300 flex items-center justify-center gap-1 ` + (isLastStep ? 'bg-green-700 hover:bg-green-600 hover:border-green-600 border-green-700':'bg-primary-700 hover:bg-primary-600 border-primary-700')}
+          className={`px-4 py-2 text-white font-medium border-[3px] rounded transition-colors w-full disabled:bg-blue-300 flex items-center justify-center gap-1 ` + (isLastStep ? 'bg-leadfrog-green hover:bg-kryptonite-green hover:border-kryptonite-green border-leadfrog-green':'bg-primary-700 hover:bg-primary-600 border-primary-700')}
           disabled={isSubmitting} onClick={onNext}
         >
           {isSubmitting ? (

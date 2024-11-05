@@ -1,32 +1,33 @@
-export interface ApplicationFormData {
-  // Basic Info
-  position?: string;
-  expectedSalary?: string;
-  experience?: string;
-  profileImage?: File;
-  cv?: File;
+// export interface ApplicationFormData {
+//   // Basic Info
+//   position?: string;
+//   expectedSalary?: string;
+//   experience?: string;
+//   profileImage?: File;
+//   cv?: File;
 
-  // Address Info
-  addressLine1?: string;
-  addressLine2?: string;
-  province?: string;
-  district?: string;
-  postalCode?: string;
+//   // Address Info
+//   addressLine1?: string;
+//   addressLine2?: string;
+//   province?: number;
+//   district?: number;
+//   postalCode?: number;
 
-  // Personal Info
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-  birthDate?: string;
+//   // Personal Info
+//   firstName?: string;
+//   lastName?: string;
+//   email?: string;
+//   phone?: string;
+//   birthDate?: string;
+//   gender?: number;
 
-  // Other Info
-  education?: string;
-  skills?: string[];
-  certificates?: File[];
-}
+//   // Other Info
+//   education?: string;
+//   skills?: string[];
+//   certificates?: File[];
+// }
 
-export type FormField = keyof ApplicationFormData;
+// export type FormField = keyof ApplicationFormData;
 
 export interface Candidate {
   JobID: string; // Assuming uuid is represented as a string
@@ -64,11 +65,11 @@ export interface Candidate {
   Subdistrict: {
     SubdistrictID: number; // Assuming integer is represented as number
     DistrictID: number; // Assuming integer is represented as number
-    PostCode: string;
+    PostCode: number;
     NameTH: string;
     NameEN: string;
   };
-  PostalCode: string;
+  PostalCode: number;
   SourceInformation: {
     SourceInformationID: number; // Assuming integer is represented as number
     Description: string;

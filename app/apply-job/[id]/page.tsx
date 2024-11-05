@@ -11,8 +11,8 @@ import AddressInfoForm from '@/app/components/form/AddressInfoForm';
 import OthersInfoForm from '@/app/components/form/OthersInfoForm';
 import { ProgressSteps } from '@/app/components/layout/FormProgress';
 import { useApplicationForm } from '@/app/hooks/useForm';
+import Crypt from '@/lib/Crypt';
 
-// Move to constants file later
 const FORM_STEPS = [
   { id: 'basic', title: 'ข้อมูลเบื้องต้น' },
   { id: 'personal', title: 'ข้อมูลส่วนตัว' },
@@ -20,20 +20,17 @@ const FORM_STEPS = [
   { id: 'others', title: 'ข้อมูลเพิ่มเติม' }
 ] as const;
 
-interface FormStep {
-  id: number;
-  title: string;
-}
-
 export default function ApplyJobPage() {
   const params = useParams();
   const jobId = params.id as string;
   
-  // States
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [decryptedToken, setDecryptedToken] = useState<any>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [jobTitle, setJobTitle] = useState('');
+  const [jobTitle, setJobTitle] = useState<string>('');
   const [position, setPosition] = useState<Position | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const {
     formData,
@@ -42,16 +39,60 @@ export default function ApplyJobPage() {
     isFieldTouched
   } = useApplicationForm();
 
-  // Navigation handlers
-  const handleNext = useCallback(() => {
-    setCurrentStep(prev => Math.min(prev + 1, FORM_STEPS.length - 1));
+  const prefillFormWithSampleData = useCallback(() => {
+    const sampleData: Partial<ApplicationFormData> = {
+      // Basic Info
+      //profileImage: null, // File type needs to be handled separately
+      expectedSalary: '50000',
+      experience: '5',
+      //cv: null, // File type needs to be handled separately
+
+      // Personal Info
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john.doe@example.com',
+      phone: '0891234567',
+      birthDate: '1990-01-01',
+      nationality: 'Thai',
+
+      // Address Info
+      addressLine1: '123 Sample Street',
+      addressLine2: 'Sample address line 2',
+      district: 1001,
+      province: 1,
+      postalCode: 10400,
+
+      // Others Info
+      education: 1,
+      skills: ['JavaScript', 'React', 'TypeScript'],
+    };
+
+    // Update each field
+    Object.entries(sampleData).forEach(([key, value]) => {
+      if (value !== null) {
+        updateField(key as keyof ApplicationFormData, value);
+      }
+    });
   }, []);
 
-  const handlePrevious = useCallback(() => {
-    setCurrentStep(prev => Math.max(prev - 1, 0));
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      window.location.href = '/';
+      return;
+    }
+    
+    const decrypted = Crypt(token);
+    if (!decrypted) {
+      window.location.href = '/';
+      return;
+    }
+    
+    setAuthToken(token);
+    setDecryptedToken(decrypted);
+    setIsAuthenticated(true);
   }, []);
 
-  // Fetch position data
   useEffect(() => {
     if (!jobId) return;
 
@@ -67,6 +108,18 @@ export default function ApplyJobPage() {
 
     loadPosition();
   }, [jobId]);
+
+  useEffect(() => {
+    prefillFormWithSampleData();
+  }, [prefillFormWithSampleData]);
+
+  const handleNext = useCallback(() => {
+    setCurrentStep(prev => Math.min(prev + 1, FORM_STEPS.length - 1));
+  }, []);
+
+  const handlePrevious = useCallback(() => {
+    setCurrentStep(prev => Math.max(prev - 1, 0));
+  }, []);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -105,53 +158,56 @@ export default function ApplyJobPage() {
 
       const candidateData: Candidate = {
         JobID: jobId,
-        CandidateID: '', // Assuming this will be generated or fetched from somewhere
+        CandidateID: decryptedToken.CandidateID, // Assuming this will be generated or fetched from somewhere
         Revision: 1, // Assuming a default revision number
         Email: formData.email || '',
         TitleID: 0, // Assuming this will be set based on your application logic
         FirstName: formData.firstName || '',
         LastName: formData.lastName || '',
-        NickName: '', // Assuming this is optional or can be set later
+        NickName: formData.nickname || '',
         Tel: formData.phone || '',
         DateOfBirth: formData.birthDate || '',
         Gender: {
-          GenderID: 0, // Assuming this will be set based on your application logic
+          GenderID: formData.gender || 1, // Assuming this will be set based on your application logic
           Description: '' // Assuming this will be set based on your application logic
         },
         MaritalStatus: {
-          MaritalStatusID: 0, // Assuming this will be set based on your application logic
+          MaritalStatusID: formData.maritalStatus || 1, // Assuming this will be set based on your application logic
           Description: '' // Assuming this will be set based on your application logic
         },
-        ImageUrl: '', // Assuming this will be set based on your application logic
-        CVUrl: '', // Assuming this will be set based on your application logic
+        ImageUrl: formData.profileImage ? URL.createObjectURL(formData.profileImage) : '', // Convert File to URL for image files (jpg/jpeg)
+        CVUrl: formData.cv ? URL.createObjectURL(formData.cv) : '', // Convert File to URL for PDF files
         AddressDetails: `${formData.addressLine1 || ''}, ${formData.addressLine2 || ''}`,
         Province: {
-          ProvinceID: 0, // Assuming this will be set based on your application logic
-          NameTH: formData.province || '',
-          NameEN: '' // Assuming this will be set based on your application logic
+          ProvinceID: formData.province ? Number(formData.province) : 0,
+          NameTH: '',
+          NameEN: ''
         },
         District: {
-          DistrictID: 0, // Assuming this will be set based on your application logic
-          ProvinceID: 0, // Assuming this will be set based on your application logic
-          NameTH: formData.district || '',
-          NameEN: '' // Assuming this will be set based on your application logic
+          DistrictID: formData.district ? Number(formData.district) : 0,
+          ProvinceID: formData.district ? Number(formData.district) : 0,
+          NameTH: '',
+          NameEN: ''
         },
         Subdistrict: {
-          SubdistrictID: 0, // Assuming this will be set based on your application logic
-          DistrictID: 0, // Assuming this will be set based on your application logic
-          PostCode: formData.postalCode || '',
-          NameTH: '', // Assuming this will be set based on your application logic
-          NameEN: '' // Assuming this will be set based on your application logic
+          SubdistrictID: formData.subdistrict ? Number(formData.subdistrict) : 0,
+          DistrictID: formData.district ? Number(formData.district) : 0,
+          PostCode: formData.postalCode ? Number(formData.postalCode) : 0,
+          NameTH: '',
+          NameEN: ''
         },
-        PostalCode: formData.postalCode || '',
+        PostalCode: formData.postalCode ? Number(formData.postalCode) : 0,
         SourceInformation: {
           SourceInformationID: 0, // Assuming this will be set based on your application logic
           Description: '' // Assuming this will be set based on your application logic
         },
         PDPAAccepted: false, // Assuming this will be set based on your application logic
         PDPAAcceptedDate: '', // Assuming this will be set based on your application logic
-        CandidateEducations: [], // Assuming this will be set based on your application logic
-        CandidateLanguages: [] // Assuming this will be set based on your application logic
+        CandidateEducations: [{
+          EducationID: formData.education ? Number(formData.education) : 1,
+          // Add other required education fields based on your type definition
+        }],
+        CandidateLanguages: []
       };
 
       console.log('Candidate Data:', candidateData);
@@ -169,7 +225,6 @@ export default function ApplyJobPage() {
     }
   };
 
-  // Form steps configuration
   const formSteps = [
     {
       component: BasicInfoForm,

@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { fetchLocationByID, fetchPosition } from '@/lib/api';
 import axios from 'axios';
 import { devUrl } from '@/lib/utils';
-import { Position } from '@/lib/types';
+import { districts as districtsData } from '@/lib/data';
+import { subDistricts as subDistrictsData } from '@/lib/data';
+import { provinces as provincesData } from '@/lib/data';
 
 // Hook for fetching Data
 export function useWorkLocation(comp: string, loc: string) {
@@ -37,8 +39,8 @@ export function useDepartment(comp: string, did: string) {
     async function fetchDepartment() {
       try {
         setIsLoading(true);
-        const path = devUrl+'/Department/DepartmentByID/'
-        axios.get(path+did+'/'+comp).then((response:any) => {
+        const path = devUrl + '/Department/DepartmentByID/'
+        axios.get(path + did + '/' + comp).then((response: any) => {
           setDepartment(response.data.nameTH);
         })
       } catch (error) {
@@ -57,7 +59,6 @@ export function useDepartment(comp: string, did: string) {
 
 export function useProvinces() {
   interface Province {
-    districtID: number;
     provinceID: number;
     nameTH: string;
     nameEN: string;
@@ -69,9 +70,12 @@ export function useProvinces() {
   useEffect(() => {
     async function fetchProvinces() {
       try {
-        setIsLoading(true);
-        const response = await axios.get(devUrl+'/Address/Provinces');
-        setProvinces(response.data); // Assuming the response data is an array of province names
+        setIsLoading(false);
+        setProvinces(provincesData.map(province => ({
+          provinceID: province.ProvinceID,
+          nameTH: province.NameTH,
+          nameEN: province.NameEN
+        }))); // Using fetched provinces data instead of API
       } catch (error) {
         console.error('Error fetching provinces:', error);
         setProvinces([]);
@@ -87,7 +91,14 @@ export function useProvinces() {
 }
 
 export function useDistricts(provinceId: number) {
-  const [districts, setDistricts] = useState<string[]>([]);
+  interface District {
+    districtID: number;
+    provinceID: number;
+    nameTH: string;
+    nameEN: string;
+  }
+
+  const [districts, setDistricts] = useState<District[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -95,8 +106,13 @@ export function useDistricts(provinceId: number) {
       if (provinceId === undefined) return; // Avoid fetching if provinceId is not provided
       try {
         setIsLoading(true);
-        const response = await axios.get(`/Address/Districts/${provinceId}`);
-        setDistricts(response.data); // Assuming the response data is an array of district names
+        const response = districtsData.map(district => ({
+          districtID: district.DistrictID,
+          provinceID: district.ProvinceID,
+          nameTH: district.NameTH,
+          nameEN: district.NameEN
+        })).filter(district => district.provinceID === provinceId);
+        setDistricts(response); // Filter districts by provinceID
       } catch (error) {
         console.error('Error fetching districts:', error);
         setDistricts([]);
@@ -111,8 +127,8 @@ export function useDistricts(provinceId: number) {
   return { districts, isLoading };
 }
 
-export function useSubDistrict(districtId: number) {
-  const [subDistrict, setSubDistrict] = useState<any>(null); // Adjust type as necessary
+export function useSubDistricts(districtId: number) {
+  const [subDistricts, setSubDistricts] = useState<any>(null); // Adjust type as necessary
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -120,11 +136,17 @@ export function useSubDistrict(districtId: number) {
       if (districtId === undefined) return; // Avoid fetching if districtId is not provided
       try {
         setIsLoading(true);
-        const response = await axios.get(`/Address/Districts/${districtId}`);
-        setSubDistrict(response.data); // Assuming the response data contains sub-district details
+        const response = subDistrictsData.map(subDistrict => ({
+          SubDistrictID: subDistrict.SubDistrictID,
+          DistrictID: subDistrict.DistrictID,
+          PostCode: subDistrict.PostCode,
+          NameTH: subDistrict.NameTH,
+          NameEN: subDistrict.NameEN
+        })).filter(subDistrict => subDistrict.DistrictID === districtId);
+        setSubDistricts(response); // Assuming the response data contains sub-district details
       } catch (error) {
         console.error('Error fetching sub-district details:', error);
-        setSubDistrict(null);
+        setSubDistricts(null);
       } finally {
         setIsLoading(false);
       }
@@ -133,7 +155,61 @@ export function useSubDistrict(districtId: number) {
     fetchSubDistrict();
   }, [districtId]);
 
-  return { subDistrict, isLoading };
+  return { subDistricts, isLoading };
 }
+
+export function useEducations() {
+  const [educations, setEducations] = useState<any[]>([]); // Adjust type as necessary
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const eduData = [
+    {
+      "educationID": 1,
+      "description": "ปวช. / Vocational Certificate"
+    },
+    {
+      "educationID": 2,
+      "description": "ปวส. / High Vocational Certificate"
+    },
+    {
+      "educationID": 3,
+      "description": "อนุปริญญา / Diploma"
+    },
+    {
+      "educationID": 4,
+      "description": "ปริญญาตรี / Bachelor's degree"
+    },
+    {
+      "educationID": 5,
+      "description": "ปริญญาเอก / Ph.D."
+    }
+  ]
+
+  useEffect(() => {
+    async function fetchEducations() {
+      try {
+        setIsLoading(true);
+        const response = await fetch(devUrl + '/Education/Educations');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setEducations(data); // Assuming the response data is an array of education objects
+      } catch (error: any) {
+        console.error('Error fetching educations:', error);
+        setError(error?.message || 'An unknown error occurred');
+        setEducations(eduData);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchEducations();
+  }, []);
+
+  return { educations, isLoading, error };
+}
+
 
 

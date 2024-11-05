@@ -93,42 +93,17 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
   jobId,
   jobTitle
 }) => {
-  //const [isSubmitting, setIsSubmitting] = useState(false);
+  const [profilePreview, setProfilePreview] = useState<string>('');
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Validate required fields
     const requiredFields: FormField[] = ['expectedSalary', 'experience'];
     const hasErrors = requiredFields.some(field => !formData[field]);
     
     if (!hasErrors) {
       onNext();
     } else {
-      // Mark all required fields as touched to show errors
       requiredFields.forEach(field => markFieldTouched(field));
-    }
-  };
-
-  //const [isSubmitting, setIsSubmitting] = useState(false);
-  const [salary, setSalary] = useState<string>('');
-  const [experience, setExperience] = useState<string>('');
-  const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [cvFile, setCvFile] = useState<File | null>(null);
-  const [profilePreview, setProfilePreview] = useState<string>('');
-  const [selectedPosition, setSelectedPosition] = useState<string>('');
-
-  // Handle profile image upload
-  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Update the form data with the file
-      updateField('profileImage', file);
-      
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -137,7 +112,6 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
     if (file) {
       updateField(field, file);
       
-      // If it's a profile image, create preview
       if (field === 'profileImage') {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -168,7 +142,7 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
                 id="profileImage"
                 accept="image/*"
                 className="hidden"
-                onChange={handleProfileImageChange}
+                onChange={(e) => handleFileChange(e, 'profileImage')}
                 disabled={isSubmitting}
               />
               <label
@@ -196,7 +170,7 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
               onBlur={() => markFieldTouched('expectedSalary')}
               required
               disabled={isSubmitting}
-              className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm ${
+              className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 leading-none ${
                 isFieldTouched('expectedSalary') && !formData.expectedSalary ? 'border-red-500' : ''
               }`}
             />
@@ -225,7 +199,7 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
               }}
               required
               disabled={isSubmitting}
-              className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm ${
+              className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 leading-none ${
                 isFieldTouched('experience') && !formData.experience ? 'border-red-500' : ''
               }`}
             />
@@ -246,7 +220,7 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
               onBlur={() => markFieldTouched('cv')}
               required
               disabled={isSubmitting}
-              className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm ${
+              className={`mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white ${
                 isFieldTouched('cv') && !formData.cv ? 'border-red-500' : ''
               }`}
             />
