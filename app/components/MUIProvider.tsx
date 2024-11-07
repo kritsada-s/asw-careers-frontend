@@ -6,6 +6,8 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from '../theme';
 import AuthModal from './Auth/AuthModal';
+import Crypt from '@/lib/Crypt';
+import { isNotExpired } from '@/lib/dateUtils';
 
 // Define types
 type ModalType = 'auth' | 'confirm' | 'alert';
@@ -24,6 +26,7 @@ interface ModalContextType {
     isOpen: boolean;
     config: ModalConfig | null;
   };
+  isTokenNotExpired: () => boolean;
 }
 
 const ModalContext = createContext<ModalContextType | null>(null);
@@ -87,6 +90,16 @@ export default function MUIProvider({ children }: { children: React.ReactNode })
     });
   }, []);
 
+  const isTokenNotExpired = useCallback(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      const decrypted = Crypt(token);
+      const expiryDate = decrypted.ExpiredDate;
+      return isNotExpired(expiryDate);
+    }
+    return false;
+  }, []);
+
   const handleSuccess = useCallback((data: any) => {
     modalState.config?.onSuccess?.(data);
     closeModal();
@@ -97,7 +110,7 @@ export default function MUIProvider({ children }: { children: React.ReactNode })
   }, [modalState.config]);
 
   return (
-    <ModalContext.Provider value={{ openModal, closeModal, modalState }}>
+    <ModalContext.Provider value={{ openModal, closeModal, modalState, isTokenNotExpired }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         {children}

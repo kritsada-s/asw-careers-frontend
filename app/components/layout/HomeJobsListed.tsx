@@ -1,13 +1,15 @@
 "use client"
 
 import { CircularProgress, Skeleton, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { bConnectionID, devUrl } from "@/lib/utils";
+import { bConnectionID, prodUrl } from "@/lib/utils";
 import JobBlock from "../ui/JobBlock";
 import LastestPositions from "./LastestPositions";
 import { getCompanies } from "@/lib/api";
 import { Job } from "@/lib/types";
+import { useModal } from "../MUIProvider";
+import { useRouter } from "next/navigation";
 
 interface JobResponse {
     jobs: Job[];
@@ -15,9 +17,11 @@ interface JobResponse {
 }
 
 function HomeJobsListed() {
+    const router = useRouter();
     const [jobs, setJobs] = useState<Job[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { openModal, isTokenNotExpired } = useModal();
 
     const path = "/JobAnnouncement/JobAnnouncementsByPage";
 
@@ -39,7 +43,7 @@ function HomeJobsListed() {
         const config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: devUrl+path,
+            url: prodUrl+path,
             headers: { 
                 'Content-Type': 'application/json;charset=UTF-8',
                 'Access-Control-Allow-Origin': true,
@@ -57,6 +61,25 @@ function HomeJobsListed() {
         });
 
     }, []);
+
+    const handleUpdateProfile = () => {
+        router.push('/profile');
+    }
+
+    const handleLeaveProfile = () => {
+        openModal({
+            type: 'auth',
+            props: {
+                // You can pass additional props if needed
+            },
+            onSuccess: (data) => {
+                // Handle success if needed
+            },
+            onError: (error) => {
+                // Handle error if needed
+            }
+        });
+    };
 
     return (
         <div id="jobListed" className="min-h-[500px] bg-gradient-to-b from-white to-[#F2F9FF] py-5 lg:pt-9 lg:pb-12">
@@ -95,12 +118,22 @@ function HomeJobsListed() {
                     <LastestPositions items={jobs.slice(3,10)}/>
                 )}
                 <div className="h-5 lg:h-14"></div>
-                <div className="flex justify-center items-center gap-2 flex-col md:flex-row">
-                    <Typography variant="h5">ไม่พบตำแหน่งงานที่สนใจ ?</Typography>
-                    <button className="bg-orange-600 text-white px-5 py-1 rounded-full transition hover:scale-105 duration-300">
-                        <Typography variant="h5">ลงทะเบียนฝากประวัติ</Typography>
-                    </button>
-                </div>
+
+                {isTokenNotExpired() ? (
+                    <div className="flex justify-center items-center gap-2 flex-col md:flex-row">
+                        <Typography variant="h5">ยังไม่มีตำแหน่งงานที่สนใจ ?</Typography>
+                        <button onClick={handleUpdateProfile} className="bg-orange-600 text-white px-5 py-1 rounded-full transition hover:scale-105 duration-300">
+                            <Typography variant="h5">อัพเดตประวัติ</Typography>
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex justify-center items-center gap-2 flex-col md:flex-row">
+                        <Typography variant="h5">ไม่พบตำแหน่งงานที่สนใจ ?</Typography>
+                        <button onClick={handleLeaveProfile} className="bg-orange-600 text-white px-5 py-1 rounded-full transition hover:scale-105 duration-300">
+                            <Typography variant="h5">ลงทะเบียนฝากประวัติ</Typography>
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

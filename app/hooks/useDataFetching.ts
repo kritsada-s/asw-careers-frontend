@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { fetchLocationByID, fetchPosition } from '@/lib/api';
 import axios from 'axios';
-import { devUrl } from '@/lib/utils';
+import { prodUrl } from '@/lib/utils';
 import { districts as districtsData } from '@/lib/data';
 import { subDistricts as subDistrictsData } from '@/lib/data';
 import { provinces as provincesData } from '@/lib/data';
@@ -39,7 +39,7 @@ export function useDepartment(comp: string, did: string) {
     async function fetchDepartment() {
       try {
         setIsLoading(true);
-        const path = devUrl + '/Department/DepartmentByID/'
+        const path = prodUrl + '/Department/DepartmentByID/'
         axios.get(path + did + '/' + comp).then((response: any) => {
           setDepartment(response.data.nameTH);
         })
@@ -190,7 +190,7 @@ export function useEducations() {
     async function fetchEducations() {
       try {
         setIsLoading(true);
-        const response = await fetch(devUrl + '/Education/Educations');
+        const response = await fetch(prodUrl + '/Education/Educations');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }

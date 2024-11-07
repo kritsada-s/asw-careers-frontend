@@ -192,7 +192,7 @@ export interface PersonalInfo {
     lastName?: string;
     email?: string;
     phone?: string;
-    birthDate?: string;
+    birthDate?: Date;
 }
 
 export interface OtherInfo {

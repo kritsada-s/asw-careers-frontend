@@ -1,8 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import { bConnectionID } from './utils';
-import { devUrl, default_params } from './utils';
-import { Company, Job, JobResponse, Position} from './types';
-import React from 'react';
+import {prodUrl, default_params } from './utils';
+import { Company, JobResponse, Position} from './types';
 
 interface ApiResponse<T> {
   data: T;
@@ -12,7 +11,7 @@ interface ApiResponse<T> {
 
 function getApiClient() {
   return axios.create({
-    baseURL: devUrl,
+    baseURL: prodUrl,
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'text/plain'
@@ -123,7 +122,7 @@ export async function fetchedJobs(): Promise<JobResponse> {
   const config = {
     method: 'post',
     maxBodyLength: Infinity,
-    url: devUrl+'/JobAnnouncement/JobAnnouncementsByPage',
+    url: prodUrl+'/JobAnnouncement/JobAnnouncementsByPage',
     headers: { 
       'Content-Type': 'application/json'
     },
@@ -143,7 +142,7 @@ export async function fetchPosition(id:string) {
   const config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: devUrl+'/JobAnnouncement/JobAnnouncement/'+id,
+    url: prodUrl+'/JobAnnouncement/JobAnnouncement/'+id,
     headers: { 
       'Content-Type': 'application/json'
     },
@@ -171,7 +170,7 @@ export async function fetchProfileData(email: string): Promise<ProfileData> {
 
   const config = {
     method: 'get',
-    url: devUrl+'/secure/Candidate/GetCandidate/'+email,
+    url: prodUrl+'/secure/Candidate/GetCandidate/'+email,
     headers: { 
       'Authorization': 'Bearer '+localStorage.authToken
     }

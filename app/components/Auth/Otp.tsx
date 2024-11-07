@@ -1,4 +1,4 @@
-import { devUrl } from '@/lib/utils';
+import { prodUrl } from '@/lib/utils';
 import axios from 'axios';
 import React, { useState } from 'react';
 
@@ -38,7 +38,7 @@ export default function OtpStep({
 
       const config = {
         method: 'post',
-        url: devUrl+'/Authorization/OTPSubmit',
+        url: prodUrl+'/Authorization/OTPSubmit',
         headers: { 
           'Content-Type': 'multipart/form-data'
         },

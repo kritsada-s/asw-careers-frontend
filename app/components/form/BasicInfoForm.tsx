@@ -97,6 +97,7 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     const requiredFields: FormField[] = ['expectedSalary', 'experience'];
     const hasErrors = requiredFields.some(field => !formData[field]);
     

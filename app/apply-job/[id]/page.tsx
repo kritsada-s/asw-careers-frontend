@@ -12,6 +12,8 @@ import OthersInfoForm from '@/app/components/form/OthersInfoForm';
 import { ProgressSteps } from '@/app/components/layout/FormProgress';
 import { useApplicationForm } from '@/app/hooks/useForm';
 import Crypt from '@/lib/Crypt';
+import { prodUrl } from '@/lib/utils';
+import axios from 'axios';
 
 const FORM_STEPS = [
   { id: 'basic', title: 'ข้อมูลเบื้องต้น' },
@@ -52,7 +54,7 @@ export default function ApplyJobPage() {
       lastName: 'Doe',
       email: 'john.doe@example.com',
       phone: '0891234567',
-      birthDate: '1990-01-01',
+      birthDate: new Date('1991-12-13 05:30').toISOString(),
       nationality: 'Thai',
 
       // Address Info
@@ -161,12 +163,12 @@ export default function ApplyJobPage() {
         CandidateID: decryptedToken.CandidateID, // Assuming this will be generated or fetched from somewhere
         Revision: 1, // Assuming a default revision number
         Email: decryptedToken.Email || '',
-        TitleID: 0, // Assuming this will be set based on your application logic
+        TitleID: 1, // Assuming this will be set based on your application logic
         FirstName: formData.firstName || '',
         LastName: formData.lastName || '',
         NickName: formData.nickname || '',
         Tel: formData.phone || '',
-        DateOfBirth: formData.birthDate || '',
+        DateOfBirth: formData.birthDate ? new Date(formData.birthDate).toISOString() : new Date().toISOString(),
         Gender: {
           GenderID: formData.gender || 1, // Assuming this will be set based on your application logic
           Description: '' // Assuming this will be set based on your application logic
@@ -212,16 +214,84 @@ export default function ApplyJobPage() {
         }]
       };
 
-      console.log('Candidate Data:', candidateData);
+      //console.log('Candidate Data:', candidateData);
 
-      // Your API call here
-      // await submitApplication(submitData);
+      const sendingFormData = require('form-data');
+      let apiFormData = new sendingFormData();
+      apiFormData.append('JobID', jobId);
+      //apiFormData.append('JobID', 3);
+      apiFormData.append('Candidate.CandidateID', decryptedToken.CandidateID);
+      //apiFormData.append('Candidate.Revision', '1');
+      apiFormData.append('Candidate.Email', decryptedToken.Email);
+      apiFormData.append('Candidate.TitleID', 1);
+      apiFormData.append('Candidate.FirstName', formData.firstName);
+      apiFormData.append('Candidate.LastName', formData.lastName);
+      apiFormData.append('Candidate.NickName', formData.nickname);
+      apiFormData.append('Candidate.Tel', formData.phone);
+      apiFormData.append('Candidate.DateOfBirth', formData.birthDate);
+      apiFormData.append('Candidate.Gender.GenderID', 1);
+      apiFormData.append('Candidate.MaritalStatus.MaritalStatusID', 1);
+      apiFormData.append('Candidate.Image', formData.profileImage);
+      apiFormData.append('Candidate.CV', formData.cv);
+      apiFormData.append('Candidate.AddressDetails', formData.addressLine1 + ', ' + formData.addressLine2);
+      apiFormData.append('Candidate.Province.ProvinceID', formData.province ? Number(formData.province) : 1);
+      apiFormData.append('Candidate.District.DistrictID', formData.district ? Number(formData.district) : 1001);
+      apiFormData.append('Candidate.District.ProvinceID', formData.district ? Number(formData.district) : 1001);
+      apiFormData.append('Candidate.Subdistrict.SubdistrictID', formData.subdistrict ? Number(formData.subdistrict) : 100101);
+      apiFormData.append('Candidate.Subdistrict.DistrictID', formData.district ? Number(formData.district) : 1001);
+      apiFormData.append('Candidate.Subdistrict.PostCode', formData.postalCode ? Number(formData.postalCode) : 10200);
+      apiFormData.append('Candidate.PostalCode', formData.postalCode ? Number(formData.postalCode) : 10200);
+      apiFormData.append('Candidate.SourceInformation.SourceInformationID', 1);
+      apiFormData.append('Candidate.PDPAAccepted', true);
+      apiFormData.append('Candidate.PDPAAcceptedDate', new Date().toISOString());
+      apiFormData.append('Candidate.CandidateEducations[0].EducationID', formData.education ? Number(formData.education) : 1);
+      apiFormData.append('Candidate.CandidateEducations[0].Major', 'computer science');
+      //apiFormData.append('Candidate.CandidateLanguages[0].LanguageID', formData.language ? Number(formData.language) : 1);
+
+      // for (let pair of apiFormData.entries()) {
+      //   console.log(pair[0], pair[1]);
+      // }
+
+      const config = {
+        method: 'POST',
+        contentType: 'multipart/form-data',
+        url: prodUrl+'/secure/Candidate/Create',
+        //url: 'https://7125-202-80-250-90.ngrok-free.app/secure/Candidate/Create',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+        data: apiFormData,
+        validateStatus: () => true,
+        maxBodyLength: Infinity,
+        maxContentLength: Infinity,
+      };
+
+      console.log('Auth Token:', authToken);
+      console.log('Request URL:', config.url);
+      console.log('Request Headers:', config.headers);
+
+      const response = await axios.request(config);
       
-      // Handle success (e.g., redirect or show success message)
+      if (response.status !== 200) {
+        console.error('API Error Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          data: response.data
+        });
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      }
+
+      console.log('Success Response:', response.data);
       
     } catch (error) {
       console.error('Submission error:', error);
-      // Handle error (e.g., show error message)
+      if (axios.isAxiosError(error)) {
+        console.error('Axios Error Details:', {
+          response: error.response?.data,
+          status: error.response?.status,
+          headers: error.response?.headers
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }

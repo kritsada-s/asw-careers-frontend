@@ -1,4 +1,4 @@
-import { devUrl } from '@/lib/utils';
+import { prodUrl } from '@/lib/utils';
 import axios from 'axios';
 import React, { useState } from 'react';
 
@@ -29,7 +29,7 @@ export default function EmailStep({ onSubmit, isLoading, setIsLoading }: EmailSt
 
       const config = {
         method: 'post',
-        url: devUrl+'/Authorization/RequestOTP',
+        url: prodUrl+'/Authorization/RequestOTP',
         headers: { 
           'Content-Type': 'multipart/form-data'
         },

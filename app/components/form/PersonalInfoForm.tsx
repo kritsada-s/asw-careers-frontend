@@ -224,7 +224,7 @@ export default function PersonalInfoForm({
               id="birthDate"
               name="birthDate"
               type="date" 
-              value={formData.birthDate ? new Date(formData.birthDate).toISOString().split('T')[0] : ''}
+              value={formData.birthDate ? new Date(formData.birthDate).toISOString()[0] : ''}
               onChange={(e) => updateField('birthDate', new Date(e.target.value).toISOString())}
                 required 
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 leading-none ${
