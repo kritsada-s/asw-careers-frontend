@@ -33,8 +33,9 @@ const ApplyJobPage = () => {
   const [jobTitle, setJobTitle] = useState<string>('');
   const [position, setPosition] = useState<Position | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const token = useToken();
-
+  
   const {
     formData,
     updateField,
@@ -77,23 +78,19 @@ const ApplyJobPage = () => {
       }
     });
   }, [updateField]);
-
+  
   useEffect(() => {
-    if (!token) {
-      window.location.href = '/';
-      return;
+    if (typeof window !== 'undefined') {
+      const authToken = localStorage.getItem('authToken');
+      if (!authToken) {
+        window.location.href = '/'; // Redirect to home page if authToken does not exist
+      } else {
+        setAuthToken(authToken);
+        setIsLoading(false);
+        setIsAuthenticated(true); // Set authenticated state if token exists
+      }
     }
-    
-    const decrypted = Crypt(token);
-    if (!decrypted) {
-      window.location.href = '/';
-      return;
-    }
-    
-    setAuthToken(token);
-    setDecryptedToken(decrypted);
-    setIsAuthenticated(true);
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     if (!jobId) return;
@@ -266,6 +263,10 @@ const ApplyJobPage = () => {
       }
     }
   ];
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   const CurrentStepComponent = formSteps[currentStep].component;
   const currentStepProps = formSteps[currentStep].props;

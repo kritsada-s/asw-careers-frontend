@@ -1,6 +1,5 @@
 "use client";
 
-import { Typography } from "@mui/material";
 import SearchBox from "../ui/HomeSearchBox";
 
 function HomeSearchHeader() {

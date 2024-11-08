@@ -8,7 +8,7 @@ import { WorkLocation } from '../components/ui/WorkLocation';
 import { timeAgo } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 import { useModal } from '../components/MUIProvider';
-import useToken from '../hooks/useToken';
+import useToken from '@/app/hooks/useToken';
 
 interface fetchedJobs {
   jobs: Job

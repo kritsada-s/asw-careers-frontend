@@ -56,7 +56,7 @@ const Header = () => {
             <Link href={{ pathname:'/jobs' }} title="">ตำแหน่งงาน</Link>
             <Link href="/#welfareBenefit" title="">สวัสดิการ</Link>
           </nav>
-          <Button onClick={()=>checkLogin()} variant="contained" color="success" size="medium" className="leading-none px-4 font-semibold" sx={{ borderRadius: '30px' }}>ตรวจสอบสถานะ</Button>
+          <button onClick={()=>checkLogin()} className="leading-none px-4 py-1 font-semibold text-white bg-leadfrog-green hover:bg-kryptonite-green rounded-full">ตรวจสอบสถานะ</button>
         </div>
       </div>
       <AuthModal isOpen={isAuthopen} onClose={()=>setIsAuthOpen(false)}/>

@@ -8,7 +8,7 @@ import theme from '../theme';
 import AuthModal from './Auth/AuthModal';
 import Crypt from '@/lib/Crypt';
 import { isNotExpired } from '@/lib/dateUtils';
-import useToken from '../hooks/useToken';
+import useToken from '@/app/hooks/useToken';
 
 // Define types
 type ModalType = 'auth' | 'confirm' | 'alert';
@@ -77,6 +77,7 @@ export default function MUIProvider({ children }: { children: React.ReactNode })
     config: null
   });
   const [isTokenNotExpired, setIsTokenNotExpired] = useState(false);
+  const token = useToken();
 
   const openModal = useCallback((config: ModalConfig) => {
     setModalState({
@@ -91,8 +92,6 @@ export default function MUIProvider({ children }: { children: React.ReactNode })
       config: null
     });
   }, []);
-
-  const token = useToken();
 
   const isTokenNotExpiredFn = useCallback(() => {
     if (typeof window !== 'undefined') {
