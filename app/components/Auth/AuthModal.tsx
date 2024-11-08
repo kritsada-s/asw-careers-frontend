@@ -53,7 +53,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, onError }: AuthM
       <div className="relative bg-white rounded-lg shadow-xl flex w-full max-w-3xl mx-4 overflow-hidden lg:min-h-[650px] z-20">
         {/* Left Side - Image */}
         <div className="w-1/2 relative hidden md:flex md:justify-center md:items-center bg-custom-light-blue">
-          <div className={`img-wrapper relative `+(currentStep === 'email' ? 'w-2/3 h-2/3':'w-1/2 h1/2')}>
+          <div className={`img-wrapper relative `+(currentStep === 'email' ? 'w-2/3 h-2/3':'w-1/2 h-1/2')}>
             <Image
               src={currentStep === 'email' 
                 ? '/images/email-step-img.png' 
@@ -105,8 +105,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess, onError }: AuthM
           {currentStep === 'success' && (
             <div className="text-center">
               <div className="text-green-500 text-6xl mb-4">✓</div>
-              <h3 className="text-xl font-semibold mb-2">Success!</h3>
-              <p className="text-gray-600">Redirecting to your profile...</p>
+              <h3 className="text-xl font-semibold mb-2">เข้าสู่ระบบสำเร็จ !</h3>
+              <p className="text-gray-600">กำลังนำคุณไปยังหน้าโปรไฟล์...</p>
             </div>
           )}
         </div>
