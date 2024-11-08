@@ -168,11 +168,17 @@ export async function fetchProfileData(email: string): Promise<ProfileData> {
   const formData = new FormData();
   formData.append('email', email);
 
+  let token;
+
+  if (typeof window !== 'undefined') {
+    token = window?.localStorage.getItem('authToken') || '';
+  }
+
   const config = {
     method: 'get',
     url: prodUrl+'/secure/Candidate/GetCandidate/'+email,
     headers: { 
-      'Authorization': 'Bearer '+localStorage.authToken
+      'Authorization': 'Bearer '+token
     }
   };
 

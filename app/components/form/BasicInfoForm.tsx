@@ -131,7 +131,7 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
             <div className="relative w-32 h-32 mx-auto mb-4">
               <div className="w-full h-full rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center">
                 {profilePreview ? (
-                  <img src={profilePreview} alt="Profile Preview" className="w-full h-full rounded-full object-cover" />
+                  <Image src={profilePreview} alt="Profile Preview" className="w-full h-full rounded-full object-cover" />
                 ) : (
                   <span className="text-gray-400">No image</span>
                 )}

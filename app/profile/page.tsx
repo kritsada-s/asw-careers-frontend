@@ -13,11 +13,9 @@ export default function ProfilePage() {
   const [tokenDate, setTokenDate] = useState<string | null>(null);
 
   const logOut = () => {
-    if (localStorage.authToken) {
-      localStorage.removeItem('authToken')
-
+    if (typeof window !== 'undefined') {
+      window?.localStorage.removeItem('authToken')
       console.log('logout redirecting...');
-      
       redirectToHome();
     }
   }
@@ -39,7 +37,7 @@ export default function ProfilePage() {
         setTokenDate(authData.ExpiredDate)
         setProfileData(data);
       } catch (err) {
-        setError('Failed to load profile data');
+        setError('ไม่สามารถโหลดข้อมูลโปรไฟล์ได้');
         console.error('Profile loading error:', err);
       } finally {
         setLoading(false);
@@ -59,16 +57,24 @@ export default function ProfilePage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div>Error: {error}</div>
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <h4 className='text-xl font-bold'>{error}</h4>
+        <p className='text-neutral-500 mb-4'>กรุณาลองอีกครั้งภายหลัง</p>
+        <p>
+          <a href="/" title='กลับสู่หน้าแรก' className='text-primary-700 underline'>กลับสู่หน้าแรก</a> หรือ <button className='px-2 py-1 bg-red-500 text-white rounded-md' onClick={()=>logOut()}>ออกจากระบบ</button>
+        </p>
       </div>
     );
   }
 
   if (!profileData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div>No profile data available</div>
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <h4 className='text-xl font-bold'>ไม่พบข้อมูลโปรไฟล์</h4>
+        <p className='text-neutral-500 mb-4'>กรุณาลองอีกครั้งภายหลัง</p>
+        <p>
+          <a href="/" title='กลับสู่หน้าแรก' className='text-primary-700 underline'>กลับสู่หน้าแรก</a> หรือ <button className='px-2 py-1 bg-red-500 text-white rounded-md' onClick={()=>logOut()}>ออกจากระบบ</button>
+        </p>
       </div>
     );
   }

@@ -8,6 +8,7 @@ import theme from '../theme';
 import AuthModal from './Auth/AuthModal';
 import Crypt from '@/lib/Crypt';
 import { isNotExpired } from '@/lib/dateUtils';
+import useToken from '../hooks/useToken';
 
 // Define types
 type ModalType = 'auth' | 'confirm' | 'alert';
@@ -75,6 +76,7 @@ export default function MUIProvider({ children }: { children: React.ReactNode })
     isOpen: false,
     config: null
   });
+  const [isTokenNotExpired, setIsTokenNotExpired] = useState(false);
 
   const openModal = useCallback((config: ModalConfig) => {
     setModalState({
@@ -90,15 +92,18 @@ export default function MUIProvider({ children }: { children: React.ReactNode })
     });
   }, []);
 
-  const isTokenNotExpired = useCallback(() => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      const decrypted = Crypt(token);
-      const expiryDate = decrypted.ExpiredDate;
-      return isNotExpired(expiryDate);
+  const token = useToken();
+
+  const isTokenNotExpiredFn = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      if (token) {
+        const decrypted = Crypt(token);
+        const expiryDate = decrypted.ExpiredDate;
+        return isNotExpired(expiryDate);
+      }
     }
     return false;
-  }, []);
+  }, [token]);
 
   const handleSuccess = useCallback((data: any) => {
     modalState.config?.onSuccess?.(data);
@@ -110,7 +115,7 @@ export default function MUIProvider({ children }: { children: React.ReactNode })
   }, [modalState.config]);
 
   return (
-    <ModalContext.Provider value={{ openModal, closeModal, modalState, isTokenNotExpired }}>
+    <ModalContext.Provider value={{ openModal, closeModal, modalState, isTokenNotExpired: isTokenNotExpiredFn }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         {children}

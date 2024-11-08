@@ -10,6 +10,7 @@ import { getCompanies } from "@/lib/api";
 import { Job } from "@/lib/types";
 import { useModal } from "../MUIProvider";
 import { useRouter } from "next/navigation";
+import useToken from "@/app/hooks/useToken";
 
 interface JobResponse {
     jobs: Job[];
@@ -21,7 +22,8 @@ function HomeJobsListed() {
     const [jobs, setJobs] = useState<Job[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { openModal, isTokenNotExpired } = useModal();
+    const { openModal } = useModal();
+    const token = useToken();
 
     const path = "/JobAnnouncement/JobAnnouncementsByPage";
 
@@ -119,21 +121,12 @@ function HomeJobsListed() {
                 )}
                 <div className="h-5 lg:h-14"></div>
 
-                {isTokenNotExpired() ? (
-                    <div className="flex justify-center items-center gap-2 flex-col md:flex-row">
-                        <Typography variant="h5">ยังไม่มีตำแหน่งงานที่สนใจ ?</Typography>
-                        <button onClick={handleUpdateProfile} className="bg-orange-600 text-white px-5 py-1 rounded-full transition hover:scale-105 duration-300">
-                            <Typography variant="h5">อัพเดตประวัติ</Typography>
-                        </button>
-                    </div>
-                ) : (
-                    <div className="flex justify-center items-center gap-2 flex-col md:flex-row">
-                        <Typography variant="h5">ไม่พบตำแหน่งงานที่สนใจ ?</Typography>
-                        <button onClick={handleLeaveProfile} className="bg-orange-600 text-white px-5 py-1 rounded-full transition hover:scale-105 duration-300">
-                            <Typography variant="h5">ลงทะเบียนฝากประวัติ</Typography>
-                        </button>
-                    </div>
-                )}
+                <div className="flex justify-center items-center gap-2 flex-col md:flex-row">
+                    <Typography variant="h5">{ token ? 'ยังไม่มีตำแหน่งงานที่สนใจ ?' : 'ไม่พบตำแหน่งงานที่สนใจ ?' }</Typography>
+                    <button onClick={handleLeaveProfile} className="bg-orange-600 text-white px-5 py-1 rounded-full transition hover:scale-105 duration-300">
+                        <Typography variant="h5">{ token ? 'อัพเดตประวัติ' : 'ลงทะเบียนฝากประวัติ' }</Typography>
+                    </button>
+                </div>
             </div>
         </div>
     );

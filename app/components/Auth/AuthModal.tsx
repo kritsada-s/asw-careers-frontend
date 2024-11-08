@@ -1,4 +1,3 @@
-// components/auth/AuthModal.tsx
 "use client";
 
 import React, { useState } from 'react';
@@ -33,7 +32,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, onError }: AuthM
   // Success handler
   const handleSuccess = (token: string) => {
     // Store token in session
-    localStorage.setItem('authToken', token);    
+    window?.localStorage.setItem('authToken', token);    
     // Show success state briefly before redirecting
     setCurrentStep('success');
     setTimeout(() => {

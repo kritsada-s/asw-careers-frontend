@@ -1,19 +1,20 @@
 // app/jobs/page.tsx
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { fetchCompanyLocations, fetchedJobs, fetchLocationByID } from '@/lib/api';
 import { Job } from '@/lib/types';
 import { WorkLocation } from '../components/ui/WorkLocation';
 import { timeAgo } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 import { useModal } from '../components/MUIProvider';
+import useToken from '../hooks/useToken';
 
 interface fetchedJobs {
   jobs: Job
 }
 
-export default function JobsPage() {
+const JobsPage = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,14 +50,16 @@ export default function JobsPage() {
     };
 
     fetchJobs();
-  }, []);
+  }, [params]);
 
   const handleJobSelect = (job: Job) => {
     setSelectedJob(job);
   };
 
+  const token = useToken();
+
   const handleJobSubmit = () => {
-    if (localStorage.getItem('authToken')) {
+    if (token) {
       window.location.href = '/apply-job/'+selectedJob?.jobID;
     } else {
       console.log('can not submit please login.');
@@ -139,3 +142,13 @@ export default function JobsPage() {
     </div>
   );
 }
+
+const App = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <JobsPage />
+    </Suspense>
+  )
+}
+
+export default App;

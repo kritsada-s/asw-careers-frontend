@@ -23,21 +23,23 @@ const Header = () => {
   };
 
   const checkLogin = () => {
-    if (localStorage.authToken) {
-      window.location.href = '/profile'
-    } else {
-      openModal({
-        type: 'auth',
-        props: {
-          initialStep: 'otp'
+    if (typeof window !== 'undefined') {
+      if (window?.localStorage.getItem('authToken')) {
+        window.location.href = '/profile'
+      } else {
+        openModal({
+          type: 'auth',
+          props: {
+            initialStep: 'otp'
         },
         onSuccess: (data) => {
           console.log('Login successful:', data);
         },
         onError: (error) => {
           console.error('Login failed:', error);
-        }
-      });
+          }
+        });
+      } 
     }
   }
 

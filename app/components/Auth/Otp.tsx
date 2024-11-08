@@ -63,7 +63,7 @@ export default function OtpStep({
     <div>
       <h2 className="text-2xl font-bold mb-6">Enter verification code</h2>
       <p className="text-gray-600 mb-6">
-        We've sent a code to {email}
+        We have sent a code to {email}
       </p>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">

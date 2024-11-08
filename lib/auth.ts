@@ -10,7 +10,11 @@ interface UserTokenProps {
 
 export function checkAuth(): UserTokenProps | null {
   try {
-    const token = localStorage.getItem('authToken');
+
+    let token;
+    if (typeof window !== 'undefined') {
+      token = window?.localStorage.getItem('authToken');
+    }
     
     if (!token) return null;
 

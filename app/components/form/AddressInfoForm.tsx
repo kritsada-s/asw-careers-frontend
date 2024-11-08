@@ -35,7 +35,7 @@ export default function AddressInfoForm({
       // Automatically select the first district when districts are loaded
       updateField('district', String(districts[0].districtID));
     }
-  }, [districts]);
+  }, [formData.district, districts, updateField]);
 
   useEffect(() => {
     if (formData.district && subDistricts && subDistricts.length > 0) {
@@ -47,7 +47,7 @@ export default function AddressInfoForm({
         updateField('postalCode', firstSubDistrict.PostCode);
       }
     }
-  }, [formData.district, subDistricts]);
+  }, [formData.district, subDistricts, updateField]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -79,3 +79,11 @@ export interface Candidate {
   CandidateEducations: object[]; // Assuming array of objects
   CandidateLanguages: object[]; // Assuming array of objects
 }
+
+// Add this type definition and export
+export type ApplicationFormData = {
+  // Define your form fields here, for example:
+  name: string;
+  email: string;
+  // ... other fields
+};

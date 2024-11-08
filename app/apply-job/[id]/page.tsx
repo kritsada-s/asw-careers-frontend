@@ -1,10 +1,8 @@
 "use client";
-
 import { fetchPosition } from '@/lib/api';
 import { Position, ApplicationFormData } from '@/lib/types';
-import { Candidate } from '@/lib/form';
 import { useParams } from 'next/navigation';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import BasicInfoForm from '@/app/components/form/BasicInfoForm';
 import PersonalInfoForm from '@/app/components/form/PersonalInfoForm';
 import AddressInfoForm from '@/app/components/form/AddressInfoForm';
@@ -14,6 +12,8 @@ import { useApplicationForm } from '@/app/hooks/useForm';
 import Crypt from '@/lib/Crypt';
 import { prodUrl } from '@/lib/utils';
 import axios from 'axios';
+import FormData from 'form-data';
+import useToken from '@/app/hooks/useToken';
 
 const FORM_STEPS = [
   { id: 'basic', title: 'ข้อมูลเบื้องต้น' },
@@ -22,7 +22,7 @@ const FORM_STEPS = [
   { id: 'others', title: 'ข้อมูลเพิ่มเติม' }
 ] as const;
 
-export default function ApplyJobPage() {
+const ApplyJobPage = () => {
   const params = useParams();
   const jobId = params.id as string;
   
@@ -33,6 +33,7 @@ export default function ApplyJobPage() {
   const [jobTitle, setJobTitle] = useState<string>('');
   const [position, setPosition] = useState<Position | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const token = useToken();
 
   const {
     formData,
@@ -75,10 +76,9 @@ export default function ApplyJobPage() {
         updateField(key as keyof ApplicationFormData, value);
       }
     });
-  }, []);
+  }, [updateField]);
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
     if (!token) {
       window.location.href = '/';
       return;
@@ -93,7 +93,7 @@ export default function ApplyJobPage() {
     setAuthToken(token);
     setDecryptedToken(decrypted);
     setIsAuthenticated(true);
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     if (!jobId) return;
@@ -126,98 +126,7 @@ export default function ApplyJobPage() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const submitData = new FormData();
-
-      // Append form data
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value !== undefined) {
-          if (value instanceof File) {
-            submitData.append(key, value, value.name);
-          } else if (Array.isArray(value)) {
-            value.forEach((item, index) => {
-              if (item instanceof File) {
-                submitData.append(`${key}[${index}]`, item, item.name);
-              } else {
-                submitData.append(`${key}[${index}]`, String(item));
-              }
-            });
-          } else {
-            submitData.append(key, String(value));
-          }
-        }
-      });
-
-      // Add position data
-      if (position) {
-        submitData.append('positionId', position.jobID);
-        submitData.append('positionTitle', position.jobPosition);
-      }
-
-      console.log('Form Data Files:', {
-        profileImage: submitData.get('profileImage'),
-        cv: submitData.get('cv')
-      });
-
-      const candidateData: Candidate = {
-        JobID: jobId,
-        CandidateID: decryptedToken.CandidateID, // Assuming this will be generated or fetched from somewhere
-        Revision: 1, // Assuming a default revision number
-        Email: decryptedToken.Email || '',
-        TitleID: 1, // Assuming this will be set based on your application logic
-        FirstName: formData.firstName || '',
-        LastName: formData.lastName || '',
-        NickName: formData.nickname || '',
-        Tel: formData.phone || '',
-        DateOfBirth: formData.birthDate ? new Date(formData.birthDate).toISOString() : new Date().toISOString(),
-        Gender: {
-          GenderID: formData.gender || 1, // Assuming this will be set based on your application logic
-          Description: '' // Assuming this will be set based on your application logic
-        },
-        MaritalStatus: {
-          MaritalStatusID: formData.maritalStatus || 1, // Assuming this will be set based on your application logic
-          Description: '' // Assuming this will be set based on your application logic
-        },
-        ImageUrl: formData.profileImage ? URL.createObjectURL(formData.profileImage) : '', // Convert File to URL for image files (jpg/jpeg)
-        CVUrl: formData.cv ? URL.createObjectURL(formData.cv) : '', // Convert File to URL for PDF files
-        AddressDetails: `${formData.addressLine1 || ''}, ${formData.addressLine2 || ''}`,
-        Province: {
-          ProvinceID: formData.province ? Number(formData.province) : 0,
-          NameTH: '',
-          NameEN: ''
-        },
-        District: {
-          DistrictID: formData.district ? Number(formData.district) : 0,
-          ProvinceID: formData.district ? Number(formData.district) : 0,
-          NameTH: '',
-          NameEN: ''
-        },
-        Subdistrict: {
-          SubdistrictID: formData.subdistrict ? Number(formData.subdistrict) : 0,
-          DistrictID: formData.district ? Number(formData.district) : 0,
-          PostCode: formData.postalCode ? Number(formData.postalCode) : 0,
-          NameTH: '',
-          NameEN: ''
-        },
-        PostalCode: formData.postalCode ? Number(formData.postalCode) : 0,
-        SourceInformation: {
-          SourceInformationID: 0, // Assuming this will be set based on your application logic
-          Description: '' // Assuming this will be set based on your application logic
-        },
-        PDPAAccepted: true, // Assuming this will be set based on your application logic
-        PDPAAcceptedDate: new Date().toISOString(), // Assuming this will be set based on your application logic
-        CandidateEducations: [{
-          EducationID: formData.education ? Number(formData.education) : 1,
-          // Add other required education fields based on your type definition
-        }],
-        CandidateLanguages: [{
-          LanguageID: formData.language ? Number(formData.language) : 1,
-        }]
-      };
-
-      //console.log('Candidate Data:', candidateData);
-
-      const sendingFormData = require('form-data');
-      let apiFormData = new sendingFormData();
+      const apiFormData = new FormData();
       apiFormData.append('JobID', jobId);
       //apiFormData.append('JobID', 3);
       apiFormData.append('Candidate.CandidateID', decryptedToken.CandidateID);
@@ -387,3 +296,13 @@ export default function ApplyJobPage() {
     </div>
   );
 }
+
+const App = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ApplyJobPage />
+    </Suspense>
+  )
+}
+
+export default App;

@@ -163,29 +163,6 @@ export function useEducations() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const eduData = [
-    {
-      "educationID": 1,
-      "description": "ปวช. / Vocational Certificate"
-    },
-    {
-      "educationID": 2,
-      "description": "ปวส. / High Vocational Certificate"
-    },
-    {
-      "educationID": 3,
-      "description": "อนุปริญญา / Diploma"
-    },
-    {
-      "educationID": 4,
-      "description": "ปริญญาตรี / Bachelor's degree"
-    },
-    {
-      "educationID": 5,
-      "description": "ปริญญาเอก / Ph.D."
-    }
-  ]
-
   useEffect(() => {
     async function fetchEducations() {
       try {
@@ -206,6 +183,29 @@ export function useEducations() {
     }
 
     fetchEducations();
+    const eduData = [
+      {
+        "educationID": 1,
+        "description": "ปวช. / Vocational Certificate"
+      },
+      {
+        "educationID": 2,
+        "description": "ปวส. / High Vocational Certificate"
+      },
+      {
+        "educationID": 3,
+        "description": "อนุปริญญา / Diploma"
+      },
+      {
+        "educationID": 4,
+        "description": "ปริญญาตรี / Bachelor's degree"
+      },
+      {
+        "educationID": 5,
+        "description": "ปริญญาเอก / Ph.D."
+      }
+    ];
+
   }, []);
 
   return { educations, isLoading, error };
