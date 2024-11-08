@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { checkAuth, redirectToHome } from '@/lib/auth';
 import { fetchProfileData, type ProfileData } from '@/lib/api';
-import { decrypt } from '@/lib/utils';
-import { isNotExpired } from '@/lib/dateUtils';
+// import { decrypt } from '@/lib/utils';
+// import { isNotExpired } from '@/lib/dateUtils';
 
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
