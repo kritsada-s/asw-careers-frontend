@@ -18,6 +18,8 @@ export function checkAuth(): UserTokenProps | null {
     
     if (!token) return null;
 
+    console.log('token', token);
+
     const decoded = decrypt(token);
 
     return JSON.parse(decoded)

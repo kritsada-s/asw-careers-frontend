@@ -131,7 +131,7 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
             <div className="relative w-32 h-32 mx-auto mb-4">
               <div className="w-full h-full rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center">
                 {profilePreview ? (
-                  <Image src={profilePreview} alt="Profile Preview" className="w-full h-full rounded-full object-cover" />
+                  <Image src={profilePreview} alt="Profile Preview" className="w-full h-full rounded-full object-cover" width={100} height={100} />
                 ) : (
                   <span className="text-gray-400">No image</span>
                 )}
@@ -148,9 +148,9 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
               />
               <label
                 htmlFor="profileImage"
-                className="cursor-pointer bg-primary-600 text-white px-4 py-2 rounded hover:bg-primary-700 transition-colors"
+                className="cursor-pointer bg-primary-600 text-white px-5 py-1 rounded-full hover:bg-primary-700 transition-colors text-sm"
               >
-                Upload Photo
+                อัพโหลดรูปภาพ
               </label>
             </div>
           </div>

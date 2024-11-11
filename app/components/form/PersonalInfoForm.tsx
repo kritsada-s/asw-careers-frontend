@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormStepProps } from '@/lib/types';
 import FormNavigation from '../ui/FormNavigation';
 
@@ -113,12 +113,13 @@ export default function PersonalInfoForm({
               htmlFor="nickname" 
               className="block text-base font-medium text-gray-700"
             >
-              ชื่อเล่น
+              ชื่อเล่น <span className="text-red-500">*</span>
             </label>
             <input
               id="nickname"
               name="nickname"
               type="text" 
+              required
               value={formData.nickname || ''}
               onChange={(e) => updateField('nickname', e.target.value)}
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 leading-none ${
@@ -224,9 +225,9 @@ export default function PersonalInfoForm({
               id="birthDate"
               name="birthDate"
               type="date" 
-              value={formData.birthDate ? new Date(formData.birthDate).toISOString()[0] : ''}
-              onChange={(e) => updateField('birthDate', new Date(e.target.value).toISOString())}
-                required 
+              value={formData.birthDate ? formData.birthDate : ''}
+              onChange={(e) => updateField('birthDate', e.target.value)}
+              required 
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 leading-none ${
                 isFieldTouched('birthDate') && !formData.birthDate ? 'border-red-500' : ''
               }`}
@@ -246,11 +247,11 @@ export default function PersonalInfoForm({
               id="email"
               name="email"
               type="email" 
-              value={decryptedToken?.Email || ''}
+              value={decryptedToken?.Email || 'no email'}
               disabled
               required
               className={`mt-1 block w-full text-gray-400 rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 leading-none cursor-not-allowed ${
-                isFieldTouched('email') && !formData.email ? 'border-red-500' : ''
+                isFieldTouched('email') && !decryptedToken?.Email ? 'border-red-500' : ''
               }`}
             />
             <small className="text-gray-500 text-xs mt-1">อีเมลจะไม่สามารถแก้ไขได้</small>

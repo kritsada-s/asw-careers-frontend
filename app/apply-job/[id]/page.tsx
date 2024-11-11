@@ -14,6 +14,10 @@ import { prodUrl } from '@/lib/utils';
 import axios from 'axios';
 import FormData from 'form-data';
 import useToken from '@/app/hooks/useToken';
+import LoaderHorizontal from '@/app/components/ui/loader';
+import { Alert } from 'flowbite-react';
+import { HiInformationCircle } from 'react-icons/hi';
+import { useUserProfile } from '@/app/hooks/useDataFetching';
 
 const FORM_STEPS = [
   { id: 'basic', title: 'ข้อมูลเบื้องต้น' },
@@ -26,7 +30,7 @@ const ApplyJobPage = () => {
   const params = useParams();
   const jobId = params.id as string;
   
-  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [authToken, setAuthToken] = useState<string>('');
   const [decryptedToken, setDecryptedToken] = useState<any>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,6 +38,8 @@ const ApplyJobPage = () => {
   const [position, setPosition] = useState<Position | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const token = useToken();
   
   const {
@@ -55,8 +61,9 @@ const ApplyJobPage = () => {
       firstName: 'John',
       lastName: 'Doe',
       email: 'john.doe@example.com',
+      nickname: 'John',
       phone: '0891234567',
-      birthDate: new Date('1991-12-13 05:30').toISOString(),
+      birthDate: '1991-12-13',
       nationality: 'Thai',
 
       // Address Info
@@ -78,6 +85,21 @@ const ApplyJobPage = () => {
       }
     });
   }, [updateField]);
+
+  const { profile, isLoading: isLoadingProfile, error } = useUserProfile('kritsada.s@assetwise.co.th');
+
+  const prefillFormWithUserData = useCallback(() => {
+    updateField('firstName', profile?.firstName);
+    updateField('lastName', profile?.lastName);
+    updateField('nickname', profile?.nickName);
+    updateField('phone', profile?.tel);
+    updateField('birthDate', profile?.dateOfBirth);
+    updateField('addressLine1', profile?.addressDetails);
+    updateField('province', profile?.province);
+    updateField('district', profile?.district);
+    updateField('postalCode', profile?.postalCode);
+    console.log(profile?.firstName);
+  }, [profile, updateField]);
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -88,6 +110,7 @@ const ApplyJobPage = () => {
         setAuthToken(authToken);
         setIsLoading(false);
         setIsAuthenticated(true); // Set authenticated state if token exists
+        setDecryptedToken(Crypt(authToken));
       }
     }
   }, []);
@@ -109,8 +132,8 @@ const ApplyJobPage = () => {
   }, [jobId]);
 
   useEffect(() => {
-    prefillFormWithSampleData();
-  }, [prefillFormWithSampleData]);
+    prefillFormWithUserData();
+  }, [prefillFormWithUserData]);
 
   const handleNext = useCallback(() => {
     setCurrentStep(prev => Math.min(prev + 1, FORM_STEPS.length - 1));
@@ -172,22 +195,26 @@ const ApplyJobPage = () => {
         maxContentLength: Infinity,
       };
 
-      console.log('Auth Token:', authToken);
-      console.log('Request URL:', config.url);
-      console.log('Request Headers:', config.headers);
+      // console.log('Auth Token:', authToken);
+      // console.log('Request URL:', config.url);
+      // console.log('Request Headers:', config.headers);
 
       const response = await axios.request(config);
       
-      if (response.status !== 200) {
+      if (response.status === 200) {
+        console.log('Job applied successfully', response.data);
+        localStorage.setItem('authToken', response.data);
+        window.location.href = '/profile';
+      } else {
         console.error('API Error Response:', {
           status: response.status,
           statusText: response.statusText,
           data: response.data
         });
+        setIsError(true);
+        setErrorMessage(response?.data);
         throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
-
-      console.log('Success Response:', response.data);
       
     } catch (error) {
       console.error('Submission error:', error);
@@ -197,6 +224,8 @@ const ApplyJobPage = () => {
           status: error.response?.status,
           headers: error.response?.headers
         });
+        setIsError(true);
+        setErrorMessage(error.response?.data.message);
       }
     } finally {
       setIsSubmitting(false);
@@ -265,7 +294,7 @@ const ApplyJobPage = () => {
   ];
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoaderHorizontal />;
   }
 
   const CurrentStepComponent = formSteps[currentStep].component;
@@ -283,16 +312,22 @@ const ApplyJobPage = () => {
       />
 
       {/* Title */}
-      <h2 className="text-[30px] lg:text-[40px] text-gray-600 text-center mb-6">
+      <h2 className="text-[30px] lg:text-[40px] text-gray-600 text-center">
         สมัครงานตำแหน่ง{' '}
         <strong className='text-primary-700 text-[1.2em] relative underline decoration-1'>
           {jobTitle}
         </strong>
       </h2>
 
+      {isError && (
+        <Alert color="failure" icon={HiInformationCircle} className='mb-4'>
+          <span className="font-medium">{errorMessage}</span>
+        </Alert>
+      )}
+
       {/* Form Container */}
       <div className="bg-[#F2F9FF] rounded-lg shadow p-3 lg:p-6">
-        <CurrentStepComponent {...currentStepProps} />
+        <CurrentStepComponent {...currentStepProps}/>
       </div>
     </div>
   );
@@ -300,7 +335,7 @@ const ApplyJobPage = () => {
 
 const App = () => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<LoaderHorizontal />}>
       <ApplyJobPage />
     </Suspense>
   )

@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { bConnectionID } from './utils';
 import {prodUrl, default_params } from './utils';
 import { Company, JobResponse, Position} from './types';
+import { Candidate } from './form';
 
 interface ApiResponse<T> {
   data: T;
@@ -159,12 +160,63 @@ export async function fetchPosition(id:string) {
 }
 
 export interface ProfileData {
-  id: string;
-  name: string;
-  email: string;
+    candidateID: string;
+    revision: number;
+    email: string;
+    titleID: number;
+    firstName: string;
+    lastName: string;
+    nickName: string | null;
+    tel: string;
+    dateOfBirth: string;
+    gender: {
+        genderID: number;
+        description: string;
+    };
+    maritalStatus: {
+        maritalStatusID: number;
+        description: string;
+    };
+    imageUrl: string;
+    image: string | null;
+    cvUrl: string;
+    cv: string | null;
+    addressDetails: string;
+    province: {
+        provinceID: number;
+        nameTH: string;
+        nameEN: string;
+    };
+    district: {
+        districtID: number;
+        provinceID: number;
+        nameTH: string;
+        nameEN: string;
+    };
+    subdistrict: {
+        subdistrictID: number;
+        districtID: number;
+        postCode: string | null;
+        nameTH: string | null;
+        nameEN: string | null;
+    };
+    postalCode: string | null;
+    sourceInformation: {
+        sourceInformationID: number;
+        description: string;
+    };
+    pdpaAccepted: boolean;
+    pdpaAcceptedDate: string;
+    candidateEducations: {
+        candidateID: string;
+        revision: number;
+        educationID: number;
+        major: string;
+    }[];
+    candidateLanguages: any[]; // Adjust type as necessary
 }
 
-export async function fetchProfileData(email: string): Promise<ProfileData> {
+export async function fetchProfileData(email: string): Promise<Candidate> {
   const formData = new FormData();
   formData.append('email', email);
 

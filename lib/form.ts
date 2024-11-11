@@ -29,55 +29,57 @@
 
 // export type FormField = keyof ApplicationFormData;
 
+
+
 export interface Candidate {
-  JobID: string; // Assuming uuid is represented as a string
-  CandidateID: string;
-  Revision: number; // Assuming integer is represented as number
-  Email: string;
-  TitleID: number; // Assuming integer is represented as number
-  FirstName: string;
-  LastName: string;
-  NickName: string;
-  Tel: string;
-  DateOfBirth: string; // Assuming dateTime is represented as string
-  Gender: {
-    GenderID: number; // Assuming integer is represented as number
-    Description: string;
+  jobID: string; // Assuming uuid is represented as a string
+  candidateID: string;
+  revision: number; // Assuming integer is represented as number
+  email: string;
+  titleID: number; // Assuming integer is represented as number
+  firstName: string;
+  lastName: string;
+  nickName: string;
+  tel: string;
+  dateOfBirth: string; // Assuming dateTime is represented as string
+  gender: {
+    genderID: number; // Assuming integer is represented as number
+    description: string;
   };
-  MaritalStatus: {
-    MaritalStatusID: number; // Assuming integer is represented as number
-    Description: string;
+  maritalStatus: {
+    maritalStatusID: number; // Assuming integer is represented as number
+    description: string;
   };
-  ImageUrl: string;
-  CVUrl: string;
-  AddressDetails: string;
-  Province: {
-    ProvinceID: number; // Assuming integer is represented as number
-    NameTH: string;
-    NameEN: string;
+  imageUrl: string;
+  cvUrl: string;
+  addressDetails: string;
+  province: {
+    provinceID: number; // Assuming integer is represented as number
+    nameTH: string;
+    nameEN: string;
   };
-  District: {
-    DistrictID: number; // Assuming integer is represented as number
-    ProvinceID: number; // Assuming integer is represented as number
-    NameTH: string;
-    NameEN: string;
+  district: {
+    districtID: number; // Assuming integer is represented as number
+    provinceID: number; // Assuming integer is represented as number
+    nameTH: string;
+    nameEN: string;
   };
-  Subdistrict: {
-    SubdistrictID: number; // Assuming integer is represented as number
-    DistrictID: number; // Assuming integer is represented as number
-    PostCode: number;
-    NameTH: string;
-    NameEN: string;
+  subdistrict: {
+    subdistrictID: number; // Assuming integer is represented as number
+    districtID: number; // Assuming integer is represented as number
+    postCode: number;
+    nameTH: string;
+    nameEN: string;
   };
-  PostalCode: number;
-  SourceInformation: {
-    SourceInformationID: number; // Assuming integer is represented as number
-    Description: string;
+  postalCode: number;
+  sourceInformation: {
+    sourceInformationID: number; // Assuming integer is represented as number
+    description: string;
   };
-  PDPAAccepted: boolean;
-  PDPAAcceptedDate: string; // Assuming dateTime is represented as string
-  CandidateEducations: object[]; // Assuming array of objects
-  CandidateLanguages: object[]; // Assuming array of objects
+  pdpAAccepted: boolean;
+  pdpAAcceptedDate: string; // Assuming dateTime is represented as string
+  candidateEducations: object[]; // Assuming array of objects
+  candidateLanguages: object[]; // Assuming array of objects
 }
 
 // Add this type definition and export

@@ -5,6 +5,7 @@ import { prodUrl } from '@/lib/utils';
 import { districts as districtsData } from '@/lib/data';
 import { subDistricts as subDistrictsData } from '@/lib/data';
 import { provinces as provincesData } from '@/lib/data';
+import { Candidate } from '@/lib/form';
 
 // Hook for fetching Data
 export function useWorkLocation(comp: string, loc: string) {
@@ -211,5 +212,46 @@ export function useEducations() {
   return { educations, isLoading, error };
 }
 
+export function useUserProfile (email: string) {
+  const [profile, setProfile] = useState<Candidate | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  let authToken = '';
+
+  if (typeof window !== 'undefined') {
+    authToken = localStorage.getItem('authToken') || '';
+  }
+
+  useEffect(() => {
+    async function fetchUserProfile() {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`${prodUrl}/secure/Candidate/GetCandidate/${email}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setProfile(data);
+      } catch (error: any) {
+        console.error('Error fetching user profile:', error);
+        setError(error?.message || 'An unknown error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (email) {
+      fetchUserProfile();
+    }
+
+  }, [email, authToken]);
+
+  return { profile, isLoading, error };
+};
 
 

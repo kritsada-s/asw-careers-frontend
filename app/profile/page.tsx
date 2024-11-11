@@ -3,11 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import { checkAuth, redirectToHome } from '@/lib/auth';
 import { fetchProfileData, type ProfileData } from '@/lib/api';
+import LoaderHorizontal from '../components/ui/loader';
+import { Candidate } from '@/lib/form';
 // import { decrypt } from '@/lib/utils';
 // import { isNotExpired } from '@/lib/dateUtils';
 
 export default function ProfilePage() {
-  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [profileData, setProfileData] = useState<Candidate | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tokenDate, setTokenDate] = useState<string | null>(null);
@@ -24,6 +26,7 @@ export default function ProfilePage() {
     async function initializeProfile() {
       // Check authentication
       const authData = checkAuth();
+      console.log('authData', authData);
       
       if (!authData) {
         alert('Please log in to view your profile');
@@ -34,6 +37,10 @@ export default function ProfilePage() {
       try {
         // Fetch profile data
         const data = await fetchProfileData(authData.Email);
+        console.log('data', data);
+        const userProfileData = {
+          firstName: data.firstName,
+        }
         setTokenDate(authData.ExpiredDate)
         setProfileData(data);
       } catch (err) {
@@ -49,9 +56,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div>Loading profile...</div>
-      </div>
+      <LoaderHorizontal />
     );
   }
 
@@ -83,18 +88,20 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Profile</h1>
-      <p>Token will expired at: {tokenDate}</p>
-      <button className='bg-red-500 text-white' onClick={()=>logOut()}>ออกจากระบบ</button>
+      <h3>รหัสประจำตัวผู้สมัคร : {profileData.candidateID}</h3>
+      <p>Token will expired at: {tokenDate ? new Date(tokenDate).toLocaleString() : 'N/A'}</p>
       <div className="space-y-4">
         <div>
-          <label className="font-medium">Name:</label>
-          <div>{profileData.name}</div>
+          <label className="font-medium">ชื่อ-สกุล:</label>
+          <div>{profileData.firstName} {profileData.lastName}</div>
         </div>
 
         <div>
           <label className="font-medium">Email:</label>
           <div>{profileData.email}</div>
         </div>
+
+        <button className='bg-red-500 hover:bg-red-600 text-white rounded-md px-4 py-1' onClick={()=>logOut()}>ออกจากระบบ</button>
 
         {/* Add more profile fields as needed */}
       </div>
