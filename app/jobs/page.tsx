@@ -1,7 +1,7 @@
 // app/jobs/page.tsx
 "use client";
 
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState, useRef } from 'react';
 import { fetchCompanyLocations, fetchedJobs, fetchLocationByID } from '@/lib/api';
 import { Job } from '@/lib/types';
 import { WorkLocation } from '../components/ui/WorkLocation';
@@ -9,6 +9,8 @@ import { timeAgo } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 import { useModal } from '../components/MUIProvider';
 import useToken from '@/app/hooks/useToken';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 
 interface fetchedJobs {
   jobs: Job
@@ -20,7 +22,10 @@ const JobsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const params = useSearchParams();
+  const [isMobile, setIsMobile] = useState(false);
+  const [isSelectedJobOpen, setIsSelectedJobOpen] = useState(false);
   const { openModal } = useModal()
+  const jobDetailsRef = useRef<HTMLDivElement>(null);
 
   const findJobById = (jobs: Job[], searchId: string | null): Job | null => {
     return jobs.find(job => job.jobID === searchId) || null;
@@ -52,17 +57,39 @@ const JobsPage = () => {
     fetchJobs();
   }, [params]);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsMobile(window.innerWidth < 768);
+    }
+  }, [isMobile]);
+
   const handleJobSelect = (job: Job) => {
     setSelectedJob(job);
+    if (isMobile) {
+      setIsSelectedJobOpen(true);
+    }
   };
 
+  useGSAP(() => {
+    if (jobDetailsRef.current) {
+      if (isSelectedJobOpen) {
+        gsap.fromTo(jobDetailsRef.current, { opacity: 0, y: 800 }, { opacity: 1, y: 0, duration: 0.3});
+      } else {
+        gsap.fromTo(jobDetailsRef.current, { opacity: 1, y: 0 }, { opacity: 0, y: 800, duration: 0.3});
+      }
+    }
+  }, [isSelectedJobOpen]);
+
   const token = useToken();
+
+  const handleCloseSelectedJob = () => {
+    setIsSelectedJobOpen(false);
+  }
 
   const handleJobSubmit = () => {
     if (token) {
       window.location.href = '/apply-job/'+selectedJob?.jobID;
     } else {
-      console.log('can not submit please login.');
       openModal({
         type: 'auth',
         props: {
@@ -82,18 +109,18 @@ const JobsPage = () => {
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100 flex-col md:flex-row relative">
       {/* Left Sidebar */}
-      <div className="w-1/3 border-r border-gray-200 bg-white">
+      <div className="w-full md:w-1/3 border-r border-gray-200 bg-white">
         <div className="p-4 border-b border-gray-200">
           <h2 className="text-xl font-semibold">ตำแหน่งงานทั้งหมด</h2>
         </div>
-        <div className="overflow-y-auto h-[calc(100vh-64px)] p-6 bg-[#f6f6f6] flex flex-col gap-4">
+        <div className="overflow-y-auto h-[calc(100vh-64px)] p-4 lg:p-6 bg-[#f6f6f6] flex flex-col gap-4">
           {jobs.map((job) => (
             <div
               key={job.jobID}
               onClick={() => handleJobSelect(job)}
-              className={`p-4 cursor-pointer bg-white hover:bg-gray-50 rounded transition-colors ${selectedJob?.jobID === job.jobID ? 'bg-gradient-to-br from-primary-400 to-primary-700' : ''}`}
+              className={`p-4 leading-none cursor-pointer bg-white hover:bg-gray-50 rounded transition-colors ${selectedJob?.jobID === job.jobID ? 'bg-gradient-to-br from-primary-400 to-primary-700' : ''}`}
             >
               <h3 className={`font-medium text-lg ${selectedJob?.jobID === job.jobID ? 'text-white' : 'text-gray-900'}`}>
                 {job.jobPosition}
@@ -109,7 +136,7 @@ const JobsPage = () => {
       </div>
 
       {/* Right Content */}
-      <div id="jobDetails" className="flex-1 bg-white">
+      <div id="jobDetails" ref={jobDetailsRef} className={`flex-1 bg-white ${isMobile ? 'absolute left-0 w-full translate-y-[800px] opacity-0' : ''}`}>
         {selectedJob ? (
           <div className="h-full flex flex-col">
             {/* Header */}
@@ -123,6 +150,20 @@ const JobsPage = () => {
               >
                 สมัครงาน
               </button>
+              {isMobile && (
+                <button className='text-white absolute top-4 right-4' onClick={handleCloseSelectedJob}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
             </div>
 
             {/* Content */}
