@@ -86,7 +86,7 @@ function HomeJobsListed() {
     return (
         <div id="jobListed" className="min-h-[500px] bg-gradient-to-b from-white to-[#F2F9FF] py-5 lg:pt-9 lg:pb-12">
             <div className="container px-4 lg:px-0">
-                <Typography variant="h3" className="text-primary mb-4">ตำแหน่งงานที่มีการประกาศล่าสุด</Typography>
+                <h3 className="text-3xl font-semibold text-primary-700 mb-3">ตำแหน่งงานที่มีการประกาศล่าสุด</h3>
                 {loading && (
                     <div className="flex flex-col md:flex-row gap-4">
                         <Skeleton variant="rounded" className="w-full md:w-1/3" height={230} animation="wave"></Skeleton>
@@ -109,7 +109,7 @@ function HomeJobsListed() {
                     </div>
                 )}
 
-                <Typography variant="h3" className="text-primary mb-4">ตำแหน่งงานทั้งหมด</Typography>
+                <h3 className="text-3xl font-semibold text-primary-700 mb-3">ตำแหน่งงานทั้งหมด</h3>
                 {loading && (
                     <p>Loading...</p>
                 )}
@@ -121,10 +121,10 @@ function HomeJobsListed() {
                 )}
                 <div className="h-5 lg:h-14"></div>
 
-                <div className="flex justify-center items-center gap-2 flex-col md:flex-row">
-                    <Typography variant="h5">{ token ? 'ยังไม่มีตำแหน่งงานที่สนใจ ?' : 'ไม่พบตำแหน่งงานที่สนใจ ?' }</Typography>
+                <div className="flex justify-center text-xl items-center gap-2 flex-col md:flex-row">
+                    <h5>{ token ? 'ยังไม่มีตำแหน่งงานที่สนใจ ?' : 'ไม่พบตำแหน่งงานที่สนใจ ?' }</h5>
                     <button onClick={handleLeaveProfile} className="bg-orange-600 text-white px-5 py-1 rounded-full transition hover:scale-105 duration-300">
-                        <Typography variant="h5">{ token ? 'อัพเดตประวัติ' : 'ลงทะเบียนฝากประวัติ' }</Typography>
+                        <span>{ token ? 'อัพเดตประวัติ' : 'ลงทะเบียนฝากประวัติ' }</span>
                     </button>
                 </div>
             </div>
