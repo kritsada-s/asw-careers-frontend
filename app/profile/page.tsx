@@ -5,14 +5,15 @@ import { checkAuth, redirectToHome } from '@/lib/auth';
 import { fetchProfileData, type ProfileData } from '@/lib/api';
 import LoaderHorizontal from '../components/ui/loader';
 import { Candidate } from '@/lib/form';
-// import { decrypt } from '@/lib/utils';
-// import { isNotExpired } from '@/lib/dateUtils';
+import Image from 'next/image';
+import { useFetchBase64Image } from '../hooks/useDataFetching';
 
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState<Candidate | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tokenDate, setTokenDate] = useState<string | null>(null);
+  const { imageData, isLoading: imageLoading, error: imageError } = useFetchBase64Image(profileData?.imageUrl || '');
 
   const logOut = () => {
     if (typeof window !== 'undefined') {
@@ -26,7 +27,7 @@ export default function ProfilePage() {
     async function initializeProfile() {
       // Check authentication
       const authData = checkAuth();
-      console.log('authData', authData);
+      //console.log('authData', authData);
       
       if (!authData) {
         alert('Please log in to view your profile');
@@ -37,7 +38,7 @@ export default function ProfilePage() {
       try {
         // Fetch profile data
         const data = await fetchProfileData(authData.Email);
-        console.log('data', data);
+        //console.log('data', data);
         const userProfileData = {
           firstName: data.firstName,
         }
@@ -50,7 +51,6 @@ export default function ProfilePage() {
         setLoading(false);
       }
     }
-
     initializeProfile();
   }, []);
 
@@ -88,6 +88,7 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Profile</h1>
+      <Image src={imageData || ''} alt="Profile Image" width={250} height={250} className='bg-slate-200 aspect-[3/4] object-cover mb-3'/>
       <h3>รหัสประจำตัวผู้สมัคร : {profileData.candidateID}</h3>
       <p>Token will expired at: {tokenDate ? new Date(tokenDate).toLocaleString() : 'N/A'}</p>
       <div className="space-y-4">
@@ -95,7 +96,6 @@ export default function ProfilePage() {
           <label className="font-medium">ชื่อ-สกุล:</label>
           <div>{profileData.firstName} {profileData.lastName}</div>
         </div>
-
         <div>
           <label className="font-medium">Email:</label>
           <div>{profileData.email}</div>

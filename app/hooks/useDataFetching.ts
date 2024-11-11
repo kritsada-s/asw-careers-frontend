@@ -254,4 +254,42 @@ export function useUserProfile (email: string) {
   return { profile, isLoading, error };
 };
 
+export function useFetchBase64Image(path: string) {
+  const [imageData, setImageData] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  let authToken = '';
+
+  if (typeof window !== 'undefined') {
+    authToken = localStorage.getItem('authToken') || '';
+  }
+
+  useEffect(() => {
+    async function fetchImage() {
+      try {
+        setIsLoading(true);
+        const formData = new FormData();
+        formData.append('filePath', path);
+        formData.append("Content-Type", "multipart/form-data");
+        const response = await axios.post(`${prodUrl}/secure/FileManagement/File`, formData, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+          },
+        });
+        setImageData(response.data);
+      } catch (error: any) {
+        console.error('Error fetching base64 image:', error);
+        setError(error?.message || 'An unknown error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (path) {
+      fetchImage();
+    }
+  }, [path]);
+
+  return { imageData, isLoading, error };
+}
 
