@@ -32,9 +32,9 @@ const JobsPage = () => {
   };
 
   useEffect(() => {
-    const fetchJobs = async () => {
+    const fetchJobs = async (searchTerm?: string | '') => {
       try {
-        const response = await fetchedJobs();
+        const response = await fetchedJobs(searchTerm);
         if (response) {
           setJobs(response.jobs);
           if (response.jobs.length > 0) {
@@ -54,7 +54,11 @@ const JobsPage = () => {
       }
     };
 
-    fetchJobs();
+    if (params.get('search')) {
+      fetchJobs(params.get('search') || '');
+    } else {
+      fetchJobs();
+    }
   }, [params]);
 
   useEffect(() => {
