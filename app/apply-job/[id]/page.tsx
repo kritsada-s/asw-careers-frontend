@@ -13,7 +13,7 @@ import Crypt from '@/lib/Crypt';
 import { prodUrl } from '@/lib/utils';
 import axios from 'axios';
 import FormData from 'form-data';
-import useToken from '@/app/hooks/useToken';
+import { useToken } from '@/app/hooks/useToken';
 import LoaderHorizontal from '@/app/components/ui/loader';
 import { Alert } from 'flowbite-react';
 import { HiInformationCircle } from 'react-icons/hi';
@@ -86,7 +86,7 @@ const ApplyJobPage = () => {
     });
   }, [updateField]);
 
-  const { profile, isLoading: isLoadingProfile, error } = useUserProfile('kritsada.s@assetwise.co.th');
+  const { profile, isLoading: isLoadingProfile, error } = useUserProfile(decryptedToken?.Email);  
 
   const prefillFormWithUserData = useCallback(() => {
     updateField('firstName', profile?.firstName);
@@ -98,7 +98,8 @@ const ApplyJobPage = () => {
     updateField('province', profile?.province);
     updateField('district', profile?.district);
     updateField('postalCode', profile?.postalCode);
-    console.log(profile?.firstName);
+    console.log(profile?.imageUrl);
+    
   }, [profile, updateField]);
   
   useEffect(() => {

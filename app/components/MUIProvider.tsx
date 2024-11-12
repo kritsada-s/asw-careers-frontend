@@ -8,7 +8,7 @@ import theme from '../theme';
 import AuthModal from './Auth/AuthModal';
 import Crypt from '@/lib/Crypt';
 import { isNotExpired } from '@/lib/dateUtils';
-import useToken from '@/app/hooks/useToken';
+import { useToken } from '@/app/hooks/useToken';
 
 // Define types
 type ModalType = 'auth' | 'confirm' | 'alert';

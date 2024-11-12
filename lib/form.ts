@@ -78,8 +78,18 @@ export interface Candidate {
   };
   pdpAAccepted: boolean;
   pdpAAcceptedDate: string; // Assuming dateTime is represented as string
-  candidateEducations: object[]; // Assuming array of objects
-  candidateLanguages: object[]; // Assuming array of objects
+  candidateEducations: {
+    candidateID: string;
+    revision: number;
+    educationID: number;
+    major: string;
+  }[];
+  candidateLanguages: {
+    candidateID: string;
+    revision: number;
+    languageID: number;
+    level: number;
+  }[];
 }
 
 // Add this type definition and export
