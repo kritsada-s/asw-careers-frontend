@@ -4,8 +4,9 @@ import SearchBox from "../ui/HomeSearchBox";
 
 function HomeSearchHeader() {
     const handleSearch = (searchTerm: string) => {
-        console.log('Searching for:', searchTerm);
-        // Implement your search logic here
+        const url = new URL('/jobs', window.location.origin);
+        url.searchParams.set('search', searchTerm);
+        window.location.href = url.toString();
     };
     return (
         <section id="homeSearchHeader" className="min-h-[370px] relative flex justify-center items-center before:absolute before:bg-primary-700 before:w-full before:h-full before:opacity-70">

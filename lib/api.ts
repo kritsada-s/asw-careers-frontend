@@ -119,7 +119,8 @@ export async function fetchLocationByID(companyID: string, locationID: string): 
   }
 }
 
-export async function fetchedJobs(): Promise<JobResponse> {
+export async function fetchedJobs(searchTerm?: string): Promise<JobResponse> {
+  default_params.searchStr = searchTerm || '';
   const config = {
     method: 'post',
     maxBodyLength: Infinity,
