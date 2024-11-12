@@ -293,3 +293,42 @@ export function useFetchBase64Image(path: string) {
   return { imageData, isLoading, error };
 }
 
+export function useSubmitJobApplication(jobID: string, candidateID: string) {
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [response, setResponse] = useState<any>(null);
+  let authToken = '';
+
+  if (typeof window !== 'undefined') {
+    authToken = localStorage.getItem('authToken') || '';
+  }
+
+  const submitApplication = async () => {
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      const payload: any = { 
+        'jobID': jobID,
+        'candidateID': candidateID
+      };
+      const res = await axios.post(`${prodUrl}/secure/AppliedJob/Create`, payload, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+      setResponse(res.data);
+    } catch (err: any) {
+      if (err.response.status === 400) {
+        setResponse(err.response.data);
+      } else {
+        console.error('Error submitting job application:', err);
+        setError(err?.message || 'An unknown error occurred');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return { submitApplication, isSubmitting, error, response };
+}
+

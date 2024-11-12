@@ -1,6 +1,8 @@
+import { decrypt } from '@/lib/utils';
 import { useState, useEffect } from 'react';
+import { TokenProps } from '@/lib/types';
 
-const useToken = () => {
+export const useToken = () => {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -14,4 +16,8 @@ const useToken = () => {
   return token;
 };
 
-export default useToken; 
+export const useDecryptedToken = (): TokenProps | null => {
+  const token = useToken();
+  const decryptedToken = decrypt(token || '');
+  return decryptedToken ? JSON.parse(decryptedToken) as TokenProps : null;
+}

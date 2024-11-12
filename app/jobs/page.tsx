@@ -8,13 +8,17 @@ import { WorkLocation } from '../components/ui/WorkLocation';
 import { timeAgo } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 import { useModal } from '../components/MUIProvider';
-import useToken from '@/app/hooks/useToken';
+import { useToken, useDecryptedToken } from '@/app/hooks/useToken';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { Button, CustomFlowbiteTheme, Modal } from 'flowbite-react';
+import { useFetchBase64Image, useSubmitJobApplication, useUserProfile } from '../hooks/useDataFetching';
+import Link from 'next/link';
+import { HiExternalLink, HiOutlineExclamationCircle } from 'react-icons/hi';
 
 interface fetchedJobs {
   jobs: Job
-}
+} 
 
 const JobsPage = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -26,6 +30,26 @@ const JobsPage = () => {
   const [isSelectedJobOpen, setIsSelectedJobOpen] = useState(false);
   const { openModal } = useModal()
   const jobDetailsRef = useRef<HTMLDivElement>(null);
+  const summaryHeaderRef = useRef<HTMLDivElement>(null);
+  const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
+  const [isModalConfirmOpen, setIsModalConfirmOpen] = useState(false);
+  const decryptedToken = useDecryptedToken();
+  const { profile, isLoading: isLoadingProfile, error: profileError } = useUserProfile(decryptedToken?.Email || '');
+  const { imageData, isLoading: isLoadingImage, error: imageError } = useFetchBase64Image(profile?.imageUrl || '');
+  const { submitApplication, isSubmitting, error: submitError, response: submitApplicationResponse } = useSubmitJobApplication(selectedJob?.jobID || '', profile?.candidateID || '');
+
+  const modalTheme: CustomFlowbiteTheme['modal'] = {
+    header: {
+      base: "flex items-start justify-between rounded-t border-b py-4 px-5 dark:border-gray-600",
+      title: "text-xl md:text-2xl font-medium dark:text-white leading-none",
+    },
+    body: {
+      base: "flex-1 overflow-auto px-4 md:px-5 py-4"
+    },
+    footer: {
+      base: "flex items-center space-x-2 rounded-b border-gray-200 px-5 py-4 dark:border-gray-600",
+    }
+  }
 
   const findJobById = (jobs: Job[], searchId: string | null): Job | null => {
     return jobs.find(job => job.jobID === searchId) || null;
@@ -61,6 +85,10 @@ const JobsPage = () => {
     }
   }, [params]);
 
+  // useEffect(()=>{
+  //   console.log('modal open', isSummaryModalOpen);
+  // }, [isSummaryModalOpen])
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsMobile(window.innerWidth < 768);
@@ -84,15 +112,32 @@ const JobsPage = () => {
     }
   }, [isSelectedJobOpen]);
 
+  useGSAP(() => {
+    if (summaryHeaderRef.current) {
+      gsap.fromTo(summaryHeaderRef.current, { opacity: 0, y: -100 }, { opacity: 1, y: 0, duration: 0.3});
+    }
+  }, [isSummaryModalOpen]);
+
   const token = useToken();
 
   const handleCloseSelectedJob = () => {
     setIsSelectedJobOpen(false);
   }
 
+  const handleProfileSummaryModalConfirm = async () => {
+    setIsSummaryModalOpen(false);
+    setIsModalConfirmOpen(false);
+    try {
+      await submitApplication();
+      console.log('response: ', submitApplicationResponse);
+    } catch (err) {
+      console.error('Error submitting job application:', err || 'An unknown error occurred');
+    }
+  }
+
   const handleJobSubmit = () => {
     if (token) {
-      window.location.href = '/apply-job/'+selectedJob?.jobID;
+      setIsSummaryModalOpen(true);
     } else {
       openModal({
         type: 'auth',
@@ -144,8 +189,8 @@ const JobsPage = () => {
         {selectedJob ? (
           <div className="h-full flex flex-col">
             {/* Header */}
-            <div id='detailsHeader' className="p-6 border-b border-gray-200 flex justify-between items-center bg-primary-700 min-h-[200px]">
-              <h1 className="text-2xl font-bold text-white">
+            <div id='detailsHeader' className="p-4 md:p-6 border-b border-gray-200 flex justify-between gap-2 md:gap-0 items-center bg-primary-700 min-h-[200px]">
+              <h1 className="text-2xl md:text-3xl font-bold text-white">
                 {selectedJob.jobPosition}
               </h1>
               <button
@@ -184,6 +229,72 @@ const JobsPage = () => {
           </div>
         )}
       </div>
+
+      {/* Modal */}
+
+      <Modal dismissible show={isSummaryModalOpen} onClose={() => {setIsSummaryModalOpen(false)}} ref={summaryHeaderRef} className='transition-all' theme={modalTheme}>
+        <Modal.Header>
+          สมัครงาน <span className='text-primary-700'>{selectedJob?.jobPosition}</span>
+        </Modal.Header>
+        <Modal.Body>
+          <h3 className='text-base md:text-lg font-medium mb-2 md:mb-3'>โปรดตรวจสอบข้อมูลของท่านก่อนคลิกสมัครงาน</h3>
+          <div className='flex flex-col md:flex-row md:gap-7'>
+            <div className='w-full md:w-1/3 mb-5 md:mb-0'>
+              {imageData ? <img src={imageData} alt="Profile" className='w-full h-auto aspect-[3/4] object-cover mb-2' /> : <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1 7.5 0v12a3.75 3.75 0 1 1-7.5 0V6z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-.75.75H4.5a.75.75 0 0 1-.75-.75v-3z" />
+                </svg>
+              </div>}
+              <Link href={''} className='text-primary-700 hover:text-primary-800 flex gap-1 items-center leading-none underline'>แสดง CV <HiExternalLink/></Link>
+            </div>
+            <div className="w-full md:w-2/3">
+            <p><strong>ชื่อ-นามสกุล:</strong> {profile?.firstName} {profile?.lastName}</p>
+            <p><strong>ชื่อเล่น:</strong> {profile?.nickName || '-'}</p>
+            <p><strong>เพศ:</strong> {profile?.gender?.description || '-'}</p>
+            <p><strong>วันเกิด:</strong> {profile?.dateOfBirth ? new Date(profile.dateOfBirth).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</p>
+            <div className='h-4 md:h-0'></div>
+            <p><strong>อีเมล:</strong> {profile?.email}</p>
+            <p><strong>เบอร์โทร:</strong> {profile?.tel || '-'}</p>
+            <p><strong>ที่อยู่:</strong> {profile?.addressDetails || '-'}</p>
+            <p><strong>จังหวัด:</strong> {profile?.province?.nameTH || '-'}</p>
+            <p><strong>อำเภอ:</strong> {profile?.district?.nameTH || '-'}</p>
+            <p><strong>ตำบล:</strong> {profile?.subdistrict?.nameTH || '-'}</p> 
+            <p><strong>รหัสไปรษณีย์:</strong> {profile?.postalCode || '-'}</p>
+            <div className='h-4 md:h-0'></div>
+            <p><strong>สถานภาพสมรส:</strong> {profile?.maritalStatus?.description || '-'}</p>
+            <p><strong>ระดับการศึกษา:</strong> {profile?.candidateEducations[0]?.educationID || '-'}</p>
+            <p><strong>สาขาวิชา:</strong> {profile?.candidateEducations[0]?.major || '-'}</p>
+            <hr className='my-3' />
+            <p>หากต้องการแก้ไขข้อมูล <Link href={'/apply-jobs'} className='text-primary-700 hover:text-primary-800 underline'>คลิกที่นี่</Link></p>
+          </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer className='flex justify-end'>
+          <Button size='sm' className='text-red-500 hover:text-red-600 hover:bg-red-200 rounded-full' color='none' onClick={() => {setIsSummaryModalOpen(false)}}>ยกเลิก</Button>
+          <Button color='none' size='sm' className='bg-primary-700 hover:bg-primary-600 text-[24px] text-white rounded-full px-5' onClick={() => {setIsModalConfirmOpen(true)}}>สมัครงาน</Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={isModalConfirmOpen} size="md" onClose={() => setIsModalConfirmOpen(false)} popup>
+        <Modal.Header />
+        <Modal.Body>
+          <div className="text-center">
+            <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
+            <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+              คุณต้องการใช้ข้อมูลดังกล่าวเพื่อสมัครงานตำแหน่ง <span className='text-primary-700'>{selectedJob?.jobPosition}</span> หรือไม่?
+            </h3>
+            <div className="flex justify-center gap-2">
+              <Button size='sm' color="success" className='px-4 rounded-full' onClick={handleProfileSummaryModalConfirm}>
+                ยืนยัน
+              </Button>
+              <Button size='sm' color="failure" className='px-4 rounded-full' onClick={() => setIsModalConfirmOpen(false)}>
+                ยกเลิก
+              </Button>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }
