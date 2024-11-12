@@ -1,4 +1,3 @@
-// app/jobs/page.tsx
 "use client";
 
 import React, { Suspense, useEffect, useState, useRef } from 'react';
@@ -14,7 +13,8 @@ import { useGSAP } from '@gsap/react';
 import { Button, CustomFlowbiteTheme, Modal } from 'flowbite-react';
 import { useFetchBase64Image, useSubmitJobApplication, useUserProfile } from '../hooks/useDataFetching';
 import Link from 'next/link';
-import { HiExternalLink, HiOutlineExclamationCircle } from 'react-icons/hi';
+import { HiExternalLink, HiOutlineCheckCircle, HiOutlineExclamationCircle } from 'react-icons/hi';
+import Swal from 'sweetalert2';
 
 interface fetchedJobs {
   jobs: Job
@@ -36,9 +36,21 @@ const JobsPage = () => {
   const decryptedToken = useDecryptedToken();
   const { profile, isLoading: isLoadingProfile, error: profileError } = useUserProfile(decryptedToken?.Email || '');
   const { imageData, isLoading: isLoadingImage, error: imageError } = useFetchBase64Image(profile?.imageUrl || '');
-  const { submitApplication, isSubmitting, error: submitError, response: submitApplicationResponse } = useSubmitJobApplication(selectedJob?.jobID || '', profile?.candidateID || '');
+  const { submitApplication, isSubmitting: isSubmittingApplication, error: submitErrMsg, isError: isSubmitError, response: submitApplicationResponse } = useSubmitJobApplication(selectedJob?.jobID || '', profile?.candidateID || '');
+  const [isSubmitAppError, setIsSubmitAppError] = useState<boolean>(false);
+
 
   const modalTheme: CustomFlowbiteTheme['modal'] = {
+    root: {
+      base: `fixed top-0 right-0 left-0 z-50 h-modal h-screen overflow-y-auto overflow-x-hidden md:inset-0 md:h-full transition-all ease-out ${
+        isSummaryModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      } `,
+
+      show: {
+        on: `flex bg-gray-900 bg-opacity-75 dark:bg-opacity-80 transition-all ease-out`,
+        off: 'always-on'
+      }
+    },
     header: {
       base: "flex items-start justify-between rounded-t border-b py-4 px-5 dark:border-gray-600",
       title: "text-xl md:text-2xl font-medium dark:text-white leading-none",
@@ -102,6 +114,10 @@ const JobsPage = () => {
     }
   };
 
+  const handleErrorPopupClose = () => {
+    setIsSubmitAppError(false);
+  }
+
   useGSAP(() => {
     if (jobDetailsRef.current) {
       if (isSelectedJobOpen) {
@@ -125,13 +141,13 @@ const JobsPage = () => {
   }
 
   const handleProfileSummaryModalConfirm = async () => {
-    setIsSummaryModalOpen(false);
-    setIsModalConfirmOpen(false);
-    try {
-      await submitApplication();
-      console.log('response: ', submitApplicationResponse);
-    } catch (err) {
-      console.error('Error submitting job application:', err || 'An unknown error occurred');
+    console.log('isSubmittingApplication', isSubmittingApplication);
+    if (isSubmittingApplication) {
+      setIsSummaryModalOpen(false);
+      setIsModalConfirmOpen(false);
+    } else {
+      setIsModalConfirmOpen(false);
+      setIsSubmitAppError(true);
     }
   }
 
@@ -232,7 +248,14 @@ const JobsPage = () => {
 
       {/* Modal */}
 
-      <Modal dismissible show={isSummaryModalOpen} onClose={() => {setIsSummaryModalOpen(false)}} ref={summaryHeaderRef} className='transition-all' theme={modalTheme}>
+      <Modal 
+        show={isSummaryModalOpen} 
+        onClose={() => {setIsSummaryModalOpen(false)}} 
+        
+        ref={summaryHeaderRef} 
+        theme={modalTheme} 
+        className={`transition-opacity duration-300 ${isSummaryModalOpen ? 'opacity-100' : 'opacity-0'}`}
+      >
         <Modal.Header>
           สมัครงาน <span className='text-primary-700'>{selectedJob?.jobPosition}</span>
         </Modal.Header>
@@ -295,6 +318,17 @@ const JobsPage = () => {
           </div>
         </Modal.Body>
       </Modal>
+
+      <Modal show={isSubmitAppError} size="md" onClose={() => handleErrorPopupClose()} popup>
+        <Modal.Header />
+        <Modal.Body>
+          <div className="text-center">
+            <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-red-500" />
+            <p>เกิดข้อผิดพลาดในการสมัครงาน</p>
+          </div>
+        </Modal.Body>
+      </Modal>
+
     </div>
   );
 }

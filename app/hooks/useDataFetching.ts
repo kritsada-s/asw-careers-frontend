@@ -6,6 +6,7 @@ import { districts as districtsData } from '@/lib/data';
 import { subDistricts as subDistrictsData } from '@/lib/data';
 import { provinces as provincesData } from '@/lib/data';
 import { Candidate } from '@/lib/form';
+import Swal from 'sweetalert2';
 
 // Hook for fetching Data
 export function useWorkLocation(comp: string, loc: string) {
@@ -296,6 +297,7 @@ export function useFetchBase64Image(path: string) {
 export function useSubmitJobApplication(jobID: string, candidateID: string) {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [isError, setIsError] = useState<boolean>(false);
   const [response, setResponse] = useState<any>(null);
   let authToken = '';
 
@@ -319,7 +321,8 @@ export function useSubmitJobApplication(jobID: string, candidateID: string) {
       setResponse(res.data);
     } catch (err: any) {
       if (err.response.status === 400) {
-        setResponse(err.response.data);
+        setIsError(true);
+        setIsSubmitting(false);
       } else {
         console.error('Error submitting job application:', err);
         setError(err?.message || 'An unknown error occurred');
@@ -329,6 +332,6 @@ export function useSubmitJobApplication(jobID: string, candidateID: string) {
     }
   };
 
-  return { submitApplication, isSubmitting, error, response };
+  return { submitApplication, isSubmitting, error, isError, response };
 }
 
