@@ -288,7 +288,7 @@ export function useFetchBase64Image(path: string) {
     if (path) {
       fetchImage();
     }
-  }, [path]);
+  }, [path, authToken]);
 
   return { imageData, isLoading, error };
 }
