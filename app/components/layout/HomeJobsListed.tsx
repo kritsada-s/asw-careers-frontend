@@ -88,7 +88,7 @@ function HomeJobsListed() {
             <div className="container px-4 lg:px-0">
                 <h3 className="text-3xl font-semibold text-primary-700 mb-3">ตำแหน่งงานที่มีการประกาศล่าสุด</h3>
                 {loading && (
-                    <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex flex-col md:flex-row gap-4 mb-7">
                         <Skeleton variant="rounded" className="w-full md:w-1/3" height={230} animation="wave"></Skeleton>
                         <Skeleton variant="rounded" className="w-full md:w-1/3" height={230} animation="wave"></Skeleton>
                         <Skeleton variant="rounded" className="w-full md:w-1/3" height={230} animation="wave"></Skeleton>
