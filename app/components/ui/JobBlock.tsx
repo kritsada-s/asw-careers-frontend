@@ -9,9 +9,62 @@ import { fetchCompanyLocations, fetchLocationByID } from "@/lib/api";
 interface JobBlockProps {
     className?: string;
     job: Job;
+    status?: number;
 }
 
-function JobBlock({className = '', job}: JobBlockProps) {
+const statusColor = (status: number) => {
+    const statuses = [
+        {
+            "statusID": 1,
+            "name": "รอดำเนินการ",
+            "description": null,
+            "active": true
+        },
+        {
+            "statusID": 2,
+            "name": "รอสัมภาษณ์",
+            "description": null,
+            "active": true
+        },
+        {
+            "statusID": 3,
+            "name": "รอพิจารณา",
+            "description": null,
+            "active": true
+        },
+        {
+            "statusID": 4,
+            "name": "ผ่านพิจารณา",
+            "description": null,
+            "active": true
+        },
+        {
+            "statusID": 5,
+            "name": "รับเข้าทำงาน",
+            "description": null,
+            "active": true
+        },
+        {
+            "statusID": 6,
+            "name": "ปฏิเสธ",
+            "description": null,
+            "active": true
+        }
+    ]
+    
+    switch (status) {
+        case 1:
+            return 'bg-yellow-500';
+        case 2:
+            return 'bg-green-500';
+        case 3:
+            return 'bg-red-500';
+        default:
+            return 'bg-gray-500';
+    }
+}
+
+function JobBlock({className = '', job, status}: JobBlockProps) {
     const [companyThName, setCompanythName] = useState('');
     const [borderColor, setBorderColor] = useState<string>();
     const [location, setLocation] = useState('');
@@ -36,6 +89,7 @@ function JobBlock({className = '', job}: JobBlockProps) {
         <div className={`job-block p-4 flex flex-col justify-between bg-white border-2 rounded-[20px] hover:shadow-xl transition-shadow duration-300 ${className}`.trim()} style={{ borderColor: borderColor }}>
             <div className="details">
                 <Typography variant="h4" className="leading-none" key={job.jobID}>{job.jobPosition}</Typography>
+                {status && <Typography variant="body1" className="flex gap-1 items-center text-gray-500">{status}</Typography>}
                 <Typography variant="body1" className="flex gap-1 items-center text-gray-500">
                     <Building size={18} /> {companyThName}
                 </Typography>

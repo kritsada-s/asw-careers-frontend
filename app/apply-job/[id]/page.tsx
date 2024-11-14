@@ -93,18 +93,20 @@ const ApplyJobPage = () => {
     updateField('lastName', profile?.lastName);
     updateField('nickname', profile?.nickName);
     updateField('phone', profile?.tel);
-    updateField('birthDate', profile?.dateOfBirth);
+    updateField('birthDate', profile?.dateOfBirth ? new Date(profile?.dateOfBirth).toISOString().substring(0, 10) : null);
     updateField('addressLine1', profile?.addressDetails);
-    updateField('province', profile?.province);
-    updateField('district', profile?.district);
-    updateField('postalCode', profile?.postalCode);
-    console.log(profile?.imageUrl);
+    updateField('province', profile?.province.provinceID ? profile?.province.provinceID : "1");
+    updateField('district', profile?.district.districtID ? profile?.district.districtID : "1001");
+    updateField('subdistrict', profile?.subdistrict.subdistrictID ? profile?.subdistrict.subdistrictID : "100101");
+    updateField('postalCode', profile?.postalCode ? profile?.postalCode : "10200");
+    console.log(profile);
     
   }, [profile, updateField]);
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const authToken = localStorage.getItem('authToken');
+      console.log(authToken);
       if (!authToken) {
         window.location.href = '/'; // Redirect to home page if authToken does not exist
       } else {
@@ -137,6 +139,7 @@ const ApplyJobPage = () => {
   }, [prefillFormWithUserData]);
 
   const handleNext = useCallback(() => {
+    console.log(formData);
     setCurrentStep(prev => Math.min(prev + 1, FORM_STEPS.length - 1));
   }, []);
 
@@ -145,6 +148,7 @@ const ApplyJobPage = () => {
   }, []);
 
   const handleSubmit = async () => {
+    console.log(decryptedToken.CandidateID);
     setIsSubmitting(true);
     try {
       const apiFormData = new FormData();
@@ -158,18 +162,15 @@ const ApplyJobPage = () => {
       apiFormData.append('Candidate.LastName', formData.lastName);
       apiFormData.append('Candidate.NickName', formData.nickname);
       apiFormData.append('Candidate.Tel', formData.phone);
-      apiFormData.append('Candidate.DateOfBirth', formData.birthDate);
+      apiFormData.append('Candidate.DateOfBirth', formData.birthDate ? new Date(formData.birthDate).toISOString() : null);
       apiFormData.append('Candidate.Gender.GenderID', 1);
       apiFormData.append('Candidate.MaritalStatus.MaritalStatusID', 1);
       apiFormData.append('Candidate.Image', formData.profileImage);
       apiFormData.append('Candidate.CV', formData.cv);
-      apiFormData.append('Candidate.AddressDetails', formData.addressLine1 + ', ' + formData.addressLine2);
+      apiFormData.append('Candidate.AddressDetails', formData.addressLine1);
       apiFormData.append('Candidate.Province.ProvinceID', formData.province ? Number(formData.province) : 1);
       apiFormData.append('Candidate.District.DistrictID', formData.district ? Number(formData.district) : 1001);
-      apiFormData.append('Candidate.District.ProvinceID', formData.district ? Number(formData.district) : 1001);
       apiFormData.append('Candidate.Subdistrict.SubdistrictID', formData.subdistrict ? Number(formData.subdistrict) : 100101);
-      apiFormData.append('Candidate.Subdistrict.DistrictID', formData.district ? Number(formData.district) : 1001);
-      apiFormData.append('Candidate.Subdistrict.PostCode', formData.postalCode ? Number(formData.postalCode) : 10200);
       apiFormData.append('Candidate.PostalCode', formData.postalCode ? Number(formData.postalCode) : 10200);
       apiFormData.append('Candidate.SourceInformation.SourceInformationID', 1);
       apiFormData.append('Candidate.PDPAAccepted', true);
@@ -186,7 +187,7 @@ const ApplyJobPage = () => {
         method: 'POST',
         contentType: 'multipart/form-data',
         url: prodUrl+'/secure/Candidate/Create',
-        //url: 'https://7125-202-80-250-90.ngrok-free.app/secure/Candidate/Create',
+        //url: 'https://7eba-202-80-250-90.ngrok-free.app/secure/Candidate/Create',
         headers: {
           'Authorization': `Bearer ${authToken}`,
         },
