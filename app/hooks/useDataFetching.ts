@@ -372,4 +372,34 @@ export function useFetchAppliedJobs(candidateID: string) {
   return { appliedJobs, isLoading, error };
 }
 
+export function useProfileUpdate() {
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [response, setResponse] = useState<any>(null);
 
+  const updateProfile = async (profileData: any) => {
+    setIsSubmitting(true);
+    setError(null);
+    let authToken = '';
+
+    if (typeof window !== 'undefined') {
+      authToken = localStorage.getItem('authToken') || '';
+    }
+
+    try {
+      const res = await axios.post(`${prodUrl}/secure/AppliedJob/Update`, profileData, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+      setResponse(res.data);
+    } catch (err: any) {
+      console.error('Error updating profile:', err);
+      setError(err?.message || 'An unknown error occurred');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return { updateProfile, isSubmitting, error, response };
+}

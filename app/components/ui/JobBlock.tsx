@@ -2,7 +2,7 @@ import { fetchCompanyName, getCompanyByID, getCompanyCi } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Job } from "@/lib/types";
 import { Typography } from "@mui/material";
-import { MapPin, Building, CircleDollarSign } from 'lucide-react';
+import { MapPin, Building, CircleDollarSign, CircleDot } from 'lucide-react';
 import CustomButton from "./Button";
 import { fetchCompanyLocations, fetchLocationByID } from "@/lib/api";
 
@@ -12,56 +12,42 @@ interface JobBlockProps {
     status?: number;
 }
 
-const statusColor = (status: number) => {
+const appliedStatus = (status: number) => {
     const statuses = [
         {
             "statusID": 1,
             "name": "รอดำเนินการ",
-            "description": null,
-            "active": true
+            "color": "#bcaaa4"
         },
         {
             "statusID": 2,
             "name": "รอสัมภาษณ์",
-            "description": null,
-            "active": true
+            "color": "#ffc107"
         },
         {
             "statusID": 3,
             "name": "รอพิจารณา",
-            "description": null,
-            "active": true
+            "color": "#e0e0e0"
         },
         {
             "statusID": 4,
             "name": "ผ่านพิจารณา",
-            "description": null,
-            "active": true
+            "color": "#81d4fa"
         },
         {
             "statusID": 5,
             "name": "รับเข้าทำงาน",
-            "description": null,
-            "active": true
+            "color": "#53A548"
         },
         {
             "statusID": 6,
             "name": "ปฏิเสธ",
-            "description": null,
-            "active": true
+            "color": "#c62828"
         }
     ]
-    
-    switch (status) {
-        case 1:
-            return 'bg-yellow-500';
-        case 2:
-            return 'bg-green-500';
-        case 3:
-            return 'bg-red-500';
-        default:
-            return 'bg-gray-500';
-    }
+
+    const statusItem = statuses.find(item => item.statusID === status);
+    return statusItem ? <span style={{ color: statusItem.color, borderColor: statusItem.color }} className={`border rounded-full px-2 py-1 text-[16px]`}>{statusItem.name}</span> : <span>ไม่พบสถานะ</span>;
 }
 
 function JobBlock({className = '', job, status}: JobBlockProps) {
@@ -88,8 +74,9 @@ function JobBlock({className = '', job, status}: JobBlockProps) {
     return (
         <div className={`job-block p-4 flex flex-col justify-between bg-white border-2 rounded-[20px] hover:shadow-xl transition-shadow duration-300 ${className}`.trim()} style={{ borderColor: borderColor }}>
             <div className="details">
-                <Typography variant="h4" className="leading-none" key={job.jobID}>{job.jobPosition}</Typography>
-                {status && <Typography variant="body1" className="flex gap-1 items-center text-gray-500">{status}</Typography>}
+                <h4 className="leading-none text-[36px] mb-2 font-medium flex items-center gap-2" key={job.jobID}>{job.jobPosition}
+                {status && appliedStatus(status)}
+                </h4>
                 <Typography variant="body1" className="flex gap-1 items-center text-gray-500">
                     <Building size={18} /> {companyThName}
                 </Typography>

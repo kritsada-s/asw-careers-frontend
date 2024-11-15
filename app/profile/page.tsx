@@ -6,7 +6,7 @@ import { fetchProfileData, type ProfileData } from '@/lib/api';
 import LoaderHorizontal from '../components/ui/loader';
 import { Candidate } from '@/lib/form';
 import Image from 'next/image';
-import { useEducations, useFetchAppliedJobs, useFetchBase64Image } from '../hooks/useDataFetching';
+import { useEducations, useFetchAppliedJobs, useFetchBase64Image, useProfileUpdate } from '../hooks/useDataFetching';
 import { AppliedJob } from '@/lib/types';
 import JobBlock from '../components/ui/JobBlock';
 import { Table } from 'flowbite-react';
@@ -21,6 +21,35 @@ export default function ProfilePage() {
   const { imageData, isLoading: imageLoading, error: imageError } = useFetchBase64Image(profileData?.imageUrl || '');
   const { appliedJobs: appliedJobsData, isLoading: appliedJobsLoading, error: appliedJobsError } = useFetchAppliedJobs(profileData?.candidateID || '');
   const { educations, isLoading: educationsLoading, error: educationsError } = useEducations();
+  const { updateProfile, isSubmitting, error: updateError, response } = useProfileUpdate();
+  const [editableProfileData, setEditableProfileData] = useState<Candidate>({
+    jobID: '',
+    candidateID: '',
+    revision: 0,
+    email: '',
+    titleID: 0,
+    firstName: '',
+    lastName: '',
+    tel: '',
+    dateOfBirth: '',
+    addressDetails: '',
+    candidateLanguages: [],
+    nickName: '',
+    gender: { genderID: 0, description: '' },
+    maritalStatus: { maritalStatusID: 0, description: '' },
+    imageUrl: '',
+    cvUrl: '',
+    province: { provinceID: 0, nameTH: '', nameEN: '' },
+    district: { districtID: 0, provinceID: 0, nameTH: '', nameEN: '' },
+    subdistrict: { subdistrictID: 0, districtID: 0, postCode: 0, nameTH: '', nameEN: '' },
+    postalCode: 0,
+    sourceInformation: { sourceInformationID: 0, description: '' },
+    pdpAAccepted: false,
+    pdpAAcceptedDate: '',
+    candidateEducations: [],
+    // ... initialize other fields as necessary
+  });
+  const [isEditing, setIsEditing] = useState(false);
 
   const tableTheme: CustomFlowbiteTheme['table'] = {
     root: {
@@ -31,13 +60,13 @@ export default function ProfilePage() {
     body: {
       base: "group/body",
       cell: {
-        base: "px-4 py-2 group-first/body:group-first/row:first:rounded-tl-lg group-first/body:group-first/row:last:rounded-tr-lg group-last/body:group-last/row:first:rounded-bl-lg group-last/body:group-last/row:last:rounded-br-lg"
+        base: "text-base text-neutral-500 px-4 py-2 group-first/body:group-first/row:first:rounded-tl-lg group-first/body:group-first/row:last:rounded-tr-lg group-last/body:group-last/row:first:rounded-bl-lg group-last/body:group-last/row:last:rounded-br-lg"
       }
     },
     head: {
       base: "group/head uppercase text-gray-700 dark:text-gray-400",
       cell: {
-        base: "bg-gray-50 px-4 py-2 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700"
+        base: "text-base bg-gray-50 px-4 py-2 group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg dark:bg-gray-700"
       }
     },
     row: {
@@ -120,7 +149,24 @@ export default function ProfilePage() {
     );
   }
 
-  // Render profile data
+  const handleEdit = (field: keyof Candidate, value: string) => {
+    setEditableProfileData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSave = async () => {
+    const confirmUpdate = window.confirm("คุณต้องการบันทึกการเปลี่ยนแปลงหรือไม่?");
+    if (confirmUpdate) {
+      try {
+        // Call your API to update the profile data
+        await updateProfile(editableProfileData);
+        setProfileData(editableProfileData);
+        setIsEditing(false);
+      } catch (error) {
+        console.error('Error updating profile:', error);
+      }
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="profile-header flex gap-2 items-baseline">
@@ -129,18 +175,69 @@ export default function ProfilePage() {
       </div>
       <div className="flex flex-col md:flex-row gap-6 mb-7 text-[26px]">
         <div className="w-full md:w-1/3">
-          { imageData && <Image src={imageData || ''} alt="Profile Image" width={250} height={250} className='bg-slate-200 aspect-[3/4] object-cover md:mb-3 h-auto w-2/3 md:w-auto mx-auto md:mx-0'/> }
+          { imageData && imageData !== '' ? (
+            <Image src={imageData} alt="Profile Image" width={250} height={250} className='bg-slate-200 aspect-[3/4] object-cover md:mb-3 h-auto w-2/3 md:w-auto mx-auto md:mx-0' />
+          ) : (
+            <div className='bg-gray-200 aspect-[3/4] flex items-center justify-center'>
+              <span className='text-gray-500'>No Image Available</span>
+            </div>
+          )}
+        <div className="flex flex-col items-center">
+          <button 
+            className="mt-3 px-4 py-2 rounded-full bg-primary-700 text-white text-base hover:bg-primary-600 leading-none"
+            onClick={() => {
+              const fileInput = document.createElement('input');
+              fileInput.type = 'file';
+              fileInput.accept = 'image/*';
+              fileInput.onchange = async (event) => {
+                const target = event.target as HTMLInputElement;
+                if (target.files && target.files.length > 0) {
+                  const file = target.files[0];
+                  const formData = new FormData();
+                  formData.append('image', file);
+                  try {
+                    // Assuming you have a function to handle the image upload
+                    await updateProfile({ ...editableProfileData, image: file }); // Update image along with other profile data
+                    //setProfileData((prev) => ({ ...prev, imageUrl: URL.createObjectURL(file) })); // Update local state to reflect the new image
+                  } catch (error) {
+                    console.error('Error uploading image:', error);
+                  }
+                }
+              };
+              fileInput.click();
+            }}
+          >
+            อัพโหลดภาพ
+          </button>
         </div>
-        <div className="w-full md:w-2/3">
+        </div>
+        <div className="w-full md:w-2/3 flex flex-col gap-4">
           <p><span className='font-medium'>รหัสประจำตัวผู้สมัคร :</span> {profileData.candidateID}</p>
-          {/* <p>Token will expired at: {tokenDate ? new Date(tokenDate).toLocaleString() : 'N/A'}</p> */}
           <div className='flex gap-2 items-baseline'>
             <label className="font-medium">ชื่อ-สกุล :</label>
-            <div>{profileData.firstName} {profileData.lastName}</div>
+            {isEditing ? (
+              <input
+                type="text"
+                value={editableProfileData.firstName + ' ' + editableProfileData.lastName}
+                onChange={(e) => handleEdit('firstName', e.target.value)}
+                className="border rounded p-1"
+              />
+            ) : (
+              <div>{profileData.firstName} {profileData.lastName}</div>
+            )}
           </div>
           <div className='flex gap-2 items-baseline'>
             <label className="font-medium">อีเมล :</label>
-            <div>{profileData.email}</div>
+            {isEditing ? (
+              <input
+                type="email"
+                value={editableProfileData.email}
+                onChange={(e) => handleEdit('email', e.target.value)}
+                className="border rounded p-1"
+              />
+            ) : (
+              <div>{profileData.email}</div>
+            )}
           </div>
           <div className='flex gap-2 items-baseline'>
             <label className="font-medium">วันเกิด :</label>
@@ -148,7 +245,16 @@ export default function ProfilePage() {
           </div>
           <div className='flex gap-2 items-baseline'>
             <label className="font-medium">เบอร์โทรศัพท์ :</label>
-            <div>{profileData.tel}</div>
+            {isEditing ? (
+              <input
+                type="tel"
+                value={editableProfileData.tel}
+                onChange={(e) => handleEdit('tel', e.target.value)}
+                className="border rounded p-1"
+              />
+            ) : (
+              <div>{profileData.tel}</div>
+            )}
           </div>
           <div className='flex gap-2 items-baseline'>
             <label className="font-medium">เพศ :</label>
@@ -160,7 +266,16 @@ export default function ProfilePage() {
           </div>
           <div className='flex flex-col md:flex-row gap-2 items-baseline'>
             <label className="font-medium">ที่อยู่ :</label>
-            <div>{profileData.addressDetails}</div>
+            {isEditing ? (
+              <input
+                type="text"
+                value={editableProfileData.addressDetails}
+                onChange={(e) => handleEdit('addressDetails', e.target.value)}
+                className="border rounded p-1"
+              />
+            ) : (
+              <div>{profileData.addressDetails}</div>
+            )}
           </div>
           <div className='flex flex-col md:flex-row gap-2 items-baseline'>
             <div className='flex gap-1'>
@@ -182,7 +297,7 @@ export default function ProfilePage() {
           </div>
           <div className="h-5"></div>
           <div className='flex flex-col'>
-            <h3 className='text-md font-medium leading-none mb-4'>ข้อมูลการศึกษา :</h3>
+            <h3 className='text-md font-medium leading-none mb-3'>ข้อมูลการศึกษา :</h3>
             <Table theme={tableTheme}>
               <Table.Head>
                 <Table.HeadCell>ระดับการศึกษา</Table.HeadCell>
@@ -211,8 +326,21 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      <div className="flex gap-2 justify-end mb-5">
+        <button className='bg-red-500 hover:bg-red-600 text-white rounded-full px-4 py-1' onClick={()=>logOut()}>ออกจากระบบ</button>
+        {isEditing ? (
+          <>
+          <button className='bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-1' onClick={handleSave}>บันทึกการเปลี่ยนแปลง</button>
+          <button className="text-gray-600 hover:text-gray-600 rounded-full p-1" onClick={() => setIsEditing(false)}>ยกเลิก</button>
+          </>
+
+        ) : (
+          <button className='bg-green-500 hover:bg-green-600 text-white rounded-full px-4 py-1' onClick={() => setIsEditing(true)}>แก้ไขข้อมูล</button>
+        )}
+      </div>
+
       { appliedJobs.length > 0 && (
-        <div className="flex flex-col">
+        <div className="flex flex-col border-t border-gray-200 pt-4">
           <h3 className="text-2xl font-bold mb-4">ประวัติการสมัครงาน</h3>
           <div className="grid lg:grid-cols-3 gap-4 mb-7">
             {appliedJobs.map((job) => (
@@ -221,10 +349,6 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
-
-      <div className="space-y-4">
-        <button className='bg-red-500 hover:bg-red-600 text-white rounded-md px-4 py-1' onClick={()=>logOut()}>ออกจากระบบ</button>
-      </div>
     </div>
   );
 }
