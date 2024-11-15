@@ -91,11 +91,3 @@ export interface Candidate {
     level: number;
   }[];
 }
-
-// Add this type definition and export
-export type ApplicationFormData = {
-  // Define your form fields here, for example:
-  name: string;
-  email: string;
-  // ... other fields
-};

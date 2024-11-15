@@ -378,6 +378,7 @@ export function useProfileUpdate() {
   const [response, setResponse] = useState<any>(null);
 
   const updateProfile = async (profileData: any) => {
+    console.log(profileData);
     setIsSubmitting(true);
     setError(null);
     let authToken = '';

@@ -11,6 +11,8 @@ import { AppliedJob } from '@/lib/types';
 import JobBlock from '../components/ui/JobBlock';
 import { Table } from 'flowbite-react';
 import { CustomFlowbiteTheme } from 'flowbite-react';
+import FormSelect from '../components/ui/FormAddress';
+import { GenderSelect } from '../components/ui/FormInput';
 
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState<Candidate | null>(null);
@@ -22,33 +24,7 @@ export default function ProfilePage() {
   const { appliedJobs: appliedJobsData, isLoading: appliedJobsLoading, error: appliedJobsError } = useFetchAppliedJobs(profileData?.candidateID || '');
   const { educations, isLoading: educationsLoading, error: educationsError } = useEducations();
   const { updateProfile, isSubmitting, error: updateError, response } = useProfileUpdate();
-  const [editableProfileData, setEditableProfileData] = useState<Candidate>({
-    jobID: '',
-    candidateID: '',
-    revision: 0,
-    email: '',
-    titleID: 0,
-    firstName: '',
-    lastName: '',
-    tel: '',
-    dateOfBirth: '',
-    addressDetails: '',
-    candidateLanguages: [],
-    nickName: '',
-    gender: { genderID: 0, description: '' },
-    maritalStatus: { maritalStatusID: 0, description: '' },
-    imageUrl: '',
-    cvUrl: '',
-    province: { provinceID: 0, nameTH: '', nameEN: '' },
-    district: { districtID: 0, provinceID: 0, nameTH: '', nameEN: '' },
-    subdistrict: { subdistrictID: 0, districtID: 0, postCode: 0, nameTH: '', nameEN: '' },
-    postalCode: 0,
-    sourceInformation: { sourceInformationID: 0, description: '' },
-    pdpAAccepted: false,
-    pdpAAcceptedDate: '',
-    candidateEducations: [],
-    // ... initialize other fields as necessary
-  });
+  const [editableProfileData, setEditableProfileData] = useState<Candidate>(profileData || {} as Candidate);
   const [isEditing, setIsEditing] = useState(false);
 
   const tableTheme: CustomFlowbiteTheme['table'] = {
@@ -119,6 +95,10 @@ export default function ProfilePage() {
     setAppliedJobs(appliedJobsData);
   }, [appliedJobsData]);
 
+  useEffect(() => {
+    setEditableProfileData(profileData || {} as Candidate);
+  }, [profileData]);
+
   if (loading) {
     return (
       <LoaderHorizontal />
@@ -150,6 +130,7 @@ export default function ProfilePage() {
   }
 
   const handleEdit = (field: keyof Candidate, value: string) => {
+    console.log('field', field, 'value', value);
     setEditableProfileData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -213,19 +194,29 @@ export default function ProfilePage() {
         </div>
         <div className="w-full md:w-2/3 flex flex-col gap-4">
           <p><span className='font-medium'>รหัสประจำตัวผู้สมัคร :</span> {profileData.candidateID}</p>
-          <div className='flex gap-2 items-baseline'>
-            <label className="font-medium">ชื่อ-สกุล :</label>
-            {isEditing ? (
+          {isEditing ? (
+            <div className='flex gap-2 items-baseline'>
+              <label className="font-medium">ชื่อ :</label>
               <input
                 type="text"
-                value={editableProfileData.firstName + ' ' + editableProfileData.lastName}
+                value={editableProfileData.firstName}
                 onChange={(e) => handleEdit('firstName', e.target.value)}
                 className="border rounded p-1"
               />
-            ) : (
+              <label className="font-medium">นามสกุล :</label>
+              <input
+                type="text"
+                value={editableProfileData.lastName}
+                onChange={(e) => handleEdit('lastName', e.target.value)}
+                className="border rounded p-1"
+              />
+            </div>
+          ) : (
+            <div className='flex gap-2 items-baseline'>
+              <label className="font-medium">ชื่อ-สกุล :</label>
               <div>{profileData.firstName} {profileData.lastName}</div>
-            )}
-          </div>
+            </div>
+          )}
           <div className='flex gap-2 items-baseline'>
             <label className="font-medium">อีเมล :</label>
             {isEditing ? (
@@ -258,14 +249,18 @@ export default function ProfilePage() {
           </div>
           <div className='flex gap-2 items-baseline'>
             <label className="font-medium">เพศ :</label>
-            <div>{profileData.gender.description}</div>
+            {isEditing ? (
+              <GenderSelect id={profileData.gender.genderID} setGender={(gender) => handleEdit('gender', gender ? String(gender.genderID) : '')} />
+            ) : (
+              <div>{profileData.gender.description}</div>
+            )}
           </div>
           <div className='flex gap-2 items-baseline'>
             <label className="font-medium">สถานะสมรส :</label>
             <div>{profileData.maritalStatus.description}</div>
           </div>
           <div className='flex flex-col md:flex-row gap-2 items-baseline'>
-            <label className="font-medium">ที่อยู่ :</label>
+            <label className="font-medium flex-none">ที่อยู่ :</label>
             {isEditing ? (
               <input
                 type="text"
@@ -295,7 +290,6 @@ export default function ProfilePage() {
               <div>{profileData.postalCode || '-'}</div>
             </div>
           </div>
-          <div className="h-5"></div>
           <div className='flex flex-col'>
             <h3 className='text-md font-medium leading-none mb-3'>ข้อมูลการศึกษา :</h3>
             <Table theme={tableTheme}>
