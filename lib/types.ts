@@ -86,14 +86,14 @@ export interface Province {
     nameEN: string;
 }
 
-interface District {
+export interface District {
     districtID: number;
     provinceID: number;
     nameTH: string;
     nameEN: string;
 }
 
-interface Subdistrict {
+export interface SubDistrict {
     subdistrictID: number;
     districtID: number;
     postCode: string | null;
