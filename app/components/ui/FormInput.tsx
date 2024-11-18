@@ -1,4 +1,5 @@
-import { ApplicationFormData } from "@/lib/form";
+import { ApplicationFormData } from '@/lib/types';
+import React, { useEffect, useState } from 'react';
 
 interface FormInputProps {
   label: string;
@@ -12,7 +13,7 @@ interface FormInputProps {
   isFieldTouched: (field: keyof ApplicationFormData) => boolean;
 }
 
-const CustomFormInput: React.FC<FormInputProps> = ({
+export const CustomFormInput: React.FC<FormInputProps> = ({
   label,
   name,
   value,
@@ -61,4 +62,72 @@ const CustomFormInput: React.FC<FormInputProps> = ({
   );
 }
 
-export default CustomFormInput
+interface GenderOption {
+  genderID: number;
+  description: string;
+}
+
+interface GenderSelectProps {
+  id: number;
+  setGender: (gender: GenderOption | null) => void;
+  isFieldTouched?: (field: keyof ApplicationFormData) => boolean;
+}
+
+export const GenderSelect: React.FC<GenderSelectProps> = ({ id, setGender, isFieldTouched }) => {
+  const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
+  const [currentGender, setCurrentGender] = useState(1);
+
+  const genderData: GenderOption[] = [
+    { genderID: 1, description: "ชาย / Male" },
+    { genderID: 2, description: "หญิง / Female" },
+    { genderID: 3, description: "LGBTQ" },
+    { genderID: 4, description: "ไม่ระบุ / n/a" }
+  ];
+
+  const onGenderChange = (gender: GenderOption | null) => {
+    console.log('gender', gender);
+    setGender(gender);
+    setCurrentGender(gender?.genderID || 1);
+    setIsGenderDropdownOpen(false);
+  }
+
+  useEffect(() => {
+    setCurrentGender(id);
+  }, [id]);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        id="gender"
+        className={`mt-1 block w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-left shadow-sm focus:border-primary-500 focus:ring-primary-500 ${
+          isFieldTouched && isFieldTouched('gender') && !id ? 'border-red-500' : ''
+        }`}
+        onClick={() => setIsGenderDropdownOpen(!isGenderDropdownOpen)}
+      >
+        {genderData.find(option => option.genderID === currentGender)?.description || 'เลือกเพศ'}
+        <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+          <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+        </span>
+      </button>
+      {isGenderDropdownOpen && (
+        <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+          {genderData.map(option => (
+            <div
+              key={option.genderID}
+              className={`cursor-pointer px-4 py-2 hover:bg-gray-100 ${id === option.genderID ? 'bg-primary-50 text-primary-600' : ''}`}
+              onClick={() => {
+                onGenderChange(option);
+                setIsGenderDropdownOpen(false);
+              }}
+            >
+              {option.description}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};

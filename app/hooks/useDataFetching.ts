@@ -335,3 +335,72 @@ export function useSubmitJobApplication(jobID: string, candidateID: string) {
   return { submitApplication, isSubmitting, error, isError, response };
 }
 
+export function useFetchAppliedJobs(candidateID: string) {
+  const [appliedJobs, setAppliedJobs] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  let authToken = '';
+
+  if (typeof window !== 'undefined') {
+    authToken = localStorage.getItem('authToken') || '';
+  }
+
+  useEffect(() => {
+    const fetchAppliedJobs = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await axios.get(`${prodUrl}/secure/AppliedJob/AppliedJobs/${candidateID}`, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+          },
+        });
+        setAppliedJobs(res.data);
+      } catch (err: any) {
+        console.error('Error fetching applied jobs:', err);
+        setError(err?.message || 'An unknown error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (candidateID) {
+      fetchAppliedJobs();
+    }
+  }, [candidateID, authToken]);
+
+  return { appliedJobs, isLoading, error };
+}
+
+export function useProfileUpdate() {
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [response, setResponse] = useState<any>(null);
+
+  const updateProfile = async (profileData: any) => {
+    console.log(profileData);
+    setIsSubmitting(true);
+    setError(null);
+    let authToken = '';
+
+    if (typeof window !== 'undefined') {
+      authToken = localStorage.getItem('authToken') || '';
+    }
+
+    try {
+      const res = await axios.post(`${prodUrl}/secure/AppliedJob/Update`, profileData, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+      setResponse(res.data);
+    } catch (err: any) {
+      console.error('Error updating profile:', err);
+      setError(err?.message || 'An unknown error occurred');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return { updateProfile, isSubmitting, error, response };
+}

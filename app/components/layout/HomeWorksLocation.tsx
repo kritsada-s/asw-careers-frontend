@@ -72,7 +72,7 @@ export default function HomeWorksLocation() {
                   src={img.imagePath}
                   alt={img.title}
                   fill
-                  className={`object-cover rounded-lg transition-all duration-500 ease-in-out shadow-xl ${ realIndex+1 === img.id ? 'opacity-100':'opacity-0' }`}
+                  className={`object-cover rounded-lg transition-all duration-500 ease-in-out shadow-xl h-full w-full ${ realIndex+1 === img.id ? 'opacity-100':'opacity-0' }`}
                   priority
                   key={index}
                 />

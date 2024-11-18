@@ -250,3 +250,20 @@ export interface ModalConfig {
   onSuccess?: (data?: any) => void;
   onError?: (error?: any) => void;
 }
+
+export interface AppliedJob {
+    appliedJobID: string;
+    candidateID: string;
+    candidateFullName: string;
+    job: Job;
+    appliedDate: string;
+    hiredDate: string | null;
+    description: string | null;
+    status: {
+        statusID: number;
+        name: string;
+        description: string | null;
+        active: boolean;
+    };
+    updateBy: string;
+}
