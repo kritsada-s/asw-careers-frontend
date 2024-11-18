@@ -3,6 +3,7 @@ import "./globals.css";
 import MUIProvider from './components/MUIProvider';
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
+import HolyLoader from "holy-loader";
 
 export const metadata: Metadata = {
   title: "AssetWise Careers",
@@ -18,6 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <MUIProvider>
         <body >
+            <HolyLoader color="#123F6D"/>
             <Header/>
             {children}
             <Footer/>

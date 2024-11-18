@@ -46,9 +46,9 @@ const Header = () => {
   return (
     <section id="header" className="bg-white py-3 md:py-4 shadow fixed w-full top-0 z-20">
       <div className="container flex justify-between px-3 lg:px-0">
-        <div className="logo-wrapper flex items-center">
+        <div className="logo-wrapper flex items-center max-w-[170px]">
           <Link href="/" title="">
-            <Image src="/images/logo.png" alt="" width={172} height={36} className="w-24 h-auto md:w-auto"/>
+            <Image src="/images/logo.png" alt="" width={170} height={34} className="w-24 h-auto md:w-auto"/>
           </Link>
         </div>
         <div className="menu-wrapper flex gap-4">
