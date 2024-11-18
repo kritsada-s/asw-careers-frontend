@@ -12,7 +12,8 @@ import JobBlock from '../components/ui/JobBlock';
 import { Table } from 'flowbite-react';
 import { CustomFlowbiteTheme } from 'flowbite-react';
 import FormSelect from '../components/ui/FormAddress';
-import { GenderSelect } from '../components/ui/FormInput';
+import { DistrictSelector, GenderSelect, MaritalStatusSelector, ProvinceSelector, SubDistrictSelector, TitleSelector } from '../components/ui/FormInput';
+import { TitleName } from '../components/ui/FormInput';
 
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState<Candidate | null>(null);
@@ -31,7 +32,7 @@ export default function ProfilePage() {
     root: {
       base: "w-full text-left text-sm text-gray-500 dark:text-gray-400",
       shadow: "absolute left-0 top-0 -z-10 h-full w-full rounded-lg bg-white drop-shadow dark:bg-black",
-      wrapper: "relative w-full md:w-1/2"
+      wrapper: "relative w-full lg:w-2/3"
     },
     body: {
       base: "group/body",
@@ -80,6 +81,7 @@ export default function ProfilePage() {
           firstName: data.firstName,
         }
         setTokenDate(authData.ExpiredDate)
+        console.log('data', data.updateDate);
         setProfileData(data);
       } catch (err) {
         setError('ไม่สามารถโหลดข้อมูลโปรไฟล์ได้');
@@ -97,7 +99,12 @@ export default function ProfilePage() {
 
   useEffect(() => {
     setEditableProfileData(profileData || {} as Candidate);
+    console.log('profileData', profileData);
   }, [profileData]);
+
+  useEffect(() => {
+    console.log('editableProfileData', editableProfileData);
+  }, [editableProfileData]);
 
   if (loading) {
     return (
@@ -129,8 +136,8 @@ export default function ProfilePage() {
     );
   }
 
-  const handleEdit = (field: keyof Candidate, value: string) => {
-    console.log('field', field, 'value', value);
+  const handleEdit = (field: keyof Candidate, value: string | number) => {
+    //console.log('field', field, 'value', value);
     setEditableProfileData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -148,11 +155,19 @@ export default function ProfilePage() {
     }
   };
 
+  const handleProvinceChange = (province: any) => {
+    handleEdit('province', province);
+  };
+
+  const handleDistrictChange = (district: any) => {
+    handleEdit('district', district);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="profile-header flex gap-2 items-baseline">
         <h2 className="text-2xl font-bold leading-none">ข้อมูลผู้สมัคร</h2>
-        <small className='text-neutral-500 mb-4'>อัพเดตครั้งล่าสุด : 14 พ.ย. 2566</small>
+        <small className='text-neutral-500 mb-4'>อัพเดตล่าสุด : { new Date(profileData.updateDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) }</small>
       </div>
       <div className="flex flex-col md:flex-row gap-6 mb-7 text-[26px]">
         <div className="w-full md:w-1/3">
@@ -164,6 +179,7 @@ export default function ProfilePage() {
             </div>
           )}
         <div className="flex flex-col items-center">
+          {isEditing && (
           <button 
             className="mt-3 px-4 py-2 rounded-full bg-primary-700 text-white text-base hover:bg-primary-600 leading-none"
             onClick={() => {
@@ -177,9 +193,8 @@ export default function ProfilePage() {
                   const formData = new FormData();
                   formData.append('image', file);
                   try {
-                    // Assuming you have a function to handle the image upload
-                    await updateProfile({ ...editableProfileData, image: file }); // Update image along with other profile data
-                    //setProfileData((prev) => ({ ...prev, imageUrl: URL.createObjectURL(file) })); // Update local state to reflect the new image
+                    //console.log(file.name);
+                    setEditableProfileData((prev) => ({ ...prev, image: file }));
                   } catch (error) {
                     console.error('Error uploading image:', error);
                   }
@@ -187,15 +202,19 @@ export default function ProfilePage() {
               };
               fileInput.click();
             }}
-          >
-            อัพโหลดภาพ
-          </button>
+            >
+              อัพโหลดภาพ
+            </button>
+          )}
         </div>
         </div>
         <div className="w-full md:w-2/3 flex flex-col gap-4">
           <p><span className='font-medium'>รหัสประจำตัวผู้สมัคร :</span> {profileData.candidateID}</p>
           {isEditing ? (
             <div className='flex gap-2 items-baseline'>
+              <div>
+                <TitleSelector id={editableProfileData.titleID} onTitleChange={(title) => handleEdit('titleID', title ? title.titleID : 1)} />
+              </div>
               <label className="font-medium">ชื่อ :</label>
               <input
                 type="text"
@@ -214,9 +233,14 @@ export default function ProfilePage() {
           ) : (
             <div className='flex gap-2 items-baseline'>
               <label className="font-medium">ชื่อ-สกุล :</label>
-              <div>{profileData.firstName} {profileData.lastName}</div>
+              <div><TitleName titleID={profileData.titleID} /> {profileData.firstName} {profileData.lastName}</div>
             </div>
           )}
+          <div className='flex gap-2'>
+            <label className="font-medium">ชื่อเล่น :</label>
+            { isEditing ? (<input type="text" value={editableProfileData.nickName} onChange={(e) => handleEdit('nickName', e.target.value)} className="border rounded p-1" />) : (<div>{profileData.nickName}</div>)
+            }
+          </div>
           <div className='flex gap-2 items-baseline'>
             <label className="font-medium">อีเมล :</label>
             {isEditing ? (
@@ -232,7 +256,8 @@ export default function ProfilePage() {
           </div>
           <div className='flex gap-2 items-baseline'>
             <label className="font-medium">วันเกิด :</label>
-            <div>{new Date(profileData.dateOfBirth).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+            { isEditing ? (<input type="date" value={new Date(editableProfileData.dateOfBirth).toISOString().split('T')[0]} onChange={(e) => handleEdit('dateOfBirth', e.target.value)} className="border rounded p-1" />) : (<div>{new Date(profileData.dateOfBirth).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</div>)
+            }
           </div>
           <div className='flex gap-2 items-baseline'>
             <label className="font-medium">เบอร์โทรศัพท์ :</label>
@@ -257,7 +282,11 @@ export default function ProfilePage() {
           </div>
           <div className='flex gap-2 items-baseline'>
             <label className="font-medium">สถานะสมรส :</label>
-            <div>{profileData.maritalStatus.description}</div>
+            {isEditing ? (
+              <MaritalStatusSelector id={profileData.maritalStatus.maritalStatusID} />
+            ) : (
+              <div>{profileData.maritalStatus.description}</div>
+            )}
           </div>
           <div className='flex flex-col md:flex-row gap-2 items-baseline'>
             <label className="font-medium flex-none">ที่อยู่ :</label>
@@ -266,25 +295,46 @@ export default function ProfilePage() {
                 type="text"
                 value={editableProfileData.addressDetails}
                 onChange={(e) => handleEdit('addressDetails', e.target.value)}
-                className="border rounded p-1"
+                className="border rounded p-1 flex-1"
               />
             ) : (
               <div>{profileData.addressDetails}</div>
             )}
           </div>
-          <div className='flex flex-col md:flex-row gap-2 items-baseline'>
-            <div className='flex gap-1'>
-              <label className="font-medium">ตำบล:</label>
-              <div>{profileData.subdistrict.nameTH || '-'}</div>
+          <div className='flex flex-col md:flex-row gap-2 items-baseline flex-wrap'>
+            <div className='flex gap-1 items-baseline'>
+              <label className="font-medium">จังหวัด:</label>
+              { isEditing ? (
+                <ProvinceSelector 
+                  id={profileData.province.provinceID} 
+                  onProvinceChange={handleProvinceChange} 
+                />
+              ) : (
+                <div>{profileData.province.nameTH}</div>
+              )}
             </div>
             <div className='flex gap-1'>
               <label className="font-medium">อำเภอ:</label>
-              <div>{profileData.district.nameTH}</div>
+              { isEditing ? (<DistrictSelector 
+                id={editableProfileData.district.districtID} 
+                provinceID={editableProfileData.province.provinceID}
+                onDistrictChange={(district) => handleEdit('district', district)} 
+              />) : (<div>{profileData.district.nameTH}</div>)
+            }
             </div>
             <div className='flex gap-1'>
-              <label className="font-medium">จังหวัด:</label>
-              <div>{profileData.province.nameTH}</div>
+              <label className="font-medium">ตำบล:</label>
+              { isEditing ? (<SubDistrictSelector 
+                id={editableProfileData.subdistrict.subDistrictID} 
+                districtID={editableProfileData.district.districtID}
+                onSubDistrictChange={(subDistrict) => {
+                  handleEdit('subdistrict', subDistrict);
+                  handleEdit('postalCode', String(subDistrict.postCode));
+                }}
+              />) : (<div>{profileData.subdistrict.nameTH || '-'}</div>)
+            }
             </div>
+            
             <div className='flex gap-1'>
               <label className="font-medium">รหัสไปรษณีย์:</label>
               <div>{profileData.postalCode || '-'}</div>

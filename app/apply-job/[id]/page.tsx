@@ -97,7 +97,7 @@ const ApplyJobPage = () => {
     updateField('addressLine1', profile?.addressDetails);
     updateField('province', profile?.province.provinceID ? profile?.province.provinceID : "1");
     updateField('district', profile?.district.districtID ? profile?.district.districtID : "1001");
-    updateField('subdistrict', profile?.subdistrict.subdistrictID ? profile?.subdistrict.subdistrictID : "100101");
+    updateField('subdistrict', profile?.subdistrict.subDistrictID ? profile?.subdistrict.subDistrictID : "100101");
     updateField('postalCode', profile?.postalCode ? profile?.postalCode : "10200");
     console.log(profile);
     

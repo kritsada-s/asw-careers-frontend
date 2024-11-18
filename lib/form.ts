@@ -41,6 +41,7 @@ export interface Candidate {
   lastName: string;
   nickName: string;
   tel: string;
+  updateDate: string; // Assuming dateTime is represented as string
   dateOfBirth: string; // Assuming dateTime is represented as string
   gender: {
     genderID: number; // Assuming integer is represented as number
@@ -65,7 +66,7 @@ export interface Candidate {
     nameEN: string;
   };
   subdistrict: {
-    subdistrictID: number; // Assuming integer is represented as number
+    subDistrictID: number; // Assuming integer is represented as number
     districtID: number; // Assuming integer is represented as number
     postCode: number;
     nameTH: string;
