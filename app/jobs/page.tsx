@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { HiExternalLink, HiOutlineCheckCircle, HiOutlineExclamationCircle } from 'react-icons/hi';
 import Swal from 'sweetalert2';
 import Image from 'next/image';
+import { EducationLevel } from '../components/ui/FormInput';
 
 interface fetchedJobs {
   jobs: Job
@@ -264,11 +265,8 @@ const JobsPage = () => {
           <h3 className='text-base md:text-lg font-medium mb-2 md:mb-3'>โปรดตรวจสอบข้อมูลของท่านก่อนคลิกสมัครงาน</h3>
           <div className='flex flex-col md:flex-row md:gap-7'>
             <div className='w-full md:w-1/3 mb-5 md:mb-0'>
-              {imageData ? <Image src={imageData} alt="Profile" className='w-full h-auto aspect-[3/4] object-cover mb-2' width={260} height={350} /> : <div className='w-full h-full bg-gray-200 flex items-center justify-center'>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1 7.5 0v12a3.75 3.75 0 1 1-7.5 0V6z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-.75.75H4.5a.75.75 0 0 1-.75-.75v-3z" />
-                </svg>
+              {imageData ? <Image src={imageData} alt="Profile" className='w-full h-auto aspect-[3/4] object-cover mb-2' width={260} height={350} /> : <div className='w-full bg-gray-200 aspect-[3/4] h-auto flex items-center justify-center mb-2'>
+                <span className='text-gray-500'>ยังไม่มีรูปภาพ</span>
               </div>}
               <Link href={''} className='text-primary-700 hover:text-primary-800 flex gap-1 items-center leading-none underline'>แสดง CV <HiExternalLink/></Link>
             </div>
@@ -287,7 +285,7 @@ const JobsPage = () => {
             <p><strong>รหัสไปรษณีย์:</strong> {profile?.postalCode || '-'}</p>
             <div className='h-4 md:h-0'></div>
             <p><strong>สถานภาพสมรส:</strong> {profile?.maritalStatus?.description || '-'}</p>
-            <p><strong>ระดับการศึกษา:</strong> {profile?.candidateEducations[0]?.educationID || '-'}</p>
+            <p><strong>ระดับการศึกษา:</strong> <EducationLevel educationID={profile?.candidateEducations[0]?.educationID || 1} /></p>
             <p><strong>สาขาวิชา:</strong> {profile?.candidateEducations[0]?.major || '-'}</p>
             <hr className='my-3' />
             <p>หากต้องการแก้ไขข้อมูล <Link href={'/profile'} className='text-primary-700 hover:text-primary-800 underline'>คลิกที่นี่</Link></p>

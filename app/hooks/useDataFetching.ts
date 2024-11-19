@@ -6,6 +6,7 @@ import { districts as districtsData } from '@/lib/data';
 import { subDistricts as subDistrictsData } from '@/lib/data';
 import { provinces as provincesData } from '@/lib/data';
 import { Candidate } from '@/lib/form';
+import FormData from 'form-data';
 import Swal from 'sweetalert2';
 
 // Hook for fetching Data
@@ -130,7 +131,15 @@ export function useDistricts(provinceId: number) {
 }
 
 export function useSubDistricts(districtId: number) {
-  const [subDistricts, setSubDistricts] = useState<any>(null); // Adjust type as necessary
+  interface SubDistrict {
+    subDistrictID: number;
+    districtID: number;
+    postCode: number;
+    nameTH: string;
+    nameEN: string;
+  }
+
+  const [subDistricts, setSubDistricts] = useState<SubDistrict[]>([]); // Adjust type as necessary
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -139,16 +148,16 @@ export function useSubDistricts(districtId: number) {
       try {
         setIsLoading(true);
         const response = subDistrictsData.map(subDistrict => ({
-          SubDistrictID: subDistrict.SubDistrictID,
-          DistrictID: subDistrict.DistrictID,
-          PostCode: subDistrict.PostCode,
-          NameTH: subDistrict.NameTH,
-          NameEN: subDistrict.NameEN
-        })).filter(subDistrict => subDistrict.DistrictID === districtId);
+          subDistrictID: subDistrict.SubDistrictID,
+          districtID: subDistrict.DistrictID,
+          postCode: subDistrict.PostCode,
+          nameTH: subDistrict.NameTH,
+          nameEN: subDistrict.NameEN
+        })).filter(subDistrict => subDistrict.districtID === districtId);
         setSubDistricts(response); // Assuming the response data contains sub-district details
       } catch (error) {
         console.error('Error fetching sub-district details:', error);
-        setSubDistricts(null);
+        setSubDistricts([]);
       } finally {
         setIsLoading(false);
       }
@@ -164,6 +173,30 @@ export function useEducations() {
   const [educations, setEducations] = useState<any[]>([]); // Adjust type as necessary
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Fallback data in case of error
+  const eduData = [
+    {
+      "educationID": 1,
+      "description": "ปวช. / Vocational Certificate"
+    },
+    {
+      "educationID": 2,
+      "description": "ปวส. / High Vocational Certificate"
+    },
+    {
+      "educationID": 3,
+      "description": "อนุปริญญา / Diploma"
+    },
+    {
+      "educationID": 4,
+      "description": "ปริญญาตรี / Bachelor's degree"
+    },
+    {
+      "educationID": 5,
+      "description": "ปริญญาเอก / Ph.D."
+    }
+  ];
 
   useEffect(() => {
     async function fetchEducations() {
@@ -185,30 +218,7 @@ export function useEducations() {
     }
 
     fetchEducations();
-    const eduData = [
-      {
-        "educationID": 1,
-        "description": "ปวช. / Vocational Certificate"
-      },
-      {
-        "educationID": 2,
-        "description": "ปวส. / High Vocational Certificate"
-      },
-      {
-        "educationID": 3,
-        "description": "อนุปริญญา / Diploma"
-      },
-      {
-        "educationID": 4,
-        "description": "ปริญญาตรี / Bachelor's degree"
-      },
-      {
-        "educationID": 5,
-        "description": "ปริญญาเอก / Ph.D."
-      }
-    ];
-
-  }, []);
+  }, []); // Added prodUrl as a dependency to avoid the error
 
   return { educations, isLoading, error };
 }
@@ -377,22 +387,52 @@ export function useProfileUpdate() {
   const [error, setError] = useState<string | null>(null);
   const [response, setResponse] = useState<any>(null);
 
-  const updateProfile = async (profileData: any) => {
-    console.log(profileData);
+  const updateProfile = async (profileData: Candidate) => {
     setIsSubmitting(true);
     setError(null);
     let authToken = '';
+
+    console.log('profileData', profileData.image);
 
     if (typeof window !== 'undefined') {
       authToken = localStorage.getItem('authToken') || '';
     }
 
     try {
-      const res = await axios.post(`${prodUrl}/secure/AppliedJob/Update`, profileData, {
+      const formData = new FormData();
+      formData.append('Candidate.CandidateID', profileData.candidateID);
+      formData.append('Candidate.Revision', profileData.revision ? Number(profileData.revision) : 1);
+      formData.append('Candidate.Email', profileData.email);
+      formData.append('Candidate.TitleID', profileData.titleID ? Number(profileData.titleID) : 1);
+      formData.append('Candidate.FirstName', profileData.firstName);
+      formData.append('Candidate.LastName', profileData.lastName);
+      formData.append('Candidate.NickName', profileData.nickName);
+      formData.append('Candidate.Tel', profileData.tel);
+      formData.append('Candidate.DateOfBirth', profileData.dateOfBirth ? new Date(profileData.dateOfBirth).toISOString() : null);
+      formData.append('Candidate.Gender.GenderID', 1);
+      formData.append('Candidate.MaritalStatus.MaritalStatusID', 1);
+      formData.append('Candidate.Image', profileData.image);
+      formData.append('Candidate.CV', profileData.cvUrl);
+      formData.append('Candidate.AddressDetails', profileData.addressDetails);
+      formData.append('Candidate.Province.ProvinceID', profileData.province ? profileData.province.provinceID : 1);
+      formData.append('Candidate.District.DistrictID', profileData.district ? profileData.district.districtID : 1001);
+      formData.append('Candidate.Subdistrict.SubdistrictID', profileData.subdistrict ? profileData.subdistrict.subDistrictID : 100101);
+      formData.append('Candidate.PostalCode', profileData.postalCode ? Number(profileData.postalCode) : 10200);
+      formData.append('Candidate.SourceInformation.SourceInformationID', 1);
+      formData.append('Candidate.PDPAAccepted', true);
+      formData.append('Candidate.PDPAAcceptedDate', new Date().toISOString());
+      formData.append('Candidate.CandidateEducations[0].EducationID', profileData.candidateEducations[0].educationID ? Number(profileData.candidateEducations[0].educationID) : 1);
+      formData.append('Candidate.CandidateEducations[0].Major', profileData.candidateEducations[0].major);
+      formData.append("Content-Type", "multipart/form-data");
+
+      console.log('formData', formData);
+
+      const res = await axios.post(`${prodUrl}/secure/Candidate/Update`, formData, {
         headers: {
           'Authorization': `Bearer ${authToken}`,
         },
       });
+      console.log('res', res.data);
       setResponse(res.data);
     } catch (err: any) {
       console.error('Error updating profile:', err);
@@ -404,3 +444,60 @@ export function useProfileUpdate() {
 
   return { updateProfile, isSubmitting, error, response };
 }
+
+export function useTitles() {
+  const [titles, setTitles] = useState<{ titleID: number; nameTH: string; nameEN: string }[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchTitles() {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(`${prodUrl}/TitleName/TitleNames`);
+        setTitles(response.data);
+      } catch (err: any) {
+        console.error('Error fetching titles:', err);
+        setError(err?.message || 'An unknown error occurred');
+        // Fallback data in case of error
+        setTitles([
+          { titleID: 1, nameTH: "นาย", nameEN: "Mr." },
+          { titleID: 2, nameTH: "นาง", nameEN: "Mrs." },
+          { titleID: 3, nameTH: "นางสาว", nameEN: "Miss" }
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchTitles();
+  }, []);
+
+  return { titles, isLoading, error };
+}
+
+export function useSourceInformations() {
+  const [sourceInformations, setSourceInformations] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchSourceInformations() {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(`${prodUrl}/SourceInformation/SourceInformations`);
+        setSourceInformations(response.data);
+      } catch (err: any) {
+        console.error('Error fetching source informations:', err);
+        setError(err?.message || 'An unknown error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchSourceInformations();
+  }, []);
+
+  return { sourceInformations, isLoading, error };
+}
+

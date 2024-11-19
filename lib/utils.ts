@@ -1,8 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { getCompanies } from "./api";
-import { Company } from "./types";
-import { useEffect } from "react";
 import CryptoJS from "crypto-js";
 
 export function cn(...inputs: ClassValue[]) {
