@@ -33,7 +33,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, onError }: AuthM
   const handleSuccess = (token: string) => {
     // Store token in session
     if (typeof window !== 'undefined') {
-      let authToken = window?.localStorage.getItem('authToken');
+      const authToken = window?.localStorage.getItem('authToken');
       if (authToken) {
         window?.localStorage.removeItem('authToken');
         window?.localStorage.setItem('authToken', token);    

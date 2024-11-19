@@ -141,7 +141,7 @@ const ApplyJobPage = () => {
   const handleNext = useCallback(() => {
     console.log(formData);
     setCurrentStep(prev => Math.min(prev + 1, FORM_STEPS.length - 1));
-  }, []);
+  }, [formData]);
 
   const handlePrevious = useCallback(() => {
     setCurrentStep(prev => Math.max(prev - 1, 0));

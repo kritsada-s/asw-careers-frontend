@@ -351,7 +351,7 @@ export const DistrictSelector = ({ id, provinceID, isFieldTouched, onDistrictCha
       onDistrictChange(defaultDistrict);
     }
     //console.log('provinceID', provinceID);
-  }, [provinceID, districts]);
+  }, [provinceID, districts, onDistrictChange]);
 
   useEffect(() => {
     setCurrentDistrictId(id || 1);
@@ -429,7 +429,7 @@ export const SubDistrictSelector = ({ id, districtID, onSubDistrictChange, isFie
       onSubDistrictChange(defaultSubDistrict);
     }
     //console.log('districtID', districtID);
-  }, [districtID, subDistricts]);
+  }, [districtID, subDistricts, onSubDistrictChange]);
 
   useEffect(() => {
     setCurrentSubDistrictId(id || 1);
