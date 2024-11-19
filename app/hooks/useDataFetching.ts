@@ -174,6 +174,30 @@ export function useEducations() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Fallback data in case of error
+  const eduData = [
+    {
+      "educationID": 1,
+      "description": "ปวช. / Vocational Certificate"
+    },
+    {
+      "educationID": 2,
+      "description": "ปวส. / High Vocational Certificate"
+    },
+    {
+      "educationID": 3,
+      "description": "อนุปริญญา / Diploma"
+    },
+    {
+      "educationID": 4,
+      "description": "ปริญญาตรี / Bachelor's degree"
+    },
+    {
+      "educationID": 5,
+      "description": "ปริญญาเอก / Ph.D."
+    }
+  ];
+
   useEffect(() => {
     async function fetchEducations() {
       try {
@@ -194,30 +218,7 @@ export function useEducations() {
     }
 
     fetchEducations();
-    const eduData = [
-      {
-        "educationID": 1,
-        "description": "ปวช. / Vocational Certificate"
-      },
-      {
-        "educationID": 2,
-        "description": "ปวส. / High Vocational Certificate"
-      },
-      {
-        "educationID": 3,
-        "description": "อนุปริญญา / Diploma"
-      },
-      {
-        "educationID": 4,
-        "description": "ปริญญาตรี / Bachelor's degree"
-      },
-      {
-        "educationID": 5,
-        "description": "ปริญญาเอก / Ph.D."
-      }
-    ];
-
-  }, []);
+  }, []); // Added prodUrl as a dependency to avoid the error
 
   return { educations, isLoading, error };
 }
@@ -387,11 +388,11 @@ export function useProfileUpdate() {
   const [response, setResponse] = useState<any>(null);
 
   const updateProfile = async (profileData: Candidate) => {
-    //console.log(profileData);
-    //return;
     setIsSubmitting(true);
     setError(null);
     let authToken = '';
+
+    console.log('profileData', profileData.image);
 
     if (typeof window !== 'undefined') {
       authToken = localStorage.getItem('authToken') || '';
@@ -410,7 +411,7 @@ export function useProfileUpdate() {
       formData.append('Candidate.DateOfBirth', profileData.dateOfBirth ? new Date(profileData.dateOfBirth).toISOString() : null);
       formData.append('Candidate.Gender.GenderID', 1);
       formData.append('Candidate.MaritalStatus.MaritalStatusID', 1);
-      formData.append('Candidate.Image', profileData.imageUrl);
+      formData.append('Candidate.Image', profileData.image);
       formData.append('Candidate.CV', profileData.cvUrl);
       formData.append('Candidate.AddressDetails', profileData.addressDetails);
       formData.append('Candidate.Province.ProvinceID', profileData.province ? profileData.province.provinceID : 1);
@@ -474,3 +475,29 @@ export function useTitles() {
 
   return { titles, isLoading, error };
 }
+
+export function useSourceInformations() {
+  const [sourceInformations, setSourceInformations] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchSourceInformations() {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(`${prodUrl}/SourceInformation/SourceInformations`);
+        setSourceInformations(response.data);
+      } catch (err: any) {
+        console.error('Error fetching source informations:', err);
+        setError(err?.message || 'An unknown error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchSourceInformations();
+  }, []);
+
+  return { sourceInformations, isLoading, error };
+}
+

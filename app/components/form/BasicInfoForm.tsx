@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import FormNavigation from '../ui/FormNavigation';
-import { CustomFormInput } from '../ui/FormInput';
 import type { FormField, ApplicationFormData } from '@/lib/types';
 import Image from 'next/image';
 

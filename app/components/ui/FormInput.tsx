@@ -1,6 +1,7 @@
 import { useDistricts, useProvinces, useSubDistricts, useTitles } from '@/app/hooks/useDataFetching';
 import { ApplicationFormData } from '@/lib/types';
 import React, { useEffect, useState, useRef } from 'react';
+import { useEducations } from "@/app/hooks/useDataFetching";
 
 interface FormInputProps {
   label: string;
@@ -87,7 +88,7 @@ export const GenderSelect: React.FC<GenderSelectProps> = ({ id, setGender, isFie
   ];
 
   const onGenderChange = (gender: GenderOption | null) => {
-    console.log('gender', gender);
+    //console.log('gender', gender);
     setGender(gender);
     setCurrentGender(gender?.genderID || 1);
     setIsGenderDropdownOpen(false);
@@ -171,7 +172,7 @@ export const MaritalStatusSelector: React.FC<MaritalStatusSelectorProps> = ({ id
   ];
 
   const onMaritalStatusChange = (status: MaritalStatusOption | null) => {
-    console.log('maritalStatus', status);
+    //console.log('maritalStatus', status);
     setMaritalStatus(status);
     setCurrentMaritalStatus(status?.maritalStatusID || 1);
     setIsMaritalStatusDropdownOpen(false);
@@ -273,11 +274,11 @@ export const ProvinceSelector: React.FC<ProvinceSelectorProps> = ({ id, isFieldT
   }
 
   return (
-    <div className="relative w-[180px]" ref={provinceDropdownRef}>
+    <div className="relative w-full min-w-[180px]" ref={provinceDropdownRef}>
       <button
         type="button"
         id="province"
-        className={`mt-1 block w-full rounded border border-gray-600 bg-white px-2 py-1 text-left text-base shadow-sm focus:border-primary-500 focus:ring-primary-500 ${
+        className={`block w-full rounded border border-gray-600 bg-white px-2 py-1 text-left text-base shadow-sm focus:border-primary-500 focus:ring-primary-500 ${
           isFieldTouched && isFieldTouched('province') && !id ? 'border-red-500' : ''
         }`}
         onClick={() => setIsProvinceDropdownOpen(!isProvinceDropdownOpen)}
@@ -349,7 +350,7 @@ export const DistrictSelector = ({ id, provinceID, isFieldTouched, onDistrictCha
       setCurrentDistrictId(defaultDistrict.districtID);
       onDistrictChange(defaultDistrict);
     }
-    console.log('provinceID', provinceID);
+    //console.log('provinceID', provinceID);
   }, [provinceID, districts]);
 
   useEffect(() => {
@@ -361,7 +362,7 @@ export const DistrictSelector = ({ id, provinceID, isFieldTouched, onDistrictCha
   }
 
   return (
-    <div className="relative w-[180px]" ref={districtDropdownRef}>
+    <div className="relative w-full min-w-[180px]" ref={districtDropdownRef}>
       <button
         type="button"
         id="district"
@@ -427,7 +428,7 @@ export const SubDistrictSelector = ({ id, districtID, onSubDistrictChange, isFie
       setCurrentSubDistrictId(defaultSubDistrict.subDistrictID);
       onSubDistrictChange(defaultSubDistrict);
     }
-    console.log('districtID', districtID);
+    //console.log('districtID', districtID);
   }, [districtID, subDistricts]);
 
   useEffect(() => {
@@ -439,7 +440,7 @@ export const SubDistrictSelector = ({ id, districtID, onSubDistrictChange, isFie
   }
 
   return (
-    <div className="relative w-[180px]" ref={subDistrictDropdownRef}>
+    <div className="relative w-full min-w-[180px]" ref={subDistrictDropdownRef}>
       <button
         type="button"
         id="subDistrict"
@@ -507,16 +508,12 @@ export const TitleSelector: React.FC<TitleSelectorProps> = ({ id, onTitleChange,
     onTitleChange(title);
   };
 
-  useEffect(()=>{
-    console.log(titles.find(title => title.titleID === currentTitleId)?.nameTH);
-  }, [titles]);
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="relative w-[180px]" ref={titleDropdownRef}>
+    <div className="relative w-full min-w-[120px]" ref={titleDropdownRef}>
       <button
         type="button"
         id="title"
@@ -557,3 +554,9 @@ export const TitleName = ({ titleID }: { titleID: number }) => {
   return titles.find(title => title.titleID === titleID)?.nameTH || '';
 };
 
+export const EducationLevel = ({educationID}: {educationID: number}) => {
+  const { educations, isLoading, error } = useEducations();
+  return <>
+    {educations.find(edu => edu.educationID === educationID)?.description || ''}
+  </>;
+}

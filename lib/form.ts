@@ -51,6 +51,7 @@ export interface Candidate {
     maritalStatusID: number; // Assuming integer is represented as number
     description: string;
   };
+  image: File;
   imageUrl: string;
   cvUrl: string;
   addressDetails: string;

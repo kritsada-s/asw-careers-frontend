@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FormStepProps } from '@/lib/types';
 import FormNavigation from '../ui/FormNavigation';
-import { useEducations } from '@/app/hooks/useDataFetching';
+import { useEducations, useSourceInformations } from '@/app/hooks/useDataFetching';
 
 export default function OthersInfoForm({
   formData,
@@ -12,7 +12,30 @@ export default function OthersInfoForm({
 }: FormStepProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEduDropdownOpen, setIsEduDropdownOpen] = useState(false);
+  const [isRefferedByDropdownOpen, setIsRefferedByDropdownOpen] = useState(false);
   const { educations, isLoading:isEducationsLoading } = useEducations();
+  const educationDropdownRef = useRef<HTMLDivElement>(null);
+  const refferedByDropdownRef = useRef<HTMLDivElement>(null);
+  const { sourceInformations, isLoading:isSourceInformationsLoading } = useSourceInformations();
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (educationDropdownRef.current && !educationDropdownRef.current.contains(event.target as Node)) {
+        setIsEduDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleRefferedByChange = (option: any) => {
+    updateField('refferedBy', option.sourceInformationID);
+    setIsRefferedByDropdownOpen(false);
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -26,7 +49,7 @@ export default function OthersInfoForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="space-y-4">
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
         <div className="form-input-wrapper w-full md:w-1/2">
           <label 
             htmlFor="education" 
@@ -34,7 +57,7 @@ export default function OthersInfoForm({
           >
             Education
           </label>
-          <div className="relative">
+          <div className="relative" ref={educationDropdownRef}>
             <button
               type="button"
               className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-left shadow-sm focus:border-primary-500 focus:ring-primary-500"
@@ -66,8 +89,47 @@ export default function OthersInfoForm({
             )}
           </div>
         </div>
-
-        <div className="form-input-wrapper">
+        <div className='form-input-wrapper w-full md:w-1/2'>
+          <label 
+            htmlFor="refferedBy" 
+            className="block text-base font-medium text-gray-700"
+          >
+            ท่านได้รับข้อมูลการสมัครงานจากที่ใด
+          </label>
+          <div className='relative' ref={refferedByDropdownRef}>
+            <button
+              type="button"
+              className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-left shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              onClick={() => setIsRefferedByDropdownOpen(!isRefferedByDropdownOpen)}
+            >
+              {formData.refferedBy ? sourceInformations.find(source => source.sourceInformationID === formData.refferedBy)?.description : 'เลือกที่มา'}
+              <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </span>
+            </button>
+            {isRefferedByDropdownOpen && (
+              <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                {sourceInformations.map(option => (
+                <div
+                  key={option.sourceInformationID}
+                  className={`cursor-pointer px-4 py-2 hover:bg-gray-100 ${formData.refferedBy === option.sourceInformationID ? 'bg-primary-50 text-primary-600' : ''}`}
+                  onClick={() => {
+                    updateField('refferedBy', option.sourceInformationID);
+                    setIsRefferedByDropdownOpen(false);
+                    }}
+                  >
+                    {option.description}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <div>
+        <div className="form-input-wrapper mb-4">
           <label 
             htmlFor="skills" 
             className="block text-base font-medium text-gray-700"
@@ -83,7 +145,8 @@ export default function OthersInfoForm({
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
           />
         </div>
-
+      </div>
+      <div>
         <div className="form-input-wrapper">
           <label 
             htmlFor="certificates" 
@@ -100,6 +163,8 @@ export default function OthersInfoForm({
             multiple
           />
         </div>
+      </div>
+      <div>
         <FormNavigation
           onPrevious={onPrevious}
           onNext={onNext}

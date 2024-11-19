@@ -152,6 +152,7 @@ export interface ApplicationFormData {
     certificates?: File[];
     nationality: string;
     language?: number;
+    refferedBy?: number;
 }
 
 export type FormField = keyof ApplicationFormData;

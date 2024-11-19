@@ -76,12 +76,7 @@ export default function ProfilePage() {
       try {
         // Fetch profile data
         const data = await fetchProfileData(authData.Email);
-        //console.log('data', data);
-        const userProfileData = {
-          firstName: data.firstName,
-        }
         setTokenDate(authData.ExpiredDate)
-        console.log('data', data.updateDate);
         setProfileData(data);
       } catch (err) {
         setError('ไม่สามารถโหลดข้อมูลโปรไฟล์ได้');
@@ -99,12 +94,11 @@ export default function ProfilePage() {
 
   useEffect(() => {
     setEditableProfileData(profileData || {} as Candidate);
-    console.log('profileData', profileData);
   }, [profileData]);
 
-  useEffect(() => {
-    console.log('editableProfileData', editableProfileData);
-  }, [editableProfileData]);
+  // useEffect(() => {
+  //   console.log('editableProfileData', editableProfileData);
+  // }, [editableProfileData]);
 
   if (loading) {
     return (
@@ -146,6 +140,7 @@ export default function ProfilePage() {
     if (confirmUpdate) {
       try {
         // Call your API to update the profile data
+        console.log('editableProfileData', editableProfileData);
         await updateProfile(editableProfileData);
         setProfileData(editableProfileData);
         setIsEditing(false);
@@ -171,13 +166,31 @@ export default function ProfilePage() {
       </div>
       <div className="flex flex-col md:flex-row gap-6 mb-7 text-[26px]">
         <div className="w-full md:w-1/3">
-          { imageData && imageData !== '' ? (
-            <Image src={imageData} alt="Profile Image" width={250} height={250} className='bg-slate-200 aspect-[3/4] object-cover md:mb-3 h-auto w-2/3 md:w-auto mx-auto md:mx-0' />
-          ) : (
-            <div className='bg-gray-200 aspect-[3/4] flex items-center justify-center'>
-              <span className='text-gray-500'>No Image Available</span>
-            </div>
-          )}
+        {editableProfileData.image ? (
+          <div className="flex flex-col items-center">
+            <Image 
+              src={URL.createObjectURL(editableProfileData.image)} 
+              alt="Profile Image" 
+              className="rounded-[6px] w-full h-full aspect-[3/4] object-cover" 
+              width={374} 
+              height={499} 
+            />
+          </div>
+        ) : imageData ? (
+          <div className="flex flex-col items-center">
+            <Image 
+              src={imageData} 
+              alt="Profile Image" 
+              className="rounded-[6px] w-full h-full aspect-[3/4] object-cover" 
+              width={374} 
+              height={499} 
+            />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center">
+            <p className="text-gray-500">No image available</p>
+          </div>
+        )}
         <div className="flex flex-col items-center">
           {isEditing && (
           <button 
@@ -185,18 +198,23 @@ export default function ProfilePage() {
             onClick={() => {
               const fileInput = document.createElement('input');
               fileInput.type = 'file';
-              fileInput.accept = 'image/*';
+              fileInput.accept = '.jpg, .jpeg, .png'; // Accept only jpg, jpeg, and png images
               fileInput.onchange = async (event) => {
                 const target = event.target as HTMLInputElement;
                 if (target.files && target.files.length > 0) {
                   const file = target.files[0];
                   const formData = new FormData();
                   formData.append('image', file);
-                  try {
-                    //console.log(file.name);
-                    setEditableProfileData((prev) => ({ ...prev, image: file }));
-                  } catch (error) {
-                    console.error('Error uploading image:', error);
+                  const validImageTypes = ['image/jpeg', 'image/png'];
+                  if (validImageTypes.includes(file.type)) {
+                    
+                    try {
+                      setEditableProfileData((prev) => ({ ...prev, image: file }));
+                    } catch (error) {
+                      console.error('Error uploading image:', error);
+                    }
+                  } else {
+                    alert('Please upload a valid image file (jpg, jpeg, or png).');
                   }
                 }
               };
@@ -208,7 +226,7 @@ export default function ProfilePage() {
           )}
         </div>
         </div>
-        <div className="w-full md:w-2/3 flex flex-col gap-4">
+        <div className="w-full md:w-2/3 flex flex-col gap-2">
           <p><span className='font-medium'>รหัสประจำตัวผู้สมัคร :</span> {profileData.candidateID}</p>
           {isEditing ? (
             <div className='flex gap-2 items-baseline'>
