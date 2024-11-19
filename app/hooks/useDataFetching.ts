@@ -218,7 +218,7 @@ export function useEducations() {
     }
 
     fetchEducations();
-  }, []); // Added prodUrl as a dependency to avoid the error
+  }, [eduData]); // Added prodUrl as a dependency to avoid the error
 
   return { educations, isLoading, error };
 }
