@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { fetchLocationByID, fetchPosition } from '@/lib/api';
 import axios from 'axios';
 import { prodUrl } from '@/lib/utils';
@@ -175,7 +175,7 @@ export function useEducations() {
   const [error, setError] = useState<string | null>(null);
 
   // Fallback data in case of error
-  const eduData = [
+  const eduData = useMemo(() => [
     {
       "educationID": 1,
       "description": "ปวช. / Vocational Certificate"
@@ -196,7 +196,7 @@ export function useEducations() {
       "educationID": 5,
       "description": "ปริญญาเอก / Ph.D."
     }
-  ];
+  ], []);
 
   useEffect(() => {
     async function fetchEducations() {
@@ -304,6 +304,46 @@ export function useFetchBase64Image(path: string) {
   return { imageData, isLoading, error };
 }
 
+export function useFetchBase64PDF(path: string) {
+  const [pdfData, setPdfData] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  let authToken = '';
+
+  if (typeof window !== 'undefined') {
+    authToken = localStorage.getItem('authToken') || '';
+  }
+
+  useEffect(() => {
+    async function fetchPDF() {
+      try {
+        setIsLoading(true);
+        const formData = new FormData();
+        formData.append('filePath', path);
+        formData.append("Content-Type", "multipart/form-data");
+        const response = await axios.post(`${prodUrl}/secure/FileManagement/File`, formData, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+          },
+        });
+        setPdfData(response.data);
+      } catch (error: any) {
+        console.error('Error fetching base64 PDF:', error);
+        setError(error?.message || 'An unknown error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (path) {
+      fetchPDF();
+    }
+  }, [path, authToken]);
+
+  return { pdfData, isLoading, error };
+}
+
+
 export function useSubmitJobApplication(jobID: string, candidateID: string) {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -386,59 +426,74 @@ export function useProfileUpdate() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [response, setResponse] = useState<any>(null);
+  const [profileImage, setProfileImage] = useState<File | null>(null);
 
   const updateProfile = async (profileData: Candidate) => {
     setIsSubmitting(true);
     setError(null);
     let authToken = '';
 
-    console.log('profileData', profileData.image);
+    if (profileData.image && typeof profileData.image.name === 'string') {
+      const isUpperCase = profileData.image.name === profileData.image.name.toUpperCase();
+      if (isUpperCase) {
+        const lowerCaseImageName = profileData.image.name.toLowerCase();
+        Object.defineProperty(profileData.image, 'name', {
+          value: lowerCaseImageName,
+          writable: true,
+        });
+      }
 
-    if (typeof window !== 'undefined') {
-      authToken = localStorage.getItem('authToken') || '';
-    }
-
-    try {
-      const formData = new FormData();
-      formData.append('Candidate.CandidateID', profileData.candidateID);
-      formData.append('Candidate.Revision', profileData.revision ? Number(profileData.revision) : 1);
-      formData.append('Candidate.Email', profileData.email);
-      formData.append('Candidate.TitleID', profileData.titleID ? Number(profileData.titleID) : 1);
-      formData.append('Candidate.FirstName', profileData.firstName);
-      formData.append('Candidate.LastName', profileData.lastName);
-      formData.append('Candidate.NickName', profileData.nickName);
-      formData.append('Candidate.Tel', profileData.tel);
-      formData.append('Candidate.DateOfBirth', profileData.dateOfBirth ? new Date(profileData.dateOfBirth).toISOString() : null);
-      formData.append('Candidate.Gender.GenderID', 1);
-      formData.append('Candidate.MaritalStatus.MaritalStatusID', 1);
-      formData.append('Candidate.Image', profileData.image);
-      formData.append('Candidate.CV', profileData.cvUrl);
-      formData.append('Candidate.AddressDetails', profileData.addressDetails);
-      formData.append('Candidate.Province.ProvinceID', profileData.province ? profileData.province.provinceID : 1);
-      formData.append('Candidate.District.DistrictID', profileData.district ? profileData.district.districtID : 1001);
-      formData.append('Candidate.Subdistrict.SubdistrictID', profileData.subdistrict ? profileData.subdistrict.subDistrictID : 100101);
-      formData.append('Candidate.PostalCode', profileData.postalCode ? Number(profileData.postalCode) : 10200);
-      formData.append('Candidate.SourceInformation.SourceInformationID', 1);
-      formData.append('Candidate.PDPAAccepted', true);
-      formData.append('Candidate.PDPAAcceptedDate', new Date().toISOString());
-      formData.append('Candidate.CandidateEducations[0].EducationID', profileData.candidateEducations[0].educationID ? Number(profileData.candidateEducations[0].educationID) : 1);
-      formData.append('Candidate.CandidateEducations[0].Major', profileData.candidateEducations[0].major);
-      formData.append("Content-Type", "multipart/form-data");
-
-      console.log('formData', formData);
-
-      const res = await axios.post(`${prodUrl}/secure/Candidate/Update`, formData, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        },
-      });
-      console.log('res', res.data);
-      setResponse(res.data);
-    } catch (err: any) {
-      console.error('Error updating profile:', err);
-      setError(err?.message || 'An unknown error occurred');
-    } finally {
-      setIsSubmitting(false);
+      // Update the profile data with the new image name
+      if (typeof window !== 'undefined') {
+        authToken = localStorage.getItem('authToken') || '';
+      }
+  
+      try {        
+        console.log('image', profileData.image);
+        
+        const formData = new FormData();
+        formData.append('Candidate.CandidateID', profileData.candidateID);
+        formData.append('Candidate.Revision', profileData.revision ? Number(profileData.revision) : 1);
+        formData.append('Candidate.Email', profileData.email);
+        formData.append('Candidate.TitleID', profileData.titleID ? Number(profileData.titleID) : 1);
+        formData.append('Candidate.FirstName', profileData.firstName);
+        formData.append('Candidate.LastName', profileData.lastName);
+        formData.append('Candidate.NickName', profileData.nickName);
+        formData.append('Candidate.Tel', profileData.tel);
+        formData.append('Candidate.DateOfBirth', profileData.dateOfBirth ? new Date(profileData.dateOfBirth).toISOString() : null);
+        formData.append('Candidate.Gender.GenderID', 1);
+        formData.append('Candidate.MaritalStatus.MaritalStatusID', 1);
+        formData.append('Candidate.Image', profileData.image);
+        formData.append('Candidate.CV', profileData.cvUrl);
+        formData.append('Candidate.AddressDetails', profileData.addressDetails);
+        formData.append('Candidate.Province.ProvinceID', profileData.province ? profileData.province.provinceID : 1);
+        formData.append('Candidate.District.DistrictID', profileData.district ? profileData.district.districtID : 1001);
+        formData.append('Candidate.Subdistrict.SubdistrictID', profileData.subdistrict ? profileData.subdistrict.subDistrictID : 100101);
+        formData.append('Candidate.PostalCode', profileData.postalCode ? Number(profileData.postalCode) : 10200);
+        formData.append('Candidate.SourceInformation.SourceInformationID', 1);
+        formData.append('Candidate.PDPAAccepted', true);
+        formData.append('Candidate.PDPAAcceptedDate', new Date().toISOString());
+        formData.append('Candidate.CandidateEducations[0].EducationID', profileData.candidateEducations[0].educationID ? Number(profileData.candidateEducations[0].educationID) : 1);
+        formData.append('Candidate.CandidateEducations[0].Major', profileData.candidateEducations[0].major);
+        formData.append("Content-Type", "multipart/form-data");
+  
+        for (let [key, value] of (formData as any).entries()) {
+          console.log(`${key}:`, value);
+        }
+  
+        const res = await axios.post(`${prodUrl}/secure/Candidate/Update`, formData, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+          },
+        });
+        console.log('res', res.data);
+        setResponse(res.data);
+      } catch (err: any) {
+        console.error('Error updating profile:', err);
+        setError(err?.message || 'An unknown error occurred');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 

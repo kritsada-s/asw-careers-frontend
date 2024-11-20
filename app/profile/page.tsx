@@ -6,7 +6,7 @@ import { fetchProfileData, type ProfileData } from '@/lib/api';
 import LoaderHorizontal from '../components/ui/loader';
 import { Candidate } from '@/lib/form';
 import Image from 'next/image';
-import { useEducations, useFetchAppliedJobs, useFetchBase64Image, useProfileUpdate } from '../hooks/useDataFetching';
+import { useEducations, useFetchAppliedJobs, useFetchBase64Image, useFetchBase64PDF, useProfileUpdate } from '../hooks/useDataFetching';
 import { AppliedJob } from '@/lib/types';
 import JobBlock from '../components/ui/JobBlock';
 import { Table } from 'flowbite-react';
@@ -14,6 +14,7 @@ import { CustomFlowbiteTheme } from 'flowbite-react';
 import FormSelect from '../components/ui/FormAddress';
 import { DistrictSelector, GenderSelect, MaritalStatusSelector, ProvinceSelector, SubDistrictSelector, TitleSelector } from '../components/ui/FormInput';
 import { TitleName } from '../components/ui/FormInput';
+import { FileInput } from '@mantine/core';
 
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState<Candidate | null>(null);
@@ -22,6 +23,7 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [tokenDate, setTokenDate] = useState<string | null>(null);
   const { imageData, isLoading: imageLoading, error: imageError } = useFetchBase64Image(profileData?.imageUrl || '');
+  const { pdfData, isLoading: pdfLoading, error: pdfError } = useFetchBase64PDF(profileData?.cvUrl || '');
   const { appliedJobs: appliedJobsData, isLoading: appliedJobsLoading, error: appliedJobsError } = useFetchAppliedJobs(profileData?.candidateID || '');
   const { educations, isLoading: educationsLoading, error: educationsError } = useEducations();
   const { updateProfile, isSubmitting, error: updateError, response } = useProfileUpdate();
@@ -66,7 +68,7 @@ export default function ProfilePage() {
       // Check authentication
       const authData = checkAuth();
       //console.log('authData', authData);
-      
+
       if (!authData) {
         alert('Please log in to view your profile');
         redirectToHome();
@@ -100,6 +102,24 @@ export default function ProfilePage() {
   //   console.log('editableProfileData', editableProfileData);
   // }, [editableProfileData]);
 
+  const handleOpenCV = () => {
+    if (typeof window !== 'undefined') {
+      if (pdfData) {
+        const newTab = window.open();
+        if (newTab) {
+          newTab.document.write(`<embed src="${pdfData}" width="100%" height="100%" />`);
+          newTab.document.body.style.margin = '0';
+        } else {
+          console.error('No PDF data available to open.');
+        }
+      }
+    }
+  }
+
+  const handleUploadCV = () => {
+    console.log('uploading CV');
+  }
+
   if (loading) {
     return (
       <LoaderHorizontal />
@@ -112,7 +132,7 @@ export default function ProfilePage() {
         <h4 className='text-xl font-bold'>{error}</h4>
         <p className='text-neutral-500 mb-4'>กรุณาลองอีกครั้งภายหลัง</p>
         <p>
-          <a href="/" title='กลับสู่หน้าแรก' className='text-primary-700 underline'>กลับสู่หน้าแรก</a> หรือ <button className='px-2 py-1 bg-red-500 text-white rounded-md' onClick={()=>logOut()}>ออกจากระบบ</button>
+          <a href="/" title='กลับสู่หน้าแรก' className='text-primary-700 underline'>กลับสู่หน้าแรก</a> หรือ <button className='px-2 py-1 bg-red-500 text-white rounded-md' onClick={() => logOut()}>ออกจากระบบ</button>
         </p>
       </div>
     );
@@ -124,7 +144,7 @@ export default function ProfilePage() {
         <h4 className='text-xl font-bold'>ไม่พบข้อมูลโปรไฟล์</h4>
         <p className='text-neutral-500 mb-4'>กรุณาลองอีกครั้งภายหลัง</p>
         <p>
-          <a href="/" title='กลับสู่หน้าแรก' className='text-primary-700 underline'>กลับสู่หน้าแรก</a> หรือ <button className='px-2 py-1 bg-red-500 text-white rounded-md' onClick={()=>logOut()}>ออกจากระบบ</button>
+          <a href="/" title='กลับสู่หน้าแรก' className='text-primary-700 underline'>กลับสู่หน้าแรก</a> หรือ <button className='px-2 py-1 bg-red-500 text-white rounded-md' onClick={() => logOut()}>ออกจากระบบ</button>
         </p>
       </div>
     );
@@ -162,71 +182,71 @@ export default function ProfilePage() {
     <div className="container mx-auto px-4 py-8">
       <div className="profile-header flex gap-2 items-baseline">
         <h2 className="text-2xl font-bold leading-none">ข้อมูลผู้สมัคร</h2>
-        <small className='text-neutral-500 mb-4'>อัพเดตล่าสุด : { new Date(profileData.updateDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) }</small>
+        <small className='text-neutral-500 mb-4'>อัพเดตล่าสุด : {new Date(profileData.updateDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</small>
       </div>
       <div className="flex flex-col md:flex-row gap-6 mb-7 text-[26px]">
-        <div className="w-full md:w-1/3">
-        {editableProfileData.image ? (
-          <div className="flex flex-col items-center">
-            <Image 
-              src={URL.createObjectURL(editableProfileData.image)} 
-              alt="Profile Image" 
-              className="rounded-[6px] w-full h-full aspect-[3/4] object-cover" 
-              width={374} 
-              height={499} 
-            />
-          </div>
-        ) : imageData ? (
-          <div className="flex flex-col items-center">
-            <Image 
-              src={imageData} 
-              alt="Profile Image" 
-              className="rounded-[6px] w-full h-full aspect-[3/4] object-cover" 
-              width={374} 
-              height={499} 
-            />
-          </div>
-        ) : (
-          <div className="flex flex-col items-center">
-            <p className="text-gray-500">No image available</p>
-          </div>
-        )}
-        <div className="flex flex-col items-center">
-          {isEditing && (
-          <button 
-            className="mt-3 px-4 py-2 rounded-full bg-primary-700 text-white text-base hover:bg-primary-600 leading-none"
-            onClick={() => {
-              const fileInput = document.createElement('input');
-              fileInput.type = 'file';
-              fileInput.accept = '.jpg, .jpeg, .png'; // Accept only jpg, jpeg, and png images
-              fileInput.onchange = async (event) => {
-                const target = event.target as HTMLInputElement;
-                if (target.files && target.files.length > 0) {
-                  const file = target.files[0];
-                  const formData = new FormData();
-                  formData.append('image', file);
-                  const validImageTypes = ['image/jpeg', 'image/png'];
-                  if (validImageTypes.includes(file.type)) {
-                    
-                    try {
-                      setEditableProfileData((prev) => ({ ...prev, image: file }));
-                    } catch (error) {
-                      console.error('Error uploading image:', error);
-                    }
-                  } else {
-                    alert('Please upload a valid image file (jpg, jpeg, or png).');
-                  }
-                }
-              };
-              fileInput.click();
-            }}
-            >
-              อัพโหลดภาพ
-            </button>
+        <div className="w-full md:w-2/6">
+          {editableProfileData.image ? (
+            <div className="flex flex-col items-center">
+              <Image
+                src={URL.createObjectURL(editableProfileData.image)}
+                alt="Profile Image"
+                className="rounded-[6px] w-full h-full aspect-[3/4] object-cover"
+                width={374}
+                height={499}
+              />
+            </div>
+          ) : imageData ? (
+            <div className="flex flex-col items-center">
+              <Image
+                src={imageData}
+                alt="Profile Image"
+                className="rounded-[6px] w-full h-full aspect-[3/4] object-cover border border-neutral-300"
+                width={374}
+                height={499}
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              <p className="text-gray-500">No image available</p>
+            </div>
           )}
+          <div className="flex flex-col items-center">
+            {isEditing && (
+              <button
+                className="mt-3 px-4 py-2 rounded-full bg-primary-700 text-white text-base hover:bg-primary-600 leading-none"
+                onClick={() => {
+                  const fileInput = document.createElement('input');
+                  fileInput.type = 'file';
+                  fileInput.accept = '.jpg, .jpeg, .png'; // Accept only jpg, jpeg, and png images
+                  fileInput.onchange = async (event) => {
+                    const target = event.target as HTMLInputElement;
+                    if (target.files && target.files.length > 0) {
+                      const file = target.files[0];
+                      const formData = new FormData();
+                      formData.append('image', file);
+                      const validImageTypes = ['image/jpeg', 'image/png'];
+                      if (validImageTypes.includes(file.type)) {
+                        try {
+                          setEditableProfileData((prev) => ({ ...prev, image: file }));
+                        } catch (error) {
+                          console.error('Error uploading image:', error);
+                        }
+                      } else {
+                        alert('Please upload a valid image file (jpg, jpeg, or png).');
+                      }
+                    }
+                  };
+                  fileInput.click();
+                }}
+              >
+                อัพโหลดภาพ
+              </button>
+            )}
+          </div>
         </div>
-        </div>
-        <div className="w-full md:w-2/3 flex flex-col gap-2">
+
+        <div className="w-full md:w-4/5 flex flex-col gap-2">
           <p><span className='font-medium'>รหัสประจำตัวผู้สมัคร :</span> {profileData.candidateID}</p>
           {isEditing ? (
             <div className='flex gap-2 items-baseline'>
@@ -256,7 +276,7 @@ export default function ProfilePage() {
           )}
           <div className='flex gap-2'>
             <label className="font-medium">ชื่อเล่น :</label>
-            { isEditing ? (<input type="text" value={editableProfileData.nickName} onChange={(e) => handleEdit('nickName', e.target.value)} className="border rounded p-1" />) : (<div>{profileData.nickName}</div>)
+            {isEditing ? (<input type="text" value={editableProfileData.nickName} onChange={(e) => handleEdit('nickName', e.target.value)} className="border rounded p-1" />) : (<div>{profileData.nickName}</div>)
             }
           </div>
           <div className='flex gap-2 items-baseline'>
@@ -274,7 +294,7 @@ export default function ProfilePage() {
           </div>
           <div className='flex gap-2 items-baseline'>
             <label className="font-medium">วันเกิด :</label>
-            { isEditing ? (<input type="date" value={new Date(editableProfileData.dateOfBirth).toISOString().split('T')[0]} onChange={(e) => handleEdit('dateOfBirth', e.target.value)} className="border rounded p-1" />) : (<div>{new Date(profileData.dateOfBirth).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</div>)
+            {isEditing ? (<input type="date" value={new Date(editableProfileData.dateOfBirth).toISOString().split('T')[0]} onChange={(e) => handleEdit('dateOfBirth', e.target.value)} className="border rounded p-1" />) : (<div>{new Date(profileData.dateOfBirth).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</div>)
             }
           </div>
           <div className='flex gap-2 items-baseline'>
@@ -322,10 +342,10 @@ export default function ProfilePage() {
           <div className='flex flex-col md:flex-row gap-2 items-baseline flex-wrap'>
             <div className='flex gap-1 items-baseline'>
               <label className="font-medium">จังหวัด:</label>
-              { isEditing ? (
-                <ProvinceSelector 
-                  id={profileData.province.provinceID} 
-                  onProvinceChange={handleProvinceChange} 
+              {isEditing ? (
+                <ProvinceSelector
+                  id={profileData.province.provinceID}
+                  onProvinceChange={handleProvinceChange}
                 />
               ) : (
                 <div>{profileData.province.nameTH}</div>
@@ -333,26 +353,26 @@ export default function ProfilePage() {
             </div>
             <div className='flex gap-1'>
               <label className="font-medium">อำเภอ:</label>
-              { isEditing ? (<DistrictSelector 
-                id={editableProfileData.district.districtID} 
+              {isEditing ? (<DistrictSelector
+                id={editableProfileData.district.districtID}
                 provinceID={editableProfileData.province.provinceID}
-                onDistrictChange={(district) => handleEdit('district', district)} 
+                onDistrictChange={(district) => handleEdit('district', district)}
               />) : (<div>{profileData.district.nameTH}</div>)
-            }
+              }
             </div>
             <div className='flex gap-1'>
               <label className="font-medium">ตำบล:</label>
-              { isEditing ? (<SubDistrictSelector 
-                id={editableProfileData.subdistrict.subDistrictID} 
+              {isEditing ? (<SubDistrictSelector
+                id={editableProfileData.subdistrict.subDistrictID}
                 districtID={editableProfileData.district.districtID}
                 onSubDistrictChange={(subDistrict) => {
                   handleEdit('subdistrict', subDistrict);
                   handleEdit('postalCode', String(subDistrict.postCode));
                 }}
               />) : (<div>{profileData.subdistrict.nameTH || '-'}</div>)
-            }
+              }
             </div>
-            
+
             <div className='flex gap-1'>
               <label className="font-medium">รหัสไปรษณีย์:</label>
               <div>{profileData.postalCode || '-'}</div>
@@ -376,24 +396,36 @@ export default function ProfilePage() {
             </Table>
           </div>
           {profileData.candidateLanguages.length > 0 && (
-          <div className='flex flex-col'>
-            <h3 className='text-md font-medium leading-none'>ภาษา</h3>
-            <ul className='list-disc list-inside'>
-            {profileData.candidateLanguages.map((language) => (
-              <li key={language.languageID}>{language.languageID || '-'}</li>
-            ))}
-            </ul>
-          </div>
+            <div className='flex flex-col'>
+              <h3 className='text-md font-medium leading-none'>ภาษา</h3>
+              <ul className='list-disc list-inside'>
+                {profileData.candidateLanguages.map((language) => (
+                  <li key={language.languageID}>{language.languageID || '-'}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {profileData.cvUrl && (
+            <div className='flex gap-2 items-baseline'>
+              <label className="font-medium block">เรซูเม่ : </label>
+              <div>
+                {isEditing ? (
+                  <FileInput accept=".pdf" onChange={handleUploadCV} className='text-primary-700 rounded-full underline' />
+                ) : (
+                  <button onClick={() => handleOpenCV()} className='text-primary-700 underline'>ดาวน์โหลดเรซูเม่</button>
+                )}
+              </div>
+            </div>
           )}
         </div>
       </div>
 
       <div className="flex gap-2 justify-end mb-5">
-        <button className='bg-red-500 hover:bg-red-600 text-white rounded-full px-4 py-1' onClick={()=>logOut()}>ออกจากระบบ</button>
+        <button className='bg-red-500 hover:bg-red-600 text-white rounded-full px-4 py-1' onClick={() => logOut()}>ออกจากระบบ</button>
         {isEditing ? (
           <>
-          <button className='bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-1' onClick={handleSave}>บันทึกการเปลี่ยนแปลง</button>
-          <button className="text-gray-600 hover:text-gray-600 rounded-full p-1" onClick={() => setIsEditing(false)}>ยกเลิก</button>
+            <button className='bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-1' onClick={handleSave}>บันทึกการเปลี่ยนแปลง</button>
+            <button className="text-gray-600 hover:text-gray-600 rounded-full p-1" onClick={() => setIsEditing(false)}>ยกเลิก</button>
           </>
 
         ) : (
@@ -401,7 +433,7 @@ export default function ProfilePage() {
         )}
       </div>
 
-      { appliedJobs.length > 0 && (
+      {appliedJobs.length > 0 && (
         <div className="flex flex-col border-t border-gray-200 pt-4">
           <h3 className="text-2xl font-bold mb-4">ประวัติการสมัครงาน</h3>
           <div className="grid lg:grid-cols-3 gap-4 mb-7">

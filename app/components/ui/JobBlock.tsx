@@ -87,9 +87,11 @@ function JobBlock({className = '', job, status}: JobBlockProps) {
                     <CircleDollarSign size={18} /> เงินเดือนตามตกลง
                 </Typography>
             </div>
-            <div className="footer text-right">
-                <CustomButton link={'/apply-job/'+job.jobID} varient="bordered">สมัครงาน</CustomButton>
-            </div>
+            { !status && (
+                <div className="footer text-right">
+                    <CustomButton link={'/apply-job/'+job.jobID} varient="bordered">สมัครงาน</CustomButton>
+                </div>
+            )}
         </div>
     );
 }
