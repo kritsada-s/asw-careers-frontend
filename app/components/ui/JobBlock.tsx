@@ -2,7 +2,7 @@ import { fetchCompanyName, getCompanyByID, getCompanyCi } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Job } from "@/lib/types";
 import { Typography } from "@mui/material";
-import { MapPin, Building, CircleDollarSign, CircleDot } from 'lucide-react';
+import { MapPin, Building, CircleDollarSign, CircleDot, CalendarCheck } from 'lucide-react';
 import CustomButton from "./Button";
 import { fetchCompanyLocations, fetchLocationByID } from "@/lib/api";
 
@@ -10,6 +10,7 @@ interface JobBlockProps {
     className?: string;
     job: Job;
     status?: number;
+    applyDate?: string | null;
 }
 
 const appliedStatus = (status: number) => {
@@ -50,7 +51,7 @@ const appliedStatus = (status: number) => {
     return statusItem ? <span style={{ color: statusItem.color, borderColor: statusItem.color }} className={`border rounded-full px-2 py-1 text-[16px]`}>{statusItem.name}</span> : <span>ไม่พบสถานะ</span>;
 }
 
-function JobBlock({className = '', job, status}: JobBlockProps) {
+function JobBlock({className = '', job, status, applyDate}: JobBlockProps) {
     const [companyThName, setCompanythName] = useState('');
     const [borderColor, setBorderColor] = useState<string>();
     const [location, setLocation] = useState('');
@@ -71,21 +72,33 @@ function JobBlock({className = '', job, status}: JobBlockProps) {
 
     }, [job.companyID, job.companyLocationID])
 
+    useEffect(()=>{
+        console.log(applyDate)
+    }, [applyDate])
+
     return (
         <div className={`job-block p-4 flex flex-col justify-between bg-white border-2 rounded-[20px] hover:shadow-xl transition-shadow duration-300 ${className}`.trim()} style={{ borderColor: borderColor }}>
             <div className="details">
                 <h4 className="leading-none text-[36px] mb-2 font-medium flex items-center gap-2" key={job.jobID}>{job.jobPosition}
                 {status && appliedStatus(status)}
                 </h4>
-                <Typography variant="body1" className="flex gap-1 items-center text-gray-500">
-                    <Building size={18} /> {companyThName}
-                </Typography>
-                <Typography variant="body1" className="flex gap-1 items-center text-gray-500">
-                    <MapPin size={18}/> {location}
-                </Typography>
-                <Typography variant="body1" className="flex gap-1 items-center text-gray-500">
-                    <CircleDollarSign size={18} /> เงินเดือนตามตกลง
-                </Typography>
+                <div className="detail flex flex-col gap-1 mb-2">
+                    <p className="flex gap-1 items-center text-gray-500">
+                        <Building size={18} /> {companyThName}
+                    </p>
+                    <p className="flex gap-1 items-center text-gray-500">
+                        <MapPin size={18}/> {location}
+                    </p>
+                    { applyDate !== undefined && applyDate !== '' ? (
+                        <p className="flex gap-1 items-center text-gray-500">
+                            <CalendarCheck size={18} /> สมัครแล้วเมื่อ { new Date(applyDate || '').toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) }
+                        </p>
+                    ) : (
+                        <p className="flex gap-1 items-center text-gray-500">
+                            <CircleDollarSign size={18} /> เงินเดือนตามตกลง
+                        </p>
+                    )}
+                </div>
             </div>
             { !status && (
                 <div className="footer text-right">
