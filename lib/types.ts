@@ -126,7 +126,9 @@ export interface ApplicationFormData {
     expectedSalary?: string;
     experience?: string;
     profileImage?: File;
+    profileImagePath?: string;
     cv?: File;
+    cvPath?: string;
 
     // Address Info
     addressLine1?: string;

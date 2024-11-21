@@ -17,7 +17,7 @@ import { useToken } from '@/app/hooks/useToken';
 import LoaderHorizontal from '@/app/components/ui/loader';
 import { Alert } from 'flowbite-react';
 import { HiInformationCircle } from 'react-icons/hi';
-import { useUserProfile } from '@/app/hooks/useDataFetching';
+import { useFetchBase64Image, useUserProfile } from '@/app/hooks/useDataFetching';
 
 const FORM_STEPS = [
   { id: 'basic', title: 'ข้อมูลเบื้องต้น' },
@@ -86,9 +86,12 @@ const ApplyJobPage = () => {
     });
   }, [updateField]);
 
-  const { profile, isLoading: isLoadingProfile, error } = useUserProfile(decryptedToken?.Email);  
+  const { profile, isLoading: isLoadingProfile, error } = useUserProfile(decryptedToken?.Email);
 
   const prefillFormWithUserData = useCallback(() => {
+    //updateField('profileImage', profile?.imageUrl);
+    updateField('profileImagePath', profile?.imageUrl);
+    updateField('cvPath', profile?.cvUrl);
     updateField('firstName', profile?.firstName);
     updateField('lastName', profile?.lastName);
     updateField('nickname', profile?.nickName);
@@ -99,8 +102,6 @@ const ApplyJobPage = () => {
     updateField('district', profile?.district.districtID ? profile?.district.districtID : "1001");
     updateField('subdistrict', profile?.subdistrict.subDistrictID ? profile?.subdistrict.subDistrictID : "100101");
     updateField('postalCode', profile?.postalCode ? profile?.postalCode : "10200");
-    console.log(profile);
-    
   }, [profile, updateField]);
   
   useEffect(() => {
@@ -177,17 +178,11 @@ const ApplyJobPage = () => {
       apiFormData.append('Candidate.PDPAAcceptedDate', new Date().toISOString());
       apiFormData.append('Candidate.CandidateEducations[0].EducationID', formData.education ? Number(formData.education) : 1);
       apiFormData.append('Candidate.CandidateEducations[0].Major', 'computer science');
-      //apiFormData.append('Candidate.CandidateLanguages[0].LanguageID', formData.language ? Number(formData.language) : 1);
-
-      // for (let pair of apiFormData.entries()) {
-      //   console.log(pair[0], pair[1]);
-      // }
 
       const config = {
         method: 'POST',
         contentType: 'multipart/form-data',
         url: prodUrl+'/secure/Candidate/Create',
-        //url: 'https://7eba-202-80-250-90.ngrok-free.app/secure/Candidate/Create',
         headers: {
           'Authorization': `Bearer ${authToken}`,
         },
@@ -196,10 +191,6 @@ const ApplyJobPage = () => {
         maxBodyLength: Infinity,
         maxContentLength: Infinity,
       };
-
-      // console.log('Auth Token:', authToken);
-      // console.log('Request URL:', config.url);
-      // console.log('Request Headers:', config.headers);
 
       const response = await axios.request(config);
       

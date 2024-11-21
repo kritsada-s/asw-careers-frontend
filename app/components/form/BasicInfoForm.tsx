@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import FormNavigation from '../ui/FormNavigation';
 import type { FormField, ApplicationFormData } from '@/lib/types';
 import Image from 'next/image';
+import { useFetchBase64Image, useFetchBase64PDF } from '@/app/hooks/useDataFetching';
 
 interface FormInputProps {
   label: string;
@@ -93,9 +94,14 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
   jobTitle
 }) => {
   const [profilePreview, setProfilePreview] = useState<string>('');
+  const { imageData, isLoading: isLoadingImage, error: imageError } = useFetchBase64Image(formData.profileImagePath || '');
+  const { pdfData, isLoading, error } = useFetchBase64PDF(formData.cvPath || '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    console.log('form next');
+    
     
     const requiredFields: FormField[] = ['expectedSalary', 'experience'];
     const hasErrors = requiredFields.some(field => !formData[field]);
@@ -127,14 +133,16 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
       <div className="form-step-wrapper">
         <div className="top flex">
           <div className="w-2/6">
-            <div className="relative w-32 h-32 mx-auto mb-4">
-              <div className="w-full h-full rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center">
-                {profilePreview ? (
-                  <Image src={profilePreview} alt="Profile Preview" className="w-full h-full rounded-full object-cover" width={100} height={100} />
-                ) : (
-                  <span className="text-gray-400">No image</span>
-                )}
-              </div>
+            <div className="relative max-w-44 mx-auto mb-4">
+              {imageData && !profilePreview ? (
+                <Image src={imageData} alt="Profile Preview" className="aspect-[3/4] w-auto h-auto fill rounded object-cover" width={240} height={320} />
+              ) : profilePreview ? (
+                <Image src={profilePreview} alt="Profile Preview" className="aspect-[3/4] w-auto h-auto rounded object-cover" width={240} height={320} />
+              ) : (
+                <div className="flex justify-center items-center w-[240px] h-[320px] bg-gray-100 rounded">
+                  <span className="text-gray-500">No image</span>
+                </div>
+              )}
             </div>
             <div className="flex justify-center">
               <input
@@ -154,7 +162,7 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
             </div>
           </div>
           <div className="w-4/6">
-          <div className="form-input-wrapper">
+          <div className="form-input-wrapper mb-3">
             <label 
               htmlFor="expectedSalary" 
               className="block text-base font-medium text-gray-700"
@@ -176,7 +184,7 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
             />
           </div>
           
-          <div className="form-input-wrapper">
+          <div className="form-input-wrapper mb-3">
             <label 
               htmlFor="experience" 
               className="block text-base font-medium text-gray-700"
@@ -204,27 +212,29 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
               }`}
             />
           </div>
-          <div className="form-input-wrapper">
-            <label 
-              htmlFor="cv" 
-              className="block text-base font-medium text-gray-700"
-            >
-              CV Upload <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="cv"
-              name="cv"
-              type="file"
-              accept=".jpg,.jpeg,.pdf"
-              onChange={(e) => updateField('cv', e.target.files?.[0])}
-              onBlur={() => markFieldTouched('cv')}
-              required
-              disabled={isSubmitting}
-              className={`mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white ${
-                isFieldTouched('cv') && !formData.cv ? 'border-red-500' : ''
-              }`}
-            />
-            <p className="mt-1 text-sm text-gray-500">Accepted file types: JPG, JPEG, PDF</p>
+          <div className="form-input-wrapper mb-3">
+              <div className="cv-selector">
+                <label
+                  htmlFor="cv"
+                  className="block text-base font-medium text-gray-700"
+                >
+                  CV Upload <span className="text-red-500">*</span>
+                </label>
+                <p className='text-base text-neutral-800'>ไฟล์ CV ปัจจุบัน : <span className='font-medium underline'>{formData.cvPath?.split('\\').pop()}</span> <span className='text-neutral-500 text-[16px]'>(อัพเดตเมื่อ 14 พฤศจิกายน 2567)</span></p>
+                <input
+                  id="cv"
+                  name="cv"
+                  type="file"
+                  accept=".jpg,.jpeg,.pdf"
+                  onChange={(e) => updateField('cv', e.target.files?.[0])}
+                  onBlur={() => markFieldTouched('cv')}
+                  required
+                  disabled={isSubmitting}
+                  className={`mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white ${isFieldTouched('cv') && !formData.cv ? 'border-red-500' : ''
+                    }`}
+                />
+                <p className="mt-1 text-sm text-gray-500">Accepted file types: JPG, JPEG, PDF</p>
+            </div>
           </div>
           
           </div>
