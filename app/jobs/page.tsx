@@ -6,7 +6,7 @@ import { Job } from '@/lib/types';
 import { WorkLocation } from '../components/ui/WorkLocation';
 import { timeAgo } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
-import { useModal } from '../components/MUIProvider';
+//import { useModal } from '../components/MUIProvider';
 import { useToken, useDecryptedToken } from '@/app/hooks/useToken';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
@@ -30,7 +30,7 @@ const JobsPage = () => {
   const params = useSearchParams();
   const [isMobile, setIsMobile] = useState(false);
   const [isSelectedJobOpen, setIsSelectedJobOpen] = useState(false);
-  const { openModal } = useModal()
+  //const { openModal } = useModal()
   const jobDetailsRef = useRef<HTMLDivElement>(null);
   const summaryHeaderRef = useRef<HTMLDivElement>(null);
   const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
@@ -157,12 +157,7 @@ const JobsPage = () => {
     if (token) {
       setIsSummaryModalOpen(true);
     } else {
-      openModal({
-        type: 'auth',
-        props: {
-          initialStep: 'email'
-        }
-      })
+      // open auth modal
     }
   };
 

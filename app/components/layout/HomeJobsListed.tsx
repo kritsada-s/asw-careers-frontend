@@ -1,14 +1,12 @@
 "use client"
 
-import { CircularProgress, Skeleton, Typography } from "@mui/material";
+import { Skeleton } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { bConnectionID, prodUrl } from "@/lib/utils";
 import JobBlock from "../ui/JobBlock";
 import LastestPositions from "./LastestPositions";
-import { getCompanies } from "@/lib/api";
 import { Job } from "@/lib/types";
-import { useModal } from "../MUIProvider";
 import { useRouter } from "next/navigation";
 import { useToken } from "@/app/hooks/useToken";
 
@@ -22,7 +20,7 @@ function HomeJobsListed() {
     const [jobs, setJobs] = useState<Job[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { openModal } = useModal();
+    //const { openModal } = useModal();
     const token = useToken();
 
     const path = "/JobAnnouncement/JobAnnouncementsByPage";
@@ -69,18 +67,7 @@ function HomeJobsListed() {
     }
 
     const handleLeaveProfile = () => {
-        openModal({
-            type: 'auth',
-            props: {
-                // You can pass additional props if needed
-            },
-            onSuccess: (data) => {
-                // Handle success if needed
-            },
-            onError: (error) => {
-                // Handle error if needed
-            }
-        });
+        //leave profile logic here
     };
 
     return (
@@ -95,7 +82,7 @@ function HomeJobsListed() {
                     </div>
                 )}
                 
-                {error && <Typography color="error">{error}</Typography>}
+                {error && <span className="text-red-500">{error}</span>}
                 
                 {!loading && !error && (
                     <div className="grid lg:grid-cols-3 gap-4 mb-7">
@@ -114,7 +101,7 @@ function HomeJobsListed() {
                     <p>Loading...</p>
                 )}
 
-                {error && <Typography color="error">{error}</Typography>}
+                {error && <span className="text-red-500">{error}</span>}
 
                 {!loading && !error && (
                     <LastestPositions items={jobs.slice(3,10)}/>

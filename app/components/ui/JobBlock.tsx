@@ -1,10 +1,9 @@
-import { fetchCompanyName, getCompanyByID, getCompanyCi } from "@/lib/utils";
+import { fetchCompanyName, getCompanyCi } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Job } from "@/lib/types";
-import { Typography } from "@mui/material";
-import { MapPin, Building, CircleDollarSign, CircleDot } from 'lucide-react';
+import { MapPin, Building, CircleDollarSign } from 'lucide-react';
 import CustomButton from "./Button";
-import { fetchCompanyLocations, fetchLocationByID } from "@/lib/api";
+import { fetchLocationByID } from "@/lib/api";
 
 interface JobBlockProps {
     className?: string;
@@ -77,15 +76,15 @@ function JobBlock({className = '', job, status}: JobBlockProps) {
                 <h4 className="leading-none text-[36px] mb-2 font-medium flex items-center gap-2" key={job.jobID}>{job.jobPosition}
                 {status && appliedStatus(status)}
                 </h4>
-                <Typography variant="body1" className="flex gap-1 items-center text-gray-500">
+                <p className="flex gap-1 items-center text-gray-500">
                     <Building size={18} /> {companyThName}
-                </Typography>
-                <Typography variant="body1" className="flex gap-1 items-center text-gray-500">
+                </p>
+                <p className="flex gap-1 items-center text-gray-500">
                     <MapPin size={18}/> {location}
-                </Typography>
-                <Typography variant="body1" className="flex gap-1 items-center text-gray-500">
+                </p>
+                <p className="flex gap-1 items-center text-gray-500">
                     <CircleDollarSign size={18} /> เงินเดือนตามตกลง
-                </Typography>
+                </p>
             </div>
             { !status && (
                 <div className="footer text-right">

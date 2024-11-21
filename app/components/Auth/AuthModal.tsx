@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import EmailStep from './Email';
 import OtpStep from './Otp';
+import gsap from 'gsap';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -20,6 +21,42 @@ export default function AuthModal({ isOpen, onClose, onSuccess, onError }: AuthM
   const [currentStep, setCurrentStep] = useState<AuthStep>('email');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const modalRef = useRef(null);
+  const backdropRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      // Reset visibility
+      gsap.set([backdropRef.current, modalRef.current], { visibility: 'visible' });
+      
+      // Create timeline for smooth animation
+      const tl = gsap.timeline();
+      
+      tl.fromTo(backdropRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.3 }
+      ).fromTo(modalRef.current,
+        { opacity: 0, scale: 0.8, y: 20 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "back.out(1.7)" },
+        "-=0.2" // Start slightly before backdrop animation ends
+      );
+    } else if (backdropRef.current && modalRef.current) {
+      // Animate out
+      console.log('animate out');
+      const tl = gsap.timeline({
+        onComplete: () => {
+          gsap.set([backdropRef.current, modalRef.current], { visibility: 'hidden' });
+        }
+      });
+      
+      tl.to(modalRef.current,
+        { opacity: 0, scale: 0.8, y: 20, duration: 0.3 }
+      ).to(backdropRef.current,
+        { opacity: 0, duration: 0.3 },
+        "-=0.1"
+      );
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -53,12 +90,16 @@ export default function AuthModal({ isOpen, onClose, onSuccess, onError }: AuthM
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+        ref={backdropRef}
+        className="absolute inset-0 bg-black bg-opacity-50"
         onClick={handleClose}
       />
 
       {/* Modal Content */}
-      <div className="relative bg-white rounded-lg shadow-xl flex w-full max-w-3xl mx-4 overflow-hidden lg:min-h-[650px] z-20">
+      <div 
+        ref={modalRef}
+        className="relative bg-white rounded-lg shadow-xl flex w-full max-w-3xl mx-4 overflow-hidden lg:min-h-[650px] z-20"
+      >
         {/* Left Side - Image */}
         <div className="w-1/2 relative hidden md:flex md:justify-center md:items-center bg-custom-light-blue">
           <div className={`img-wrapper relative `+(currentStep === 'email' ? 'w-2/3 h-2/3':'w-1/2 h-1/2')}>

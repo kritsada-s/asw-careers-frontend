@@ -5,12 +5,12 @@ import { Button } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
 import AuthModal from "../Auth/AuthModal";
-import { useModal } from "../MUIProvider";
+//import { useModal } from "../MUIProvider";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthopen, setIsAuthOpen] = useState(false);
-  const { openModal } = useModal();
+  //const { openModal } = useModal();
 
   const menuItems = [
     "ตำแหน่งงาน",
@@ -27,19 +27,8 @@ const Header = () => {
       if (window?.localStorage.getItem('authToken')) {
         window.location.href = '/profile'
       } else {
-        openModal({
-          type: 'auth',
-          props: {
-            initialStep: 'otp'
-        },
-        onSuccess: (data) => {
-          console.log('Login successful:', data);
-        },
-        onError: (error) => {
-          console.error('Login failed:', error);
-          }
-        });
-      } 
+        setIsAuthOpen(true);
+      }
     }
   }
 
@@ -48,7 +37,7 @@ const Header = () => {
       <div className="container flex justify-between px-3 lg:px-0">
         <div className="logo-wrapper flex items-center max-w-[170px]">
           <Link href="/" title="">
-            <Image src="/images/logo.png" alt="" width={170} height={34} className="w-24 h-auto md:w-auto"/>
+            <Image src="/images/logo.png" alt="" width={170} height={34} className="max-w-28 h-auto w-auto"/>
           </Link>
         </div>
         <div className="menu-wrapper flex gap-4">

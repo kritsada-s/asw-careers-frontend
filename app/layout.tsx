@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import MUIProvider from './components/MUIProvider';
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import HolyLoader from "holy-loader";
+import MantineProviderWrapper from "./providers";
 
 export const metadata: Metadata = {
   title: "AssetWise Careers",
@@ -17,14 +17,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <MUIProvider>
-        <body >
-            <HolyLoader color="#123F6D"/>
+        <body>
+          <HolyLoader color="#123F6D"/>
+          <MantineProviderWrapper>
             <Header/>
             {children}
             <Footer/>
+          </MantineProviderWrapper>
         </body>
-      </MUIProvider>
     </html>
   );
 }

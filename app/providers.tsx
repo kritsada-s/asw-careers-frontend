@@ -1,11 +1,20 @@
-"use client"
+import { createTheme, MantineProvider } from '@mantine/core';
+import { ModalProvider } from './context/ModalContext';
 
-// import {NextUIProvider} from '@nextui-org/react'
+const theme = createTheme({
+  fontFamily: 'DB Heavent, sans-serif',
+  fontFamilyMonospace: 'Monaco, Courier, monospace',
+  headings: { fontFamily: 'DB Heavent, sans-serif' },
+});
 
-// export function Providers({children}: { children: React.ReactNode }) {
-//   return (
-//     <NextUIProvider>
-//       {children}
-//     </NextUIProvider>
-//   )
-// }
+function MantineProviderWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <MantineProvider theme={theme}>
+      <ModalProvider>
+        {children}
+      </ModalProvider>
+    </MantineProvider>
+  );
+}
+
+export default MantineProviderWrapper;

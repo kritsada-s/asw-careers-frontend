@@ -1,5 +1,3 @@
-@import url('https://asw-dbfont.web.app/db.css');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,14 +5,21 @@
 @layer base {
   :root {
     font-size: 22px;
-    --font-sans: "DB Heavent", sans-serif;
   }
 }
 
+@font-face {
+  font-family: 'DB Heavent';
+  src: url('/fonts/DBHeavent322/DB Heavent v3.2.2.woff2') format('woff2'),
+       url('/fonts/DBHeavent322/DB Heavent v3.2.2.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
+  font-family: 'DB Heavent', sans-serif;
   /* font-size: 24px; */
   line-height: normal;
-  font-family: var(--font-sans);
 }
 
 :root {
