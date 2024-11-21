@@ -8,6 +8,7 @@ import { provinces as provincesData } from '@/lib/data';
 import { Candidate } from '@/lib/form';
 import FormData from 'form-data';
 import Swal from 'sweetalert2';
+import { AppliedJob } from '@/lib/types';
 
 // Hook for fetching Data
 export function useWorkLocation(comp: string, loc: string) {
@@ -386,7 +387,7 @@ export function useSubmitJobApplication(jobID: string, candidateID: string) {
 }
 
 export function useFetchAppliedJobs(candidateID: string) {
-  const [appliedJobs, setAppliedJobs] = useState<any[]>([]);
+  const [appliedJobs, setAppliedJobs] = useState<AppliedJob[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   let authToken = '';
