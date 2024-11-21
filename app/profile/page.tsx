@@ -191,7 +191,7 @@ export default function ProfilePage() {
               <Image
                 src={URL.createObjectURL(editableProfileData.image)}
                 alt="Profile Image"
-                className="rounded-[6px] w-full h-full aspect-[3/4] object-cover"
+                className="rounded-[6px] w-auto h-auto aspect-[3/4] object-cover"
                 width={374}
                 height={499}
               />
@@ -201,7 +201,7 @@ export default function ProfilePage() {
               <Image
                 src={imageData}
                 alt="Profile Image"
-                className="rounded-[6px] w-full h-full aspect-[3/4] object-cover border border-neutral-300"
+                className="rounded-[6px] w-auto h-auto aspect-[3/4] object-cover border border-neutral-300"
                 width={374}
                 height={499}
               />
@@ -438,7 +438,7 @@ export default function ProfilePage() {
           <h3 className="text-2xl font-bold mb-4">ประวัติการสมัครงาน</h3>
           <div className="grid lg:grid-cols-3 gap-4 mb-7">
             {appliedJobs.map((job) => (
-              <JobBlock key={job.appliedJobID} job={job.job} status={job.status.statusID} />
+              <JobBlock key={job.appliedJobID} job={job.job} status={job.status.statusID} applyDate={job.appliedDate} />
             ))}
           </div>
         </div>
