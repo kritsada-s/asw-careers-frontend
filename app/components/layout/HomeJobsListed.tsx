@@ -1,6 +1,6 @@
 "use client"
 
-import { CircularProgress, Skeleton, Typography } from "@mui/material";
+import { Skeleton } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { bConnectionID, prodUrl } from "@/lib/utils";
@@ -95,7 +95,7 @@ function HomeJobsListed() {
                     </div>
                 )}
                 
-                {error && <Typography color="error">{error}</Typography>}
+                {error && <p className="text-red-500">{error}</p>}
                 
                 {!loading && !error && (
                     <div className="grid lg:grid-cols-3 gap-4 mb-7">
@@ -114,7 +114,7 @@ function HomeJobsListed() {
                     <p>Loading...</p>
                 )}
 
-                {error && <Typography color="error">{error}</Typography>}
+                {error && <p className="text-red-500">{error}</p>}
 
                 {!loading && !error && (
                     <LastestPositions items={jobs.slice(3,10)}/>

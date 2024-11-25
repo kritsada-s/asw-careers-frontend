@@ -1,6 +1,6 @@
 "use client";
 import { fetchPosition } from '@/lib/api';
-import { Position, ApplicationFormData } from '@/lib/types';
+import { Position, ApplicationFormData, FormField } from '@/lib/types';
 import { useParams } from 'next/navigation';
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import BasicInfoForm from '@/app/components/form/BasicInfoForm';
@@ -41,6 +41,7 @@ const ApplyJobPage = () => {
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const token = useToken();
+  const requiredFields: FormField[] = ['expectedSalary', 'experience', 'firstName', 'lastName', 'nickname', 'phone', 'birthDate', 'addressLine1', 'province', 'district', 'postalCode'];
   
   const {
     formData,
@@ -95,6 +96,8 @@ const ApplyJobPage = () => {
     updateField('firstName', profile?.firstName);
     updateField('lastName', profile?.lastName);
     updateField('nickname', profile?.nickName);
+    updateField('gender', profile?.gender.genderID ? profile?.gender.genderID : 1);
+    updateField('maritalStatus', profile?.maritalStatus.maritalStatusID ? profile?.maritalStatus.maritalStatusID : 1);
     updateField('phone', profile?.tel);
     updateField('birthDate', profile?.dateOfBirth ? new Date(profile?.dateOfBirth).toISOString().substring(0, 10) : null);
     updateField('addressLine1', profile?.addressDetails);
@@ -102,6 +105,8 @@ const ApplyJobPage = () => {
     updateField('district', profile?.district.districtID ? profile?.district.districtID : "1001");
     updateField('subdistrict', profile?.subdistrict.subDistrictID ? profile?.subdistrict.subDistrictID : "100101");
     updateField('postalCode', profile?.postalCode ? profile?.postalCode : "10200");
+    updateField('education', profile?.candidateEducations[0]?.educationID ? profile?.candidateEducations[0]?.educationID : "1");
+    updateField('refferedBy', profile?.sourceInformation.sourceInformationID ? profile?.sourceInformation.sourceInformationID : "1");
   }, [profile, updateField]);
   
   useEffect(() => {
@@ -140,8 +145,19 @@ const ApplyJobPage = () => {
   }, [prefillFormWithUserData]);
 
   const handleNext = useCallback(() => {
-    console.log(formData);
-    setCurrentStep(prev => Math.min(prev + 1, FORM_STEPS.length - 1));
+    const hasErrors = requiredFields.some(field => !formData[field]);
+
+    requiredFields.forEach(field => {
+      if (!formData[field]) {
+          console.log(`Field ${field} is missing in formData`);
+      }
+    });
+    
+    if (!hasErrors) {
+      setCurrentStep(prev => Math.min(prev + 1, FORM_STEPS.length - 1));
+    } else {
+      requiredFields.forEach(field => markFieldTouched(field));
+    }
   }, [formData]);
 
   const handlePrevious = useCallback(() => {
@@ -149,8 +165,8 @@ const ApplyJobPage = () => {
   }, []);
 
   const handleSubmit = async () => {
-    console.log(decryptedToken.CandidateID);
-    setIsSubmitting(true);
+    //console.log(decryptedToken.CandidateID);
+
     try {
       const apiFormData = new FormData();
       apiFormData.append('JobID', jobId);
@@ -166,7 +182,7 @@ const ApplyJobPage = () => {
       apiFormData.append('Candidate.DateOfBirth', formData.birthDate ? new Date(formData.birthDate).toISOString() : null);
       apiFormData.append('Candidate.Gender.GenderID', 1);
       apiFormData.append('Candidate.MaritalStatus.MaritalStatusID', 1);
-      apiFormData.append('Candidate.Image', formData.profileImage);
+      apiFormData.append('Candidate.Image', formData.profileImagePath);
       apiFormData.append('Candidate.CV', formData.cv);
       apiFormData.append('Candidate.AddressDetails', formData.addressLine1);
       apiFormData.append('Candidate.Province.ProvinceID', formData.province ? Number(formData.province) : 1);

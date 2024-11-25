@@ -98,19 +98,7 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
   const { pdfData, isLoading, error } = useFetchBase64PDF(formData.cvPath || '');
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    console.log('form next');
-    
-    
-    const requiredFields: FormField[] = ['expectedSalary', 'experience'];
-    const hasErrors = requiredFields.some(field => !formData[field]);
-    
-    if (!hasErrors) {
-      onNext();
-    } else {
-      requiredFields.forEach(field => markFieldTouched(field));
-    }
+    e.preventDefault();    
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'profileImage' | 'cv') => {
@@ -182,6 +170,11 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
                 isFieldTouched('expectedSalary') && !formData.expectedSalary ? 'border-red-500' : ''
               }`}
             />
+            {isFieldTouched('expectedSalary') && !formData.expectedSalary && (
+              <p className="text-red-500 text-sm mt-1">
+                กรุณาระบุเงินเดือนที่คาดหวัง
+              </p>
+            )}
           </div>
           
           <div className="form-input-wrapper mb-3">
@@ -211,6 +204,11 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
                 isFieldTouched('experience') && !formData.experience ? 'border-red-500' : ''
               }`}
             />
+            {isFieldTouched('experience') && !formData.experience && (
+              <p className="text-red-500 text-sm mt-1">
+                กรุณาระบุประสบการณ์ทำงาน
+              </p>
+            )}
           </div>
           <div className="form-input-wrapper mb-3">
               <div className="cv-selector">
@@ -220,7 +218,9 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
                 >
                   CV Upload <span className="text-red-500">*</span>
                 </label>
+                { formData.cvPath !== '' && (
                 <p className='text-base text-neutral-800'>ไฟล์ CV ปัจจุบัน : <span className='font-medium underline'>{formData.cvPath?.split('\\').pop()}</span> <span className='text-neutral-500 text-[16px]'>(อัพเดตเมื่อ 14 พฤศจิกายน 2567)</span></p>
+                ) }
                 <input
                   id="cv"
                   name="cv"
@@ -230,8 +230,7 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
                   onBlur={() => markFieldTouched('cv')}
                   required
                   disabled={isSubmitting}
-                  className={`mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white ${isFieldTouched('cv') && !formData.cv ? 'border-red-500' : ''
-                    }`}
+                  className={`mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white ${isFieldTouched('cv') && formData.cvPath === '' ? 'border-red-500' : '' }`}
                 />
                 <p className="mt-1 text-sm text-gray-500">Accepted file types: JPG, JPEG, PDF</p>
             </div>

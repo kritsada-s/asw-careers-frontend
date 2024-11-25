@@ -1,10 +1,8 @@
-import { fetchCompanyName, getCompanyByID, getCompanyCi } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { fetchCompanyName, getCompanyCi } from "@/lib/utils";
+import { useContext, useEffect, useState } from "react";
 import { Job } from "@/lib/types";
-import { Typography } from "@mui/material";
 import { MapPin, Building, CircleDollarSign, CircleDot, CalendarCheck } from 'lucide-react';
-import CustomButton from "./Button";
-import { fetchCompanyLocations, fetchLocationByID } from "@/lib/api";
+import { fetchLocationByID } from "@/lib/api";
 
 interface JobBlockProps {
     className?: string;
@@ -46,9 +44,19 @@ const appliedStatus = (status: number) => {
             "color": "#c62828"
         }
     ]
-
     const statusItem = statuses.find(item => item.statusID === status);
     return statusItem ? <span style={{ color: statusItem.color, borderColor: statusItem.color }} className={`border rounded-full px-2 py-1 text-[16px]`}>{statusItem.name}</span> : <span>ไม่พบสถานะ</span>;
+}
+
+function handleApplyJob() {
+    console.log('apply job');
+    
+}
+
+const ApplyJobButton = () => {
+    return (
+        <button onClick={handleApplyJob} className="w-[145px] text-center inline-block border-2 border-primary-700 rounded-[30px] px-[27px] py-[10px] leading-[24px] text-[28px] text-primary hover:bg-primary-700 hover:text-white transition-all">สมัครงาน</button>
+    )
 }
 
 function JobBlock({className = '', job, status, applyDate}: JobBlockProps) {
@@ -102,7 +110,7 @@ function JobBlock({className = '', job, status, applyDate}: JobBlockProps) {
             </div>
             { !status && (
                 <div className="footer text-right">
-                    <CustomButton link={'/apply-job/'+job.jobID} varient="bordered">สมัครงาน</CustomButton>
+                    <ApplyJobButton />
                 </div>
             )}
         </div>
