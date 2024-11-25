@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FormStepProps } from '@/lib/types';
 import FormNavigation from '../ui/FormNavigation';
 
@@ -53,11 +53,31 @@ export default function PersonalInfoForm({
   onNext,
   onPrevious,
   isLastStep,
+  markFieldTouched,
+  isFieldTouched,
   decryptedToken
 }: FormStepProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGenderDropdownOpen, setIsGenderDropdownOpen] = useState(false);
   const [isMaritalStatusDropdownOpen, setIsMaritalStatusDropdownOpen] = useState(false);
+  const genderDropdownRef = useRef<HTMLDivElement>(null);
+  const maritalStatusDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (genderDropdownRef.current && !genderDropdownRef.current.contains(event.target as Node)) {
+        setIsGenderDropdownOpen(false);
+      }
+      if (maritalStatusDropdownRef.current && !maritalStatusDropdownRef.current.contains(event.target as Node)) {
+        setIsMaritalStatusDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,6 +101,7 @@ export default function PersonalInfoForm({
               type="text" 
               value={formData.firstName || ''}
               onChange={(e) => updateField('firstName', e.target.value)}
+              onBlur={() => markFieldTouched('firstName')}
               required
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 leading-none ${
                 isFieldTouched('firstName') && !formData.firstName ? 'border-red-500' : ''
@@ -101,6 +122,7 @@ export default function PersonalInfoForm({
               type="text" 
               value={formData.lastName || ''}
               onChange={(e) => updateField('lastName', e.target.value)}
+              onBlur={() => markFieldTouched('lastName')}
               required
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 leading-none ${
                 isFieldTouched('lastName') && !formData.lastName ? 'border-red-500' : ''
@@ -122,6 +144,7 @@ export default function PersonalInfoForm({
               required
               value={formData.nickname || ''}
               onChange={(e) => updateField('nickname', e.target.value)}
+              onBlur={() => markFieldTouched('nickname')}
               className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 leading-none ${
                 isFieldTouched('nickname') && !formData.nickname ? 'border-red-500' : ''
               }`}
@@ -137,7 +160,7 @@ export default function PersonalInfoForm({
             >
               เพศ <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
+            <div className="relative" ref={genderDropdownRef}>
               <button
                 type="button"
                 id="gender"
@@ -179,7 +202,7 @@ export default function PersonalInfoForm({
             >
               สถานภาพสมรส <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
+            <div className="relative" ref={maritalStatusDropdownRef}>
               <button
                 type="button"
                 id="maritalStatus"

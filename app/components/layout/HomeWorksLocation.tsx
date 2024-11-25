@@ -12,7 +12,6 @@ import { MapPinned } from 'lucide-react';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { Typography } from '@mui/material';
 
 interface LocationData {
   id: number;
@@ -83,7 +82,7 @@ export default function HomeWorksLocation() {
             {/* Right side - Content */}
             <div className="w-full md:w-2/5 lg:px-10 flex items-center">
                 <div className="inner w-full h-auto">
-                    <Typography variant='h3' className='text-primary-700'>สถานที่ทำงาน</Typography>
+                    <h3 className='text-3xl font-semibold text-primary-700 mb-1'>สถานที่ทำงาน</h3>
                     <Swiper
                         modules={[Pagination , Autoplay, EffectFade]}
                         spaceBetween={20}
@@ -108,10 +107,10 @@ export default function HomeWorksLocation() {
                         {locationData.map((location) => (
                         <SwiperSlide key={location.id}>
                             <div className="h-full flex flex-col gap-2">
-                            <Typography variant='h4' className='text-primary-700'>
+                            <h4 className='text-primary-700 font-semibold text-2xl'>
                                 {location.title}
-                            </Typography>
-                            <Typography variant='body1' className='text-neutral-600 leading-none'>{location.address}</Typography>
+                            </h4>
+                            <p className='text-neutral-600 leading-none'>{location.address}</p>
                             <a
                                 href={location.mapUrl}
                                 target="_blank"

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { fetchLocationByID, fetchPosition } from '@/lib/api';
 import axios from 'axios';
 import { prodUrl } from '@/lib/utils';
@@ -266,82 +266,224 @@ export function useUserProfile (email: string) {
   return { profile, isLoading, error };
 };
 
+// First, let's create a specific cache manager for images
+const IMAGE_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+
+interface ImageCache {
+  data: string;
+  timestamp: number;
+}
+
+// Helper function to manage localStorage cache
+const imageCache = {
+  get: (key: string): string | null => {
+    try {
+      const cached = localStorage.getItem(`img_${key}`);
+      if (!cached) return null;
+
+      const { data, timestamp }: ImageCache = JSON.parse(cached);
+      if (Date.now() - timestamp > IMAGE_CACHE_DURATION) {
+        localStorage.removeItem(`img_${key}`);
+        return null;
+      }
+      return data;
+    } catch {
+      return null;
+    }
+  },
+
+  set: (key: string, data: string) => {
+    try {
+      const cacheData: ImageCache = {
+        data,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(`img_${key}`, JSON.stringify(cacheData));
+    } catch (error) {
+      console.warn('Error caching image:', error);
+    }
+  }
+};
+
 export function useFetchBase64Image(path: string) {
   const [imageData, setImageData] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  let authToken = '';
+  
+  const authToken = typeof window !== 'undefined' ? 
+    localStorage.getItem('authToken') || '' : '';
 
-  if (typeof window !== 'undefined') {
-    authToken = localStorage.getItem('authToken') || '';
-  }
+  const fetchImage = useCallback(async () => {
+    if (!path) return;
 
-  useEffect(() => {
-    async function fetchImage() {
-      try {
-        setIsLoading(true);
-        const formData = new FormData();
-        formData.append('filePath', path);
-        formData.append("Content-Type", "multipart/form-data");
-        const response = await axios.post(`${prodUrl}/secure/FileManagement/File`, formData, {
+    // Generate a cache key based on path and auth token
+    const cacheKey = `${path}_${authToken}`;
+
+    try {
+      // First, try to get from memory cache
+      const cachedImage = imageCache.get(cacheKey);
+      if (cachedImage) {
+        setImageData(cachedImage);
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      const formData = new FormData();
+      formData.append('filePath', path);
+      formData.append("Content-Type", "multipart/form-data");
+      
+      const response = await axios.post(
+        `${prodUrl}/secure/FileManagement/File`, 
+        formData, 
+        {
           headers: {
             'Authorization': `Bearer ${authToken}`,
           },
-        });
-        setImageData(response.data);
-      } catch (error: any) {
-        console.error('Error fetching base64 image:', error);
-        setError(error?.message || 'An unknown error occurred');
-      } finally {
-        setIsLoading(false);
-      }
-    }
+        }
+      );
 
-    if (path) {
-      fetchImage();
+      // Cache the result
+      imageCache.set(cacheKey, response.data);
+      setImageData(response.data);
+
+    } catch (error: any) {
+      console.error('Error fetching base64 image:', error);
+      setError(error?.message || 'An unknown error occurred');
+    } finally {
+      setIsLoading(false);
     }
   }, [path, authToken]);
 
-  return { imageData, isLoading, error };
+  useEffect(() => {
+    fetchImage();
+  }, [fetchImage]);
+
+  // Add a manual refresh function
+  const refreshImage = useCallback(() => {
+    if (path) {
+      const cacheKey = `${path}_${authToken}`;
+      localStorage.removeItem(`img_${cacheKey}`);
+      fetchImage();
+    }
+  }, [path, authToken, fetchImage]);
+
+  return { 
+    imageData, 
+    isLoading, 
+    error,
+    refreshImage // Expose refresh function
+  };
 }
+
+// Add this to your existing cache configuration
+const PDF_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+
+interface PDFCache {
+  data: string;
+  timestamp: number;
+}
+
+// Helper function to manage localStorage cache for PDFs
+const pdfCache = {
+  get: (key: string): string | null => {
+    try {
+      const cached = localStorage.getItem(`pdf_${key}`);
+      if (!cached) return null;
+
+      const { data, timestamp }: PDFCache = JSON.parse(cached);
+      if (Date.now() - timestamp > PDF_CACHE_DURATION) {
+        localStorage.removeItem(`pdf_${key}`);
+        return null;
+      }
+      return data;
+    } catch {
+      return null;
+    }
+  },
+
+  set: (key: string, data: string) => {
+    try {
+      const cacheData: PDFCache = {
+        data,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(`pdf_${key}`, JSON.stringify(cacheData));
+    } catch (error) {
+      console.warn('Error caching PDF:', error);
+    }
+  }
+};
 
 export function useFetchBase64PDF(path: string) {
   const [pdfData, setPdfData] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  let authToken = '';
+  
+  const authToken = typeof window !== 'undefined' ? 
+    localStorage.getItem('authToken') || '' : '';
 
-  if (typeof window !== 'undefined') {
-    authToken = localStorage.getItem('authToken') || '';
-  }
+  const fetchPDF = useCallback(async () => {
+    if (!path) return;
 
-  useEffect(() => {
-    async function fetchPDF() {
-      try {
-        setIsLoading(true);
-        const formData = new FormData();
-        formData.append('filePath', path);
-        formData.append("Content-Type", "multipart/form-data");
-        const response = await axios.post(`${prodUrl}/secure/FileManagement/File`, formData, {
+    // Generate a cache key based on path and auth token
+    const cacheKey = `${path}_${authToken}`;
+
+    try {
+      // First, try to get from cache
+      const cachedPDF = pdfCache.get(cacheKey);
+      if (cachedPDF) {
+        setPdfData(cachedPDF);
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      const formData = new FormData();
+      formData.append('filePath', path);
+      formData.append("Content-Type", "multipart/form-data");
+      
+      const response = await axios.post(
+        `${prodUrl}/secure/FileManagement/File`, 
+        formData, 
+        {
           headers: {
             'Authorization': `Bearer ${authToken}`,
           },
-        });
-        setPdfData(response.data);
-      } catch (error: any) {
-        console.error('Error fetching base64 PDF:', error);
-        setError(error?.message || 'An unknown error occurred');
-      } finally {
-        setIsLoading(false);
-      }
-    }
+        }
+      );
 
-    if (path) {
-      fetchPDF();
+      // Cache the result
+      pdfCache.set(cacheKey, response.data);
+      setPdfData(response.data);
+
+    } catch (error: any) {
+      console.error('Error fetching base64 PDF:', error);
+      setError(error?.message || 'An unknown error occurred');
+    } finally {
+      setIsLoading(false);
     }
   }, [path, authToken]);
 
-  return { pdfData, isLoading, error };
+  useEffect(() => {
+    fetchPDF();
+  }, [fetchPDF]);
+
+  // Add a manual refresh function
+  const refreshPDF = useCallback(() => {
+    if (path) {
+      const cacheKey = `${path}_${authToken}`;
+      localStorage.removeItem(`pdf_${cacheKey}`);
+      fetchPDF();
+    }
+  }, [path, authToken, fetchPDF]);
+
+  return { 
+    pdfData, 
+    isLoading, 
+    error,
+    refreshPDF // Expose refresh function
+  };
 }
 
 

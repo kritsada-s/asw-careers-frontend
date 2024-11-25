@@ -88,6 +88,9 @@ const config: Config = {
 					},
 				},
 			},
+			fontFamily: {
+				db: ['var(--font-db)'],
+			},
 		}
 	},
 	plugins: [
