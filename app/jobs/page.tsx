@@ -13,7 +13,8 @@ import { useGSAP } from '@gsap/react';
 import { Button, CustomFlowbiteTheme, Modal } from 'flowbite-react';
 import { useFetchBase64Image, useFetchBase64PDF, useSubmitJobApplication, useUserProfile } from '../hooks/useDataFetching';
 import Link from 'next/link';
-import { HiExternalLink, HiOutlineCheckCircle, HiOutlineExclamationCircle } from 'react-icons/hi';
+import { HiExternalLink, HiOutlineCheckCircle, HiOutlineExclamationCircle, HiX } from 'react-icons/hi';
+import { FaFacebook, FaLine, FaXTwitter } from "react-icons/fa6";
 import Swal from 'sweetalert2';
 import Image from 'next/image';
 import { EducationLevel } from '../components/ui/FormInput';
@@ -21,6 +22,19 @@ import { EducationLevel } from '../components/ui/FormInput';
 interface fetchedJobs {
   jobs: Job
 } 
+
+const ShareJob = ({id, position}: {id: string, position: string}) => {
+  return (
+    <div className='flex gap-2 items-center justify-end bg-gray-100 px-4 py-2 mt-4 rounded'>
+      <span className='text-sm text-gray-500'>แชร์ตำแหน่งงานนี้</span>
+      <div className='flex gap-1'>
+        <button><FaFacebook size={18}/></button>
+        <button><FaLine size={18}/></button>
+        <button><FaXTwitter size={18}/></button>
+      </div>
+    </div>
+  )
+}
 
 const JobsPage = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -250,6 +264,7 @@ const JobsPage = () => {
                 className="prose max-w-none"
                 dangerouslySetInnerHTML={{ __html: selectedJob.jobDetails }}
               />
+              <ShareJob id={selectedJob.jobID} position={selectedJob.jobPosition} />
             </div>
           </div>
         ) : (
