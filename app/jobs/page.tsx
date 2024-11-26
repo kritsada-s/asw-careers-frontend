@@ -18,6 +18,7 @@ import { FaFacebook, FaLine, FaXTwitter } from "react-icons/fa6";
 import Swal from 'sweetalert2';
 import Image from 'next/image';
 import { EducationLevel } from '../components/ui/FormInput';
+import { FacebookShareButton, LineShareButton, TwitterShareButton } from 'react-share';
 
 interface fetchedJobs {
   jobs: Job
@@ -28,9 +29,15 @@ const ShareJob = ({id, position}: {id: string, position: string}) => {
     <div className='flex gap-2 items-center justify-end bg-gray-100 px-4 py-2 mt-4 rounded'>
       <span className='text-sm text-gray-500'>แชร์ตำแหน่งงานนี้</span>
       <div className='flex gap-1'>
-        <button><FaFacebook size={18}/></button>
-        <button><FaLine size={18}/></button>
-        <button><FaXTwitter size={18}/></button>
+        <FacebookShareButton url={`${process.env.NEXT_PUBLIC_APP_URL}/jobs?id=${id}`} title={position}>
+          <FaFacebook size={18}/>
+        </FacebookShareButton>
+        <LineShareButton url={`${process.env.NEXT_PUBLIC_APP_URL}/jobs?id=${id}`} title={position}>
+          <FaLine size={18}/>
+        </LineShareButton>
+        <TwitterShareButton url={`${process.env.NEXT_PUBLIC_APP_URL}/jobs?id=${id}`} title={position}>
+          <FaXTwitter size={18}/>
+        </TwitterShareButton>
       </div>
     </div>
   )
