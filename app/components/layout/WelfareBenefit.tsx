@@ -25,7 +25,7 @@ function WelfareBenefit() {
             <div className="content-wrapper w-full lg:max-w-[1440px] 2xl:mx-auto flex flex-col lg:flex-row justify-end">
                 <Image src="/images/welfare_benefit-bg_1-5x.webp" alt="" width={480} height={280} className="lg:hidden w-auto h-auto"/>
                 <div className="welfare-benefit-box w-full lg:w-1/2 py-7 px-4 lg:px-8 bg-primary-700 h-full rounded-tl-3xl lg:rounded-tl-none -mt-4 lg:mt-0 lg:rounded-bl-3xl flex flex-col justify-center items-center">
-                    <h2 className="text-3xl font-semibold text-white lg:mb-3 leading-none">สวัสดิการ</h2>
+                    <h2 className="text-3xl font-semibold text-white leading-none">สวัสดิการ</h2>
                     <p className="font-light text-[20px] text-neutral-300 mb-5">เงื่อนไขตามรายละเอียดแต่ละบริษัท</p>
                     <div className="core-benefit-boxes grid md:grid-cols-2 md:grid-rows-2 gap-y-5 gap-x-6 lg:gap-x-7">
                     { benefits.map((item, key)=>(
@@ -33,7 +33,7 @@ function WelfareBenefit() {
                             <Image src={`/images/${item.icon}.png`} alt="" width={iconW} height={iconW}/>
                             <ul>
                                 { item.items.map((b, key)=>(
-                                    <li key={key} className="text-white font-light text-[17px] leading-tight lg:text-[22px]">{b}</li>
+                                    <li key={key} className="text-white font-light text-[17px] leading-tight">{b}</li>
                                 )) }
                             </ul>
                         </div>

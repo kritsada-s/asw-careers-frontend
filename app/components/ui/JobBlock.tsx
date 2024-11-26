@@ -1,8 +1,9 @@
 import { fetchCompanyName, getCompanyCi } from "@/lib/utils";
 import { useContext, useEffect, useState } from "react";
-import { Job } from "@/lib/types";
+import { Job, TokenProps } from "@/lib/types";
 import { MapPin, Building, CircleDollarSign, CircleDot, CalendarCheck } from 'lucide-react';
 import { fetchLocationByID } from "@/lib/api";
+import { AuthContext } from "@/app/providers";
 
 interface JobBlockProps {
     className?: string;
@@ -48,41 +49,64 @@ const appliedStatus = (status: number) => {
     return statusItem ? <span style={{ color: statusItem.color, borderColor: statusItem.color }} className={`border rounded-full px-2 py-1 text-[16px]`}>{statusItem.name}</span> : <span>ไม่พบสถานะ</span>;
 }
 
-function handleApplyJob() {
-    console.log('apply job');
-    
-}
-
-const ApplyJobButton = () => {
-    return (
-        <button onClick={handleApplyJob} className="w-[145px] text-center inline-block border-2 border-primary-700 rounded-[30px] px-[27px] py-[10px] leading-[24px] text-[28px] text-primary hover:bg-primary-700 hover:text-white transition-all">สมัครงาน</button>
-    )
-}
-
 function JobBlock({className = '', job, status, applyDate}: JobBlockProps) {
     const [companyThName, setCompanythName] = useState('');
     const [borderColor, setBorderColor] = useState<string>();
-    const [location, setLocation] = useState('');
-
+    const [location, setLocation] = useState('');   
+    const userData = useContext(AuthContext);
+    
     useEffect(()=>{
-
         const getCompanyData = async () => {
             const thName = await fetchCompanyName(job.companyID)
             const location = await fetchLocationByID(job.companyID, job.companyLocationID)
             setCompanythName(thName.nameTH || 'N/A')
             setLocation(location)
         }
-
         const bcolor = getCompanyCi(job.companyID);
         setBorderColor(bcolor)
-
         getCompanyData().catch(console.error)
-
     }, [job.companyID, job.companyLocationID])
 
     useEffect(()=>{
-        console.log(applyDate)
+        if (applyDate) console.log(applyDate)
     }, [applyDate])
+
+    function handleApplyJob() {
+        if (userData) {
+            // Assuming you have an API endpoint to send the application data
+            fetch('/secure/AppliedJob/Create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    jobID: job.jobID,
+                    candidateID: userData.CandidateID,
+                }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Application successful:', data);
+                // Optionally, redirect or show a success message
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+        } else {
+            window.location.href = '/jobs/?id='+job.jobID;
+        }
+    }
+
+    const ApplyJobButton = () => {
+        return (
+            <button onClick={handleApplyJob} className="w-[145px] text-center inline-block border-2 border-primary-700 rounded-[30px] px-[27px] py-[10px] leading-[24px] text-[28px] text-primary hover:bg-primary-700 hover:text-white transition-all">สมัครงาน</button>
+        )
+    }
 
     return (
         <div className={`job-block p-4 flex flex-col justify-between bg-white border-2 rounded-[20px] hover:shadow-xl transition-shadow duration-300 ${className}`.trim()} style={{ borderColor: borderColor }}>

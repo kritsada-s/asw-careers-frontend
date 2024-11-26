@@ -5,6 +5,7 @@ import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import HolyLoader from "holy-loader";
 import localFont from 'next/font/local';
+import { AuthContextProvider } from './providers';
 
 const dbFont = localFont({
   src: [
@@ -40,16 +41,19 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const token = 'test';
   return (
     <html lang="en">
-      <MUIProvider>
-        <body className={`${dbFont.variable} font-db`}>
+      <AuthContextProvider>
+        <MUIProvider>
+          <body className={`${dbFont.variable} font-db`}>
             <HolyLoader color="#123F6D"/>
             <Header/>
             {children}
             <Footer/>
-        </body>
-      </MUIProvider>
+          </body>
+        </MUIProvider>
+      </AuthContextProvider>
     </html>
   );
 }
