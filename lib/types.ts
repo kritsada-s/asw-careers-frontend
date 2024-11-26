@@ -245,6 +245,13 @@ export interface TokenProps {
     ExpiredDate: string;
 }
 
+export interface ContextTokenProps {
+    CandidateID: string;
+    Email: string;
+    CreateDate: string;
+    ExpiredDate: string;
+}
+
 export type ModalType = 'auth' | 'confirm' | 'alert';
 
 export interface ModalConfig {

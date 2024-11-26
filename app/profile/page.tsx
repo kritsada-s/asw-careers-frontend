@@ -14,7 +14,6 @@ import { CustomFlowbiteTheme } from 'flowbite-react';
 import FormSelect from '../components/ui/FormAddress';
 import { DistrictSelector, GenderSelect, MaritalStatusSelector, ProvinceSelector, SubDistrictSelector, TitleSelector } from '../components/ui/FormInput';
 import { TitleName } from '../components/ui/FormInput';
-import { FileInput } from '@mantine/core';
 
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState<Candidate | null>(null);
@@ -410,7 +409,7 @@ export default function ProfilePage() {
               <label className="font-medium block">เรซูเม่ : </label>
               <div>
                 {isEditing ? (
-                  <FileInput accept=".pdf" onChange={handleUploadCV} className='text-primary-700 rounded-full underline' />
+                  <input type="file" accept=".pdf" onChange={handleUploadCV} className='text-primary-700 underline' />
                 ) : (
                   <button onClick={() => handleOpenCV()} className='text-primary-700 underline'>ดาวน์โหลดเรซูเม่</button>
                 )}

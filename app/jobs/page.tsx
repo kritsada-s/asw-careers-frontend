@@ -11,7 +11,7 @@ import { useToken, useDecryptedToken } from '@/app/hooks/useToken';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Button, CustomFlowbiteTheme, Modal } from 'flowbite-react';
-import { useFetchBase64Image, useSubmitJobApplication, useUserProfile } from '../hooks/useDataFetching';
+import { useFetchBase64Image, useFetchBase64PDF, useSubmitJobApplication, useUserProfile } from '../hooks/useDataFetching';
 import Link from 'next/link';
 import { HiExternalLink, HiOutlineCheckCircle, HiOutlineExclamationCircle } from 'react-icons/hi';
 import Swal from 'sweetalert2';
@@ -38,6 +38,7 @@ const JobsPage = () => {
   const decryptedToken = useDecryptedToken();
   const { profile, isLoading: isLoadingProfile, error: profileError } = useUserProfile(decryptedToken?.Email || '');
   const { imageData, isLoading: isLoadingImage, error: imageError } = useFetchBase64Image(profile?.imageUrl || '');
+  const { pdfData, isLoading: isLoadingCV, error: cvError } = useFetchBase64PDF(profile?.cvUrl || '');
   const { submitApplication, isSubmitting: isSubmittingApplication, error: submitErrMsg, isError: isSubmitError, response: submitApplicationResponse } = useSubmitJobApplication(selectedJob?.jobID || '', profile?.candidateID || '');
   const [isSubmitAppError, setIsSubmitAppError] = useState<boolean>(false);
 
@@ -140,6 +141,16 @@ const JobsPage = () => {
 
   const handleCloseSelectedJob = () => {
     setIsSelectedJobOpen(false);
+  }
+
+  const handleShowCV = () => {
+    if (pdfData) {
+      const newTab = window.open();
+      if (newTab) {
+        newTab.document.write(`<embed src="${pdfData}" width="100%" height="100%" />`);
+        newTab.document.body.style.margin = '0';
+      }
+    }
   }
 
   const handleProfileSummaryModalConfirm = async () => {
@@ -265,10 +276,10 @@ const JobsPage = () => {
           <h3 className='text-base md:text-lg font-medium mb-2 md:mb-3'>โปรดตรวจสอบข้อมูลของท่านก่อนคลิกสมัครงาน</h3>
           <div className='flex flex-col md:flex-row md:gap-7'>
             <div className='w-full md:w-1/3 mb-5 md:mb-0'>
-              {imageData ? <Image src={imageData} alt="Profile" className='w-full h-auto aspect-[3/4] object-cover mb-2' width={260} height={350} /> : <div className='w-full bg-gray-200 aspect-[3/4] h-auto flex items-center justify-center mb-2'>
+              {imageData ? <Image src={imageData} alt="Profile" className='w-full h-auto aspect-[3/4] object-cover mb-2 border border-neutral-400' width={260} height={350} /> : <div className='w-full bg-gray-200 aspect-[3/4] h-auto flex items-center justify-center mb-2'>
                 <span className='text-gray-500'>ยังไม่มีรูปภาพ</span>
               </div>}
-              <Link href={''} className='text-primary-700 hover:text-primary-800 flex gap-1 items-center leading-none underline'>แสดง CV <HiExternalLink/></Link>
+              <button onClick={handleShowCV} className='text-primary-700 hover:text-primary-800 flex gap-1 items-center leading-none underline'>แสดง CV <HiExternalLink/></button>
             </div>
             <div className="w-full md:w-2/3">
             <p><strong>ชื่อ-นามสกุล:</strong> {profile?.firstName} {profile?.lastName}</p>
