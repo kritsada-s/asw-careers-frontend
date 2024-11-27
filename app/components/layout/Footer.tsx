@@ -98,23 +98,23 @@ function Footer() {
             <div className="container px-4 lg:px-0">
                 <div className="w-full flex flex-col md:flex-row">
                     <div className="w-full md:w-4/12 flex flex-col gap-3 mb-5 md:mb-0">
-                        <Image src='/images/logo-asw-footer.png' alt="" width={160} height={35} />
+                        <Image src='/images/logo-asw-footer.png' alt="" width={160} height={35} className="h-auto w-auto max-w-[160px]" />
                         <h4 className="text-white text-[30px]">ติดตามแอสเซทไวส์</h4>
                         <div className="social-listed flex w-2/3 gap-3">
                             <Link href={{ pathname: 'https://th-th.facebook.com/AssetWiseThailand/', query: '' }} title="Facebook">
-                                <Image src="/images/fb-o.png" alt="Facbook" width={80} height={80}></Image>
+                                <Image src="/images/fb-o.png" alt="Facbook" width={80} height={80} className="h-auto w-auto"></Image>
                             </Link>
                             <Link href={{ pathname: 'https://page.line.me/assetwise', query: '' }} title="Line">
-                                <Image src="/images/line-o.png" alt="Line" width={80} height={80}></Image>
+                                <Image src="/images/line-o.png" alt="Line" width={80} height={80} className="h-auto w-auto"></Image>
                             </Link>
                             <Link href={{ pathname: 'https://www.instagram.com/assetwisethailand', query: '' }} title="Instagram">
-                                <Image src="/images/ig-o.png" alt="Instagram" width={80} height={80}></Image>
+                                <Image src="/images/ig-o.png" alt="Instagram" width={80} height={80} className="h-auto w-auto"></Image>
                             </Link>
                             <Link href={{ pathname: 'https://www.youtube.com/c/AssetwiseChannel', query: '' }} title="Youtube">
-                                <Image src="/images/yt-o.png" alt="Youtube" width={80} height={80}></Image>
+                                <Image src="/images/yt-o.png" alt="Youtube" width={80} height={80} className="h-auto w-auto"></Image>
                             </Link>
                             <Link href={{ pathname: 'https://www.tiktok.com/@assetwise', query: '' }} title="Tiktok">
-                                <Image src="/images/tt-o.png" alt="Tiktok" width={80} height={80}></Image>
+                                <Image src="/images/tt-o.png" alt="Tiktok" width={80} height={80} className="h-auto w-auto"></Image>
                             </Link>
                         </div>
                     </div>

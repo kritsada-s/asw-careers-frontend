@@ -48,7 +48,7 @@ const Header = () => {
       <div className="container flex justify-between px-3 lg:px-0">
         <div className="logo-wrapper flex items-center max-w-[170px]">
           <Link href="/" title="">
-            <Image src="/images/logo.png" alt="" width={170} height={34} className="w-24 h-auto md:w-auto"/>
+            <Image src="/images/logo.png" alt="" width={170} height={34} className="w-24 h-auto md:w-auto" priority/>
           </Link>
         </div>
         <div className="menu-wrapper flex gap-4">
