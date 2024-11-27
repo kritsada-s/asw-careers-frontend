@@ -515,6 +515,7 @@ export function useSubmitJobApplication(jobID: string, candidateID: string) {
     } catch (err: any) {
       if (err.response.status === 400) {
         setIsError(true);
+        setError(err.response.data);
         setIsSubmitting(false);
       } else {
         console.error('Error submitting job application:', err);
@@ -698,4 +699,3 @@ export function useSourceInformations() {
 
   return { sourceInformations, isLoading, error };
 }
-
