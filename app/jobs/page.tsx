@@ -1,10 +1,10 @@
 "use client";
 
-import React, { Suspense, useEffect, useState, useRef } from 'react';
+import React, { Suspense, useEffect, useState, useRef, useCallback } from 'react';
 import { fetchCompanyLocations, fetchedJobs, fetchLocationByID } from '@/lib/api';
 import { Job } from '@/lib/types';
 import { WorkLocation } from '../components/ui/WorkLocation';
-import { timeAgo } from '@/lib/utils';
+import { fetchCompanyName, timeAgo } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 import { useModal } from '../components/MUIProvider';
 import { useToken, useDecryptedToken } from '@/app/hooks/useToken';
@@ -62,6 +62,7 @@ const JobsPage = () => {
   const { pdfData, isLoading: isLoadingCV, error: cvError } = useFetchBase64PDF(profile?.cvUrl || '');
   const { submitApplication, isSubmitting: isSubmittingApplication, error: submitErrMsg, isError: isSubmitError, response: submitApplicationResponse } = useSubmitJobApplication(selectedJob?.jobID || '', profile?.candidateID || '');
   const [isSubmitAppError, setIsSubmitAppError] = useState<boolean>(false);
+  const [companyName, setCompanyName] = useState<string>('N/A');
 
 
   const modalTheme: CustomFlowbiteTheme['modal'] = {
@@ -90,6 +91,11 @@ const JobsPage = () => {
   const findJobById = (jobs: Job[], searchId: string | null): Job | null => {
     return jobs.find(job => job.jobID === searchId) || null;
   };
+
+  const getCompanyName = useCallback(async (companyID: string) => {
+    const response = await fetchCompanyName(companyID);
+    return response.nameTH || 'N/A';
+  }, []);
 
   useEffect(() => {
     const fetchJobs = async (searchTerm?: string | '') => {
@@ -121,10 +127,6 @@ const JobsPage = () => {
     }
   }, [params]);
 
-  // useEffect(()=>{
-  //   console.log('modal open', isSummaryModalOpen);
-  // }, [isSummaryModalOpen])
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsMobile(window.innerWidth < 768);
@@ -133,6 +135,7 @@ const JobsPage = () => {
 
   const handleJobSelect = (job: Job) => {
     setSelectedJob(job);
+    getCompanyName(job.companyID).then(setCompanyName);
     if (isMobile) {
       setIsSelectedJobOpen(true);
     }
@@ -175,7 +178,7 @@ const JobsPage = () => {
   }
 
   const handleProfileSummaryModalConfirm = async () => {
-    console.log('isSubmittingApplication', isSubmittingApplication);
+    submitApplication();
     if (isSubmittingApplication) {
       setIsSummaryModalOpen(false);
       setIsModalConfirmOpen(false);
@@ -240,9 +243,12 @@ const JobsPage = () => {
           <div className="h-full flex flex-col">
             {/* Header */}
             <div id='detailsHeader' className="p-4 md:p-6 border-b border-gray-200 flex justify-between gap-2 md:gap-0 items-center bg-primary-700 min-h-[200px]">
-              <h1 className="text-2xl md:text-3xl font-bold text-white">
-                {selectedJob.jobPosition}
-              </h1>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold text-white">
+                  {selectedJob.jobPosition}
+                </h1>
+                <p className='text-white'>{companyName}</p>
+              </div>
               <button
                 onClick={handleJobSubmit}
                 className="px-5 py-1 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors"
@@ -292,7 +298,7 @@ const JobsPage = () => {
         className={`transition-opacity duration-300 ${isSummaryModalOpen ? 'opacity-100' : 'opacity-0'}`}
       >
         <Modal.Header>
-          สมัครงาน <span className='text-primary-700'>{selectedJob?.jobPosition}</span>
+          สมัครงานตำแหน่ง <span className='text-primary-700'>{selectedJob?.jobPosition}</span>
         </Modal.Header>
         <Modal.Body>
           <h3 className='text-base md:text-lg font-medium mb-2 md:mb-3'>โปรดตรวจสอบข้อมูลของท่านก่อนคลิกสมัครงาน</h3>
@@ -356,7 +362,8 @@ const JobsPage = () => {
         <Modal.Body>
           <div className="text-center">
             <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-red-500" />
-            <p>เกิดข้อผิดพลาดในการสมัครงาน</p>
+            <p>เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง</p>
+            <p className='text-red-500'>{submitErrMsg}</p>
           </div>
         </Modal.Body>
       </Modal>
