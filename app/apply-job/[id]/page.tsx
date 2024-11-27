@@ -158,7 +158,7 @@ const ApplyJobPage = () => {
     } else {
       requiredFields.forEach(field => markFieldTouched(field));
     }
-  }, [formData]);
+  }, [formData, markFieldTouched, requiredFields]);
 
   const handlePrevious = useCallback(() => {
     setCurrentStep(prev => Math.max(prev - 1, 0));

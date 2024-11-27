@@ -620,7 +620,7 @@ export function useProfileUpdate() {
         formData.append('Candidate.CandidateEducations[0].Major', profileData.candidateEducations[0].major);
         formData.append("Content-Type", "multipart/form-data");
   
-        for (let [key, value] of (formData as any).entries()) {
+        for (const [key, value] of (formData as any).entries()) {
           console.log(`${key}:`, value);
         }
   

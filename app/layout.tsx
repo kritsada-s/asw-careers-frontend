@@ -9,24 +9,29 @@ import { AuthContextProvider } from './providers';
 
 const dbFont = localFont({
   src: [
-    { path: '../public/fonts/DBHeavent322/DB Heavent Thin v3.2.2.ttf', weight: '200', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent Thin v3.2.2.woff', weight: '200', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent Thin v3.2.2.woff2', weight: '200', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent Li v3.2.2.ttf', weight: '300', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent Li v3.2.2.woff', weight: '300', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent Li v3.2.2.woff2', weight: '300', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent v3.2.2.ttf', weight: '400', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent v3.2.2.woff', weight: '400', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent v3.2.2.woff2', weight: '400', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent Med v3.2.2.ttf', weight: '500', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent Med v3.2.2.woff', weight: '500', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent Med v3.2.2.woff2', weight: '500', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent Bd v3.2.2.ttf', weight: '600', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent Bd v3.2.2.woff', weight: '600', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent Bd v3.2.2.woff2', weight: '600', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent Blk v3.2.2.ttf', weight: '700', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent Blk v3.2.2.woff', weight: '700', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DB Heavent Blk v3.2.2.woff2', weight: '700', style: 'normal' },
+    { path: '../public/fonts/DBHeavent322/DBHeaventThinv322.ttf', weight: '200', style: 'normal' },
+    // { path: '../public/fonts/DBHeavent322/DBHeaventThinv322.woff', weight: '200', style: 'normal' },
+    { path: '../public/fonts/DBHeavent322/DBHeaventThinv322.woff2', weight: '200', style: 'normal' },
+
+    { path: '../public/fonts/DBHeavent322/DBHeaventLiv322.ttf', weight: '300', style: 'normal' },
+    // { path: '../public/fonts/DBHeavent322/DBHeaventLiv322.woff', weight: '300', style: 'normal' },
+    { path: '../public/fonts/DBHeavent322/DBHeaventLiv322.woff2', weight: '300', style: 'normal' },
+
+    { path: '../public/fonts/DBHeavent322/DBHeaventv322.ttf', weight: '400', style: 'normal' },
+    // { path: '../public/fonts/DBHeavent322/DBHeaventv322.woff', weight: '400', style: 'normal' },
+    { path: '../public/fonts/DBHeavent322/DBHeaventv322.woff2', weight: '400', style: 'normal' },
+
+    { path: '../public/fonts/DBHeavent322/DBHeaventMedv322.ttf', weight: '500', style: 'normal' },
+    // { path: '../public/fonts/DBHeavent322/DBHeaventMedv322.woff', weight: '500', style: 'normal' },
+    { path: '../public/fonts/DBHeavent322/DBHeaventMedv322.woff2', weight: '500', style: 'normal' },
+
+    { path: '../public/fonts/DBHeavent322/DBHeaventBdv322.ttf', weight: '600', style: 'normal' },
+    // { path: '../public/fonts/DBHeavent322/DBHeaventBdv322.woff', weight: '600', style: 'normal' },
+    { path: '../public/fonts/DBHeavent322/DBHeaventBdv322.woff2', weight: '600', style: 'normal' },
+
+    { path: '../public/fonts/DBHeavent322/DBHeaventBlkv322.ttf', weight: '700', style: 'normal' },
+    // { path: '../public/fonts/DBHeavent322/DBHeaventBlkv322.woff', weight: '700', style: 'normal' },
+    { path: '../public/fonts/DBHeavent322/DBHeaventBlkv322.woff2', weight: '700', style: 'normal' },
   ],
   variable: '--font-db'
 });

@@ -11,6 +11,7 @@ import { Job } from "@/lib/types";
 import { useModal } from "../MUIProvider";
 import { useRouter } from "next/navigation";
 import { useToken } from "@/app/hooks/useToken";
+import { AuthContext } from "@/app/providers";
 
 interface JobResponse {
     jobs: Job[];
@@ -24,6 +25,7 @@ function HomeJobsListed() {
     const [error, setError] = useState<string | null>(null);
     const { openModal } = useModal();
     const token = useToken();
+    const userData = useContext(AuthContext);
 
     const path = "/JobAnnouncement/JobAnnouncementsByPage";
 
@@ -69,9 +71,12 @@ function HomeJobsListed() {
     }
 
     const handleLeaveProfile = () => {
-        openModal({
-            type: 'auth',
-            props: {
+        if (userData) {
+            router.push('/profile');
+        } else {
+            openModal({
+                type: 'auth',
+                props: {
                 // You can pass additional props if needed
             },
             onSuccess: (data) => {
@@ -79,8 +84,9 @@ function HomeJobsListed() {
             },
             onError: (error) => {
                 // Handle error if needed
-            }
-        });
+                }
+            });
+        }
     };
 
     return (

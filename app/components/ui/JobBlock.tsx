@@ -67,11 +67,9 @@ function JobBlock({className = '', job, status, applyDate}: JobBlockProps) {
         getCompanyData().catch(console.error)
     }, [job.companyID, job.companyLocationID])
 
-    useEffect(()=>{
-        if (applyDate) console.log(applyDate)
-    }, [applyDate])
-
     function handleApplyJob() {
+        window.location.href = '/jobs/?id='+job.jobID;
+        return;
         if (userData) {
             // Assuming you have an API endpoint to send the application data
             fetch('/secure/AppliedJob/Create', {
