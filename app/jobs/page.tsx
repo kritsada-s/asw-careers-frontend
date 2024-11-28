@@ -98,6 +98,12 @@ const JobsPage = () => {
   }, []);
 
   useEffect(() => {
+    if (selectedJob) {
+      getCompanyName(selectedJob.companyID).then(setCompanyName);
+    }
+  }, [selectedJob]);
+
+  useEffect(() => {
     const fetchJobs = async (searchTerm?: string | '') => {
       try {
         const response = await fetchedJobs(searchTerm);
@@ -135,7 +141,6 @@ const JobsPage = () => {
 
   const handleJobSelect = (job: Job) => {
     setSelectedJob(job);
-    getCompanyName(job.companyID).then(setCompanyName);
     if (isMobile) {
       setIsSelectedJobOpen(true);
     }

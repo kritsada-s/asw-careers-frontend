@@ -109,10 +109,10 @@ function JobBlock({className = '', job, status, applyDate}: JobBlockProps) {
     return (
         <div className={`job-block p-4 flex flex-col justify-between bg-white border-2 rounded-[20px] hover:shadow-xl transition-shadow duration-300 ${className}`.trim()} style={{ borderColor: borderColor }}>
             <div className="details">
-                <h4 className="leading-none text-[36px] mb-2 font-medium flex items-center gap-2" key={job.jobID}>{job.jobPosition}
+                <h4 className="leading-none text-[36px] mb-2 font-medium flex items-center gap-2 flex-wrap" key={job.jobID}>{job.jobPosition}
                 {status && appliedStatus(status)}
                 </h4>
-                <div className="detail flex flex-col gap-1 mb-2">
+                <div className="detail flex flex-col gap-1 mb-2 leading-tight">
                     <p className="flex gap-1 items-center text-gray-500">
                         <Building size={18} /> {companyThName}
                     </p>
