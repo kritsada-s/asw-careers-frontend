@@ -17,7 +17,7 @@ type AuthStep = 'email' | 'otp' | 'success';
 
 export default function AuthModal({ isOpen, onClose, onSuccess, onError }: AuthModalProps) {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState<AuthStep>('success');
+  const [currentStep, setCurrentStep] = useState<AuthStep>('email');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
