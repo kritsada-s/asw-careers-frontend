@@ -12,7 +12,7 @@ import { useApplicationForm } from '@/app/hooks/useForm';
 import Crypt from '@/lib/Crypt';
 import { prodUrl } from '@/lib/utils';
 import axios from 'axios';
-import FormData from 'form-data';
+//import FormData from 'form-data';
 import { useToken } from '@/app/hooks/useToken';
 import LoaderHorizontal from '@/app/components/ui/loader';
 import { Alert } from 'flowbite-react';
@@ -89,30 +89,30 @@ const ApplyJobPage = () => {
 
   const { profile, isLoading: isLoadingProfile, error } = useUserProfile(decryptedToken?.Email);
 
-  const prefillFormWithUserData = useCallback(() => {
-    //updateField('profileImage', profile?.imageUrl);
-    updateField('profileImagePath', profile?.imageUrl);
-    updateField('cvPath', profile?.cvUrl);
-    updateField('firstName', profile?.firstName);
-    updateField('lastName', profile?.lastName);
-    updateField('nickname', profile?.nickName);
-    updateField('gender', profile?.gender.genderID ? profile?.gender.genderID : 1);
-    updateField('maritalStatus', profile?.maritalStatus.maritalStatusID ? profile?.maritalStatus.maritalStatusID : 1);
-    updateField('phone', profile?.tel);
-    updateField('birthDate', profile?.dateOfBirth ? new Date(profile?.dateOfBirth).toISOString().substring(0, 10) : null);
-    updateField('addressLine1', profile?.addressDetails);
-    updateField('province', profile?.province.provinceID ? profile?.province.provinceID : "1");
-    updateField('district', profile?.district.districtID ? profile?.district.districtID : "1001");
-    updateField('subdistrict', profile?.subdistrict.subDistrictID ? profile?.subdistrict.subDistrictID : "100101");
-    updateField('postalCode', profile?.postalCode ? profile?.postalCode : "10200");
-    updateField('education', profile?.candidateEducations[0]?.educationID ? profile?.candidateEducations[0]?.educationID : "1");
-    updateField('refferedBy', profile?.sourceInformation.sourceInformationID ? profile?.sourceInformation.sourceInformationID : "1");
-  }, [profile, updateField]);
+  // const prefillFormWithUserData = useCallback(() => {
+  //   //updateField('profileImage', profile?.imageUrl);
+  //   updateField('profileImagePath', profile?.imageUrl);
+  //   updateField('cvPath', profile?.cvUrl);
+  //   updateField('firstName', profile?.firstName);
+  //   updateField('lastName', profile?.lastName);
+  //   updateField('nickname', profile?.nickName);
+  //   updateField('gender', profile?.gender.genderID ? profile?.gender.genderID : undefined);
+  //   updateField('maritalStatus', profile?.maritalStatus.maritalStatusID ? profile?.maritalStatus.maritalStatusID : undefined);
+  //   updateField('phone', profile?.tel);
+  //   updateField('birthDate', profile?.dateOfBirth ? new Date(profile?.dateOfBirth).toISOString().substring(0, 10) : null);
+  //   updateField('addressLine1', profile?.addressDetails ? profile?.addressDetails : '');
+  //   updateField('province', profile?.province.provinceID ? profile?.province.provinceID : undefined);
+  //   updateField('district', profile?.district.districtID ? profile?.district.districtID : undefined);
+  //   updateField('subdistrict', profile?.subdistrict.subDistrictID ? profile?.subdistrict.subDistrictID : undefined);
+  //   updateField('postalCode', profile?.postalCode ? profile?.postalCode : undefined);
+  //   updateField('education', profile?.candidateEducations[0]?.educationID ? profile?.candidateEducations[0]?.educationID : undefined);
+  //   updateField('refferedBy', profile?.sourceInformation.sourceInformationID ? profile?.sourceInformation.sourceInformationID : undefined);
+  // }, [profile, updateField]);
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const authToken = localStorage.getItem('authToken');
-      console.log(authToken);
+      //console.log(authToken);
       if (!authToken) {
         window.location.href = '/'; // Redirect to home page if authToken does not exist
       } else {
@@ -140,16 +140,17 @@ const ApplyJobPage = () => {
     loadPosition();
   }, [jobId]);
 
-  useEffect(() => {
-    prefillFormWithUserData();
-  }, [prefillFormWithUserData]);
+  // useEffect(() => {
+  //   prefillFormWithUserData();
+  // }, [prefillFormWithUserData]);
 
   const handleNext = useCallback(() => {
-    const hasErrors = requiredFields.some(field => !formData[field]);
+    //const hasErrors = requiredFields.some(field => !formData[field]);
+    const hasErrors = false;
 
     requiredFields.forEach(field => {
       if (!formData[field]) {
-          console.log(`Field ${field} is missing in formData`);
+        //console.log(`Field ${field} is missing in formData`);
       }
     });
     
@@ -174,25 +175,25 @@ const ApplyJobPage = () => {
       apiFormData.append('Candidate.CandidateID', decryptedToken.CandidateID);
       //apiFormData.append('Candidate.Revision', '1');
       apiFormData.append('Candidate.Email', decryptedToken.Email);
-      apiFormData.append('Candidate.TitleID', 1);
-      apiFormData.append('Candidate.FirstName', formData.firstName);
-      apiFormData.append('Candidate.LastName', formData.lastName);
-      apiFormData.append('Candidate.NickName', formData.nickname);
-      apiFormData.append('Candidate.Tel', formData.phone);
-      apiFormData.append('Candidate.DateOfBirth', formData.birthDate ? new Date(formData.birthDate).toISOString() : null);
-      apiFormData.append('Candidate.Gender.GenderID', 1);
-      apiFormData.append('Candidate.MaritalStatus.MaritalStatusID', 1);
-      apiFormData.append('Candidate.Image', formData.profileImagePath);
-      apiFormData.append('Candidate.CV', formData.cv);
-      apiFormData.append('Candidate.AddressDetails', formData.addressLine1);
-      apiFormData.append('Candidate.Province.ProvinceID', formData.province ? Number(formData.province) : 1);
-      apiFormData.append('Candidate.District.DistrictID', formData.district ? Number(formData.district) : 1001);
-      apiFormData.append('Candidate.Subdistrict.SubdistrictID', formData.subdistrict ? Number(formData.subdistrict) : 100101);
-      apiFormData.append('Candidate.PostalCode', formData.postalCode ? Number(formData.postalCode) : 10200);
-      apiFormData.append('Candidate.SourceInformation.SourceInformationID', 1);
-      apiFormData.append('Candidate.PDPAAccepted', true);
+      apiFormData.append('Candidate.TitleID', '1');
+      apiFormData.append('Candidate.FirstName', formData.firstName || '');
+      apiFormData.append('Candidate.LastName', formData.lastName || '');
+      apiFormData.append('Candidate.NickName', formData.nickname || '');
+      apiFormData.append('Candidate.Tel', formData.phone || '');
+      apiFormData.append('Candidate.DateOfBirth', formData.birthDate ? new Date(formData.birthDate).toISOString() : '');
+      apiFormData.append('Candidate.Gender.GenderID', '1');
+      apiFormData.append('Candidate.MaritalStatus.MaritalStatusID', '1');
+      apiFormData.append('Candidate.Image', formData.profileImage || '');
+      apiFormData.append('Candidate.CV', formData.cv || '');
+      apiFormData.append('Candidate.AddressDetails', formData.addressLine1 || '');
+      apiFormData.append('Candidate.Province.ProvinceID', String(formData.province ? formData.province : '1'));
+      apiFormData.append('Candidate.District.DistrictID', String(formData.district ? formData.district : '1001'));
+      apiFormData.append('Candidate.Subdistrict.SubdistrictID', String(formData.subdistrict ? formData.subdistrict : '100101'));
+      apiFormData.append('Candidate.PostalCode', String(formData.postalCode ? formData.postalCode : '10200'));
+      apiFormData.append('Candidate.SourceInformation.SourceInformationID', '1');
+      apiFormData.append('Candidate.PDPAAccepted', 'true');
       apiFormData.append('Candidate.PDPAAcceptedDate', new Date().toISOString());
-      apiFormData.append('Candidate.CandidateEducations[0].EducationID', formData.education ? Number(formData.education) : 1);
+      apiFormData.append('Candidate.CandidateEducations[0].EducationID', String(formData.education ? formData.education : '1'));
       apiFormData.append('Candidate.CandidateEducations[0].Major', 'computer science');
 
       const config = {
@@ -211,7 +212,8 @@ const ApplyJobPage = () => {
       const response = await axios.request(config);
       
       if (response.status === 200) {
-        console.log('Job applied successfully', response.data);
+        //console.log('Job applied successfully', response.data);
+        //console.log('response', response.data);
         localStorage.setItem('authToken', response.data);
         window.location.href = '/profile';
       } else {

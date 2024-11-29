@@ -28,6 +28,7 @@ export function useApplicationForm(
 
   // Update single field
   const updateField = useCallback((field: FormField, value: any) => {
+    //console.log(field, value);
     setFormData(prev => ({
       ...prev,
       [field]: value
