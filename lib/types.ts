@@ -94,7 +94,7 @@ export interface District {
 }
 
 export interface SubDistrict {
-    subdistrictID: number;
+    subDistrictID: number;
     districtID: number;
     postCode: string | null;
     nameTH: string;

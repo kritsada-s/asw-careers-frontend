@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FormStepProps } from '@/lib/types';
+import { ApplicationFormData, FormStepProps } from '@/lib/types';
 import FormNavigation from '../ui/FormNavigation';
 
 // Add this function to check if a field has been touched
@@ -79,9 +79,35 @@ export default function PersonalInfoForm({
     };
   }, []);
 
+  const validateData = () => {
+    markFieldTouched('firstName');
+    markFieldTouched('lastName');
+    markFieldTouched('nickname');
+    markFieldTouched('gender');
+    markFieldTouched('maritalStatus');
+    markFieldTouched('birthDate');
+    markFieldTouched('phone');
+
+    const isFirstNameValid = !!formData.firstName;
+    const isLastNameValid = !!formData.lastName;
+    const isNicknameValid = !!formData.nickname;
+    const isGenderValid = formData.gender !== undefined;
+    const isMaritalStatusValid = formData.maritalStatus !== undefined;
+    const isBirthDateValid = !!formData.birthDate;
+    const isPhoneValid = !!formData.phone;
+
+    return isFirstNameValid && isLastNameValid && isNicknameValid && isGenderValid && isMaritalStatusValid && isBirthDateValid && isPhoneValid;
+  }
+
+  const handleNext = () => {    
+    if (validateData()) {
+      console.log('step 2 validated');
+      onNext();
+    }
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onNext();
   };
 
   return (
@@ -107,6 +133,7 @@ export default function PersonalInfoForm({
                 isFieldTouched('firstName') && !formData.firstName ? 'border-red-500' : ''
               }`}
             />
+            { isFieldTouched('firstName') && !formData.firstName && <p className="text-red-500 text-sm mt-1">กรุณาระบุชื่อ</p> }
           </div>
 
           <div className="form-input-wrapper md:w-1/3 w-full">
@@ -128,6 +155,7 @@ export default function PersonalInfoForm({
                 isFieldTouched('lastName') && !formData.lastName ? 'border-red-500' : ''
               }`}
             />
+            { isFieldTouched('lastName') && !formData.lastName && <p className="text-red-500 text-sm mt-1">กรุณาระบุนามสกุล</p> }
           </div>
 
           <div className="form-input-wrapper md:w-1/3 w-full">
@@ -149,6 +177,7 @@ export default function PersonalInfoForm({
                 isFieldTouched('nickname') && !formData.nickname ? 'border-red-500' : ''
               }`}
             />
+            { isFieldTouched('nickname') && !formData.nickname && <p className="text-red-500 text-sm mt-1">กรุณาระบุชื่อเล่น</p> }
           </div>
         </div>
 
@@ -193,6 +222,7 @@ export default function PersonalInfoForm({
                 </div>
               )}
             </div>
+            { isFieldTouched('gender') && !formData.gender && <p className="text-red-500 text-sm mt-1">กรุณาระบุเพศ</p> }
           </div>
 
           <div className="form-input-wrapper md:w-1/3 w-full">
@@ -235,6 +265,7 @@ export default function PersonalInfoForm({
                 </div>
               )}
             </div>
+            { isFieldTouched('maritalStatus') && !formData.maritalStatus && <p className="text-red-500 text-sm mt-1">กรุณาระบุสถานภาพสมรส</p> }
           </div>
 
           <div className="form-input-wrapper md:w-1/3 w-full">
@@ -255,6 +286,7 @@ export default function PersonalInfoForm({
                 isFieldTouched('birthDate') && !formData.birthDate ? 'border-red-500' : ''
               }`}
               />
+            { isFieldTouched('birthDate') && !formData.birthDate && <p className="text-red-500 text-sm mt-1">กรุณาระบุวันเกิด</p> }
           </div>
         </div>
 
@@ -298,12 +330,13 @@ export default function PersonalInfoForm({
                 isFieldTouched('phone') && !formData.phone ? 'border-red-500' : ''
               }`}
             />
+            { isFieldTouched('phone') && !formData.phone && <p className="text-red-500 text-sm mt-1">กรุณาระบุเบอร์โทร</p> }
           </div>
         </div>
         
         <FormNavigation
           onPrevious={onPrevious}
-          onNext={onNext}
+          onNext={handleNext}
           isFirstStep={false} // Adjust based on your step logic
           isLastStep={isLastStep}
           isSubmitting={isSubmitting}

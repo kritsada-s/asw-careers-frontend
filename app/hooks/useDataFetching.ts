@@ -238,20 +238,21 @@ export function useUserProfile (email: string) {
     async function fetchUserProfile() {
       try {
         setIsLoading(true);
-        const response = await fetch(`${prodUrl}/secure/Candidate/GetCandidate/${email}`, {
-          method: 'GET',
+        const response = await axios.get(`${prodUrl}/secure/Candidate/GetCandidate/${email}`, {
           headers: {
             'Authorization': `Bearer ${authToken}`,
           },
         });
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
+        const data = response.data;
         setProfile(data);
       } catch (error: any) {
         console.error('Error fetching user profile:', error);
-        setError(error?.message || 'An unknown error occurred');
+        if (error.response.status === 404) {
+          localStorage.removeItem('authToken');
+          return;
+        } else {
+          setError(error?.message || 'An unknown error occurred');
+        }
       } finally {
         setIsLoading(false);
       }
@@ -283,7 +284,7 @@ const imageCache = {
 
       const { data, timestamp }: ImageCache = JSON.parse(cached);
       if (Date.now() - timestamp > IMAGE_CACHE_DURATION) {
-        localStorage.removeItem(`img_${key}`);
+        sessionStorage.removeItem(`img_${key}`);
         return null;
       }
       return data;
@@ -298,7 +299,7 @@ const imageCache = {
         data,
         timestamp: Date.now(),
       };
-      localStorage.setItem(`img_${key}`, JSON.stringify(cacheData));
+      sessionStorage.setItem(`img_${key}`, JSON.stringify(cacheData));
     } catch (error) {
       console.warn('Error caching image:', error);
     }
@@ -393,7 +394,7 @@ const pdfCache = {
 
       const { data, timestamp }: PDFCache = JSON.parse(cached);
       if (Date.now() - timestamp > PDF_CACHE_DURATION) {
-        localStorage.removeItem(`pdf_${key}`);
+        sessionStorage.removeItem(`pdf_${key}`);
         return null;
       }
       return data;
@@ -408,7 +409,7 @@ const pdfCache = {
         data,
         timestamp: Date.now(),
       };
-      localStorage.setItem(`pdf_${key}`, JSON.stringify(cacheData));
+      sessionStorage.setItem(`pdf_${key}`, JSON.stringify(cacheData));
     } catch (error) {
       console.warn('Error caching PDF:', error);
     }
@@ -511,8 +512,10 @@ export function useSubmitJobApplication(jobID: string, candidateID: string) {
           'Authorization': `Bearer ${authToken}`,
         },
       });
+      console.log('res', res.data);
       setResponse(res.data);
     } catch (err: any) {
+      console.log('err', err.response.status);
       if (err.response.status === 400) {
         setIsError(true);
         setError(err.response.data);
@@ -572,7 +575,7 @@ export function useProfileUpdate() {
   const [response, setResponse] = useState<any>(null);
   const [profileImage, setProfileImage] = useState<File | null>(null);
 
-  const updateProfile = async (profileData: Candidate) => {
+  const updateProfile = async (profileData: Candidate) => {    
     setIsSubmitting(true);
     setError(null);
     let authToken = '';

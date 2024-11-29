@@ -3,6 +3,8 @@ import { bConnectionID } from './utils';
 import {prodUrl, default_params } from './utils';
 import { Company, JobResponse, Position} from './types';
 import { Candidate } from './form';
+import { useContext } from 'react';
+import { AuthContext } from '@/app/providers';
 
 interface ApiResponse<T> {
   data: T;

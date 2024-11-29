@@ -10,7 +10,9 @@ export default function AddressInfoForm({
   updateField,
   onNext,
   onPrevious,
-  isLastStep
+  isLastStep,
+  markFieldTouched,
+  isFieldTouched
 }: FormStepProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isProvincesDropdownOpen, setIsProvincesDropdownOpen] = useState(false);
@@ -22,36 +24,48 @@ export default function AddressInfoForm({
   const { subDistricts, isLoading:isSubDistrictsLoading } = useSubDistricts(Number(formData.district));
   const [postalCode, setPostalCode] = useState('');
 
-  // Add this function to check if a field has been touched
-  const isFieldTouched = (fieldName: string) => {
-    return touchedFields.includes(fieldName);
-  };
-
-  const [touchedFields, setTouchedFields] = useState<string[]>([]);
-
-  const handleFieldTouch = (fieldName: string) => {
-    if (!touchedFields.includes(fieldName)) {
-      setTouchedFields([...touchedFields, fieldName]);
-    }
-  };
-
   const handleSubDistrictChange = (subDistrict: SubDistrict) => {
-    updateField('subdistrict', subDistrict.subdistrictID);
+    updateField('subdistrict', subDistrict.subDistrictID);    
     setPostalCode(subDistrict.postCode || '');
   }
 
   // Add this effect to handle automatic district selection
   useEffect(() => {
     if (districts.length > 0 && !formData.district) {
-      // Automatically select the first district when districts are loaded
+      // Automatically select the first district when districts are loaded      
       updateField('district', String(districts[0].districtID));
     }
-  }, [formData.district, districts, updateField]);
+
+    const foundSubDistrict = subDistricts.find(subDistrict => subDistrict.subDistrictID === Number(formData.subdistrict));
+    if (foundSubDistrict) {
+      setPostalCode(String(foundSubDistrict.postCode));
+    }
+    
+  }, [formData.district, formData.subdistrict, districts, subDistricts, updateField]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onNext();
   };
+
+  const validateData = () => {
+    markFieldTouched('addressLine1');
+    markFieldTouched('province');
+    markFieldTouched('district');
+    markFieldTouched('subdistrict');
+
+    return isFieldTouched('addressLine1') && !!formData.addressLine1 && isFieldTouched('province') && !!formData.province && isFieldTouched('district') && !!formData.district && isFieldTouched('subdistrict') && !!formData.subdistrict;
+  };
+
+  const handleNext = () => {    
+    if (validateData()) {
+      onNext();
+    }
+  };
+
+  useEffect(() => {
+    console.log(formData.postalCode);
+  }, []);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -68,28 +82,35 @@ export default function AddressInfoForm({
             id="addressLine1"
             name="addressLine1"
             type="text"
-            value={formData.addressLine1 || ''}
-            onChange={(e) => {
-              updateField('addressLine1', e.target.value);
-              handleFieldTouch('addressLine1');
+            value={formData.addressLine1}
+            onChange={(e) => updateField('addressLine1', e.target.value)}
+            onBlur={() => {
+              markFieldTouched('addressLine1');
             }}
-            required
-            className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 ${isFieldTouched('addressLine1') && !formData.addressLine1 ? 'border-red-500' : ''}`}
+            className={`mt-1 block w-full rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500 leading-none ${
+              isFieldTouched('addressLine1') && !formData.addressLine1 ? 'border-red-500' : 'border-gray-300'
+            }`}
           />
+          {isFieldTouched('addressLine1') && !formData.addressLine1 && (
+            <p className="text-red-500 text-sm mt-1">กรุณาระบุที่อยู่</p>
+          )}
         </div>
 
         <div className="flex gap-4">
           <div className="w-full md:w-1/3">
             <label htmlFor="province">จังหวัด</label>
-            <ProvinceSelector id={formData.province} onProvinceChange={(province) => updateField('province', province.provinceID)} />
+            <ProvinceSelector id={formData.province} onProvinceChange={(province) => updateField('province', province.provinceID)} isError={isFieldTouched('province') && !formData.province} />
+            { isFieldTouched('province') && !formData.province && <p className="text-red-500 text-sm mt-1">กรุณาระบุจังหวัด</p> }
           </div>
           <div className="w-full md:w-1/3">
             <label htmlFor="district">อำเภอ</label>
-            <DistrictSelector id={formData.district} provinceID={Number(formData.province)} onDistrictChange={(district) => updateField('district', district.districtID)} />
+            <DistrictSelector id={formData.district} provinceID={Number(formData.province)} onDistrictChange={(district) => updateField('district', district.districtID)} isError={isFieldTouched('district') && !formData.district} />
+            { isFieldTouched('district') && !formData.district && <p className="text-red-500 text-sm mt-1">กรุณาระบุอำเภอ</p> }
           </div>
           <div className="w-full md:w-1/3">
             <label htmlFor="subdistrict">ตำบล</label>
-            <SubDistrictSelector id={formData.subdistrict} districtID={Number(formData.district)} onSubDistrictChange={handleSubDistrictChange} />
+            <SubDistrictSelector id={formData.subdistrict} districtID={Number(formData.district)} onSubDistrictChange={handleSubDistrictChange} isError={isFieldTouched('subdistrict') && !formData.subdistrict} />
+            { isFieldTouched('subdistrict') && !formData.subdistrict && <p className="text-red-500 text-sm mt-1">กรุณาระบุตำบล</p> }
           </div>
           <div className="w-full md:w-1/3">
             <label htmlFor="postalCode">รหัสไปรษณีย์</label>
@@ -97,8 +118,7 @@ export default function AddressInfoForm({
               id="postalCode"
               name="postalCode"
               type="text"
-              value={postalCode}
-              onChange={(e) => updateField('postalCode', e.target.value)} disabled
+              value={postalCode} disabled
               className={`block w-full border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-500 px-2 py-1 rounded ${isFieldTouched('postalCode') && !formData.postalCode ? 'border-red-500' : ''}`}
             />
           </div>
@@ -106,7 +126,7 @@ export default function AddressInfoForm({
 
         <FormNavigation
           onPrevious={onPrevious}
-          onNext={onNext}
+          onNext={handleNext}
           isFirstStep={false} // Adjust based on your step logic
           isLastStep={isLastStep}
           isSubmitting={isSubmitting}

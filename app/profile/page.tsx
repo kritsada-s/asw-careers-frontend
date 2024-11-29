@@ -79,9 +79,13 @@ export default function ProfilePage() {
         const data = await fetchProfileData(authData.Email);
         setTokenDate(authData.ExpiredDate)
         setProfileData(data);
-      } catch (err) {
-        setError('ไม่สามารถโหลดข้อมูลโปรไฟล์ได้');
-        console.error('Profile loading error:', err);
+      } catch (err: any) {
+        if (err.response.status === 404) {
+          window.location.href = '/apply-job/'+sessionStorage.getItem('jobId');
+        } else {
+          setError('ไม่สามารถโหลดข้อมูลโปรไฟล์ได้');
+        }
+        //console.error('Profile loading error:', err.response.status);
       } finally {
         setLoading(false);
       }

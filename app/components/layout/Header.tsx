@@ -1,16 +1,18 @@
 "use client"
 
-import { useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Button } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
 import AuthModal from "../Auth/AuthModal";
 import { useModal } from "../MUIProvider";
+import { AuthContext } from "@/app/providers";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthopen, setIsAuthOpen] = useState(false);
   const { openModal } = useModal();
+  const authContext = useContext(AuthContext);
 
   const menuItems = [
     "ตำแหน่งงาน",
@@ -43,6 +45,15 @@ const Header = () => {
     }
   }
 
+  useEffect(() => {
+    console.log('authContext', authContext);
+    if (authContext?.CandidateID) {
+      console.log('candidateID', authContext.CandidateID);
+    } else {
+      console.log('no candidateID');
+    }
+  }, [authContext]);
+
   return (
     <section id="header" className="bg-white py-3 md:py-4 shadow fixed w-full top-0 z-20">
       <div className="container flex justify-between px-3 lg:px-0">
@@ -56,7 +67,9 @@ const Header = () => {
             <Link href={{ pathname:'/jobs' }} title="">ตำแหน่งงาน</Link>
             <Link href="/#welfareBenefit" title="">สวัสดิการ</Link>
           </nav>
-          <button onClick={()=>checkLogin()} className="leading-none px-4 py-1 font-semibold text-white bg-leadfrog-green hover:bg-kryptonite-green rounded-full">ตรวจสอบสถานะ</button>
+          {authContext?.CandidateID && (
+            <button onClick={()=>checkLogin()} className="leading-none px-4 py-1 font-semibold text-white bg-leadfrog-green hover:bg-kryptonite-green rounded-full">ตรวจสอบสถานะ</button>
+          )}
         </div>
       </div>
       <AuthModal isOpen={isAuthopen} onClose={()=>setIsAuthOpen(false)}/>

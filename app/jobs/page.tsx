@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useEffect, useState, useRef, useCallback } from 'react';
+import React, { Suspense, useEffect, useState, useRef, useCallback, useContext } from 'react';
 import { fetchCompanyLocations, fetchedJobs, fetchLocationByID } from '@/lib/api';
 import { Job } from '@/lib/types';
 import { WorkLocation } from '../components/ui/WorkLocation';
@@ -19,6 +19,7 @@ import Swal from 'sweetalert2';
 import Image from 'next/image';
 import { EducationLevel } from '../components/ui/FormInput';
 import { FacebookShareButton, LineShareButton, TwitterShareButton } from 'react-share';
+import { AuthContext } from '../providers';
 
 interface fetchedJobs {
   jobs: Job
@@ -63,6 +64,7 @@ const JobsPage = () => {
   const { submitApplication, isSubmitting: isSubmittingApplication, error: submitErrMsg, isError: isSubmitError, response: submitApplicationResponse } = useSubmitJobApplication(selectedJob?.jobID || '', profile?.candidateID || '');
   const [isSubmitAppError, setIsSubmitAppError] = useState<boolean>(false);
   const [companyName, setCompanyName] = useState<string>('N/A');
+  const authContext = useContext(AuthContext);
 
 
   const modalTheme: CustomFlowbiteTheme['modal'] = {
@@ -184,9 +186,13 @@ const JobsPage = () => {
 
   const handleProfileSummaryModalConfirm = async () => {
     submitApplication();
-    if (isSubmittingApplication) {
+    console.log('response', submitApplicationResponse);
+    
+    if (submitApplicationResponse) {
       setIsSummaryModalOpen(false);
       setIsModalConfirmOpen(false);
+      alert('สมัครงานสำเร็จ');
+      window.location.href = '/profile';
     } else {
       setIsModalConfirmOpen(false);
       setIsSubmitAppError(true);
@@ -195,8 +201,13 @@ const JobsPage = () => {
 
   const handleJobSubmit = () => {
     if (token) {
-      setIsSummaryModalOpen(true);
+      if (authContext.CandidateID) {
+        setIsSummaryModalOpen(true);
+      } else {
+        window.location.href = '/apply-job/'+selectedJob?.jobID;
+      }
     } else {
+      sessionStorage.setItem('jobId', selectedJob?.jobID || '');
       openModal({
         type: 'auth',
         props: {
@@ -278,9 +289,20 @@ const JobsPage = () => {
 
             {/* Content */}
             <div className="flex-1 p-6 overflow-y-auto">
+              <h4 className='text-lg font-medium'>รายละเอียด</h4>
               <div 
                 className="prose max-w-none"
                 dangerouslySetInnerHTML={{ __html: selectedJob.jobDetails }}
+              />
+              <h4 className='text-lg font-medium mt-4'>คุณสมบัติที่ต้องการ</h4>
+              <div 
+                className="prose max-w-none"
+                dangerouslySetInnerHTML={{ __html: selectedJob.requiredRequirements }} 
+              />
+              <h4 className='text-lg font-medium mt-4'>คุณสมบัติอื่นๆ</h4>
+              <div 
+                className='prose max-w-none' 
+                dangerouslySetInnerHTML={{ __html: selectedJob.requirements }} 
               />
               <ShareJob id={selectedJob.jobID} position={selectedJob.jobPosition} />
             </div>
@@ -306,35 +328,39 @@ const JobsPage = () => {
           สมัครงานตำแหน่ง <span className='text-primary-700'>{selectedJob?.jobPosition}</span>
         </Modal.Header>
         <Modal.Body>
-          <h3 className='text-base md:text-lg font-medium mb-2 md:mb-3'>โปรดตรวจสอบข้อมูลของท่านก่อนคลิกสมัครงาน</h3>
-          <div className='flex flex-col md:flex-row md:gap-7'>
-            <div className='w-full md:w-1/3 mb-5 md:mb-0'>
-              {imageData ? <Image src={imageData} alt="Profile" className='w-full h-auto aspect-[3/4] object-cover mb-2 border border-neutral-400' width={260} height={350} /> : <div className='w-full bg-gray-200 aspect-[3/4] h-auto flex items-center justify-center mb-2'>
-                <span className='text-gray-500'>ยังไม่มีรูปภาพ</span>
-              </div>}
-              <button onClick={handleShowCV} className='text-primary-700 hover:text-primary-800 flex gap-1 items-center leading-none underline'>แสดง CV <HiExternalLink/></button>
-            </div>
-            <div className="w-full md:w-2/3">
-            <p><strong>ชื่อ-นามสกุล:</strong> {profile?.firstName} {profile?.lastName}</p>
-            <p><strong>ชื่อเล่น:</strong> {profile?.nickName || '-'}</p>
-            <p><strong>เพศ:</strong> {profile?.gender?.description || '-'}</p>
-            <p><strong>วันเกิด:</strong> {profile?.dateOfBirth ? new Date(profile.dateOfBirth).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</p>
-            <div className='h-4 md:h-0'></div>
-            <p><strong>อีเมล:</strong> {profile?.email}</p>
-            <p><strong>เบอร์โทร:</strong> {profile?.tel || '-'}</p>
-            <p><strong>ที่อยู่:</strong> {profile?.addressDetails || '-'}</p>
-            <p><strong>จังหวัด:</strong> {profile?.province?.nameTH || '-'}</p>
-            <p><strong>อำเภอ:</strong> {profile?.district?.nameTH || '-'}</p>
-            <p><strong>ตำบล:</strong> {profile?.subdistrict?.nameTH || '-'}</p> 
-            <p><strong>รหัสไปรษณีย์:</strong> {profile?.postalCode || '-'}</p>
-            <div className='h-4 md:h-0'></div>
-            <p><strong>สถานภาพสมรส:</strong> {profile?.maritalStatus?.description || '-'}</p>
-            <p><strong>ระดับการศึกษา:</strong> <EducationLevel educationID={profile?.candidateEducations[0]?.educationID || 1} /></p>
-            <p><strong>สาขาวิชา:</strong> {profile?.candidateEducations[0]?.major || '-'}</p>
-            <hr className='my-3' />
-            <p>หากต้องการแก้ไขข้อมูล <Link href={'/profile'} className='text-primary-700 hover:text-primary-800 underline'>คลิกที่นี่</Link></p>
-          </div>
-          </div>
+          { profile && (
+            <>
+              <h3 className='text-base md:text-lg font-medium mb-2 md:mb-3'>โปรดตรวจสอบข้อมูลของท่านก่อนคลิกสมัครงาน</h3>
+              <div className='flex flex-col md:flex-row md:gap-7'>
+              <div className='w-full md:w-1/3 mb-5 md:mb-0'>
+                {imageData ? <Image src={imageData} alt="Profile" className='w-full h-auto aspect-[3/4] object-cover mb-2 border border-neutral-400' width={260} height={350} /> : <div className='w-full bg-gray-200 aspect-[3/4] h-auto flex items-center justify-center mb-2'>
+                  <span className='text-gray-500'>ยังไม่มีรูปภาพ</span>
+                </div>}
+                <button onClick={handleShowCV} className='text-primary-700 hover:text-primary-800 flex gap-1 items-center leading-none underline'>แสดง CV <HiExternalLink/></button>
+              </div>
+              <div className="w-full md:w-2/3">
+                <p><strong>ชื่อ-นามสกุล:</strong> {profile?.firstName} {profile?.lastName}</p>
+                <p><strong>ชื่อเล่น:</strong> {profile?.nickName || '-'}</p>
+                <p><strong>เพศ:</strong> {profile?.gender?.description || '-'}</p>
+                <p><strong>วันเกิด:</strong> {profile?.dateOfBirth ? new Date(profile.dateOfBirth).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</p>
+                <div className='h-4 md:h-0'></div>
+                <p><strong>อีเมล:</strong> {profile?.email}</p>
+                <p><strong>เบอร์โทร:</strong> {profile?.tel || '-'}</p>
+                <p><strong>ที่อยู่:</strong> {profile?.addressDetails || '-'}</p>
+                <p><strong>จังหวัด:</strong> {profile?.province?.nameTH || '-'}</p>
+                <p><strong>อำเภอ:</strong> {profile?.district?.nameTH || '-'}</p>
+                <p><strong>ตำบล:</strong> {profile?.subdistrict?.nameTH || '-'}</p> 
+                <p><strong>รหัสไปรษณีย์:</strong> {profile?.postalCode || '-'}</p>
+                <div className='h-4 md:h-0'></div>
+                <p><strong>สถานภาพสมรส:</strong> {profile?.maritalStatus?.description || '-'}</p>
+                <p><strong>ระดับการศึกษา:</strong> <EducationLevel educationID={profile?.candidateEducations[0]?.educationID || 1} /></p>
+                <p><strong>สาขาวิชา:</strong> {profile?.candidateEducations[0]?.major || '-'}</p>
+                <hr className='my-3' />
+                <p>หากต้องการแก้ไขข้อมูล <Link href={'/profile'} className='text-primary-700 hover:text-primary-800 underline'>คลิกที่นี่</Link></p>
+              </div>
+              </div>
+            </>
+          )}
         </Modal.Body>
         <Modal.Footer className='flex justify-end'>
           <Button size='sm' className='text-red-500 hover:text-red-600 hover:bg-red-200 rounded-full' color='none' onClick={() => {setIsSummaryModalOpen(false)}}>ยกเลิก</Button>

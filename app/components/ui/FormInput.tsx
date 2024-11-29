@@ -236,12 +236,13 @@ interface ProvinceSelectorProps {
   id?: number;
   isFieldTouched?: (field: string) => boolean;
   onProvinceChange: (province: any) => void;
+  isError?: boolean;
 }
 
-export const ProvinceSelector: React.FC<ProvinceSelectorProps> = ({ id, isFieldTouched, onProvinceChange }) => {
+export const ProvinceSelector: React.FC<ProvinceSelectorProps> = ({ id, isFieldTouched, onProvinceChange, isError }) => {
   const [isProvinceDropdownOpen, setIsProvinceDropdownOpen] = useState(false);
   const [selectedProvince, setSelectedProvince] = useState<any>(null);
-  const [currentProvinceId, setCurrentProvinceId] = useState<number>(id || 1);
+  const [currentProvinceId, setCurrentProvinceId] = useState<number | undefined>(id || undefined);
   const { provinces, isLoading } = useProvinces();
   const provinceDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -265,10 +266,6 @@ export const ProvinceSelector: React.FC<ProvinceSelectorProps> = ({ id, isFieldT
     };
   }, []);
 
-  useEffect(() => {
-    setCurrentProvinceId(id || 1);
-  }, [id]);
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -280,7 +277,7 @@ export const ProvinceSelector: React.FC<ProvinceSelectorProps> = ({ id, isFieldT
         id="province"
         className={`block w-full rounded border border-gray-600 bg-white px-2 py-1 text-left text-base shadow-sm focus:border-primary-500 focus:ring-primary-500 ${
           isFieldTouched && isFieldTouched('province') && !id ? 'border-red-500' : ''
-        }`}
+        } ${isError ? 'border-red-500 text-red-500' : ''}`}
         onClick={() => setIsProvinceDropdownOpen(!isProvinceDropdownOpen)}
       >
         {provinces.find(province => province.provinceID === currentProvinceId)?.nameTH || 'เลือกจังหวัด'}
@@ -311,15 +308,16 @@ export const ProvinceSelector: React.FC<ProvinceSelectorProps> = ({ id, isFieldT
 };
 
 
-export const DistrictSelector = ({ id, provinceID, isFieldTouched, onDistrictChange }: { 
+export const DistrictSelector = ({ id, provinceID, isFieldTouched, onDistrictChange, isError }: { 
   id?: number;
   provinceID: number;
   isFieldTouched?: (field: string) => boolean;
   onDistrictChange: (district: any) => void;
+  isError?: boolean;
 }) => {
   const { districts, isLoading } = useDistricts(provinceID);
   const [isDistrictDropdownOpen, setIsDistrictDropdownOpen] = useState(false);
-  const [currentDistrictId, setCurrentDistrictId] = useState<number>(id || 1);
+  const [currentDistrictId, setCurrentDistrictId] = useState<number | undefined>(id || undefined);
   const [selectedDistrict, setSelectedDistrict] = useState<any>(null);
   const districtDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -330,7 +328,7 @@ export const DistrictSelector = ({ id, provinceID, isFieldTouched, onDistrictCha
     setIsDistrictDropdownOpen(false);
   }
 
-  useEffect(() => {
+  useEffect(() => {        
     function handleClickOutside(event: MouseEvent) {
       if (districtDropdownRef.current && !districtDropdownRef.current.contains(event.target as Node)) {
         setIsDistrictDropdownOpen(false);
@@ -343,19 +341,15 @@ export const DistrictSelector = ({ id, provinceID, isFieldTouched, onDistrictCha
     };
   }, []);
 
-  useEffect(() => {
-    if (districts.length > 0) {
-      const defaultDistrict = districts[0];
-      setSelectedDistrict(defaultDistrict);
-      setCurrentDistrictId(defaultDistrict.districtID);
-      onDistrictChange(defaultDistrict);
-    }
-    //console.log('provinceID', provinceID);
-  }, [provinceID, districts]);
-
-  useEffect(() => {
-    setCurrentDistrictId(id || 1);
-  }, [id]);
+  // useEffect(() => {
+  //   if (districts.length > 0) {
+  //     const defaultDistrict = districts[0];
+  //     setSelectedDistrict(defaultDistrict);
+  //     setCurrentDistrictId(defaultDistrict.districtID);
+  //     onDistrictChange(defaultDistrict);
+  //   }
+  //   //console.log('provinceID', provinceID);
+  // }, [provinceID, districts]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -368,7 +362,7 @@ export const DistrictSelector = ({ id, provinceID, isFieldTouched, onDistrictCha
         id="district"
         className={`block w-full rounded border border-gray-600 bg-white px-2 py-1 text-left text-base shadow-sm focus:border-primary-500 focus:ring-primary-500 ${
           isFieldTouched && isFieldTouched('district') && !id ? 'border-red-500' : ''
-        }`}
+        } ${isError ? 'border-red-500 text-red-500' : ''}`}
         onClick={() => setIsDistrictDropdownOpen(!isDistrictDropdownOpen)}
       >
         {districts.find(district => district.districtID === currentDistrictId)?.nameTH || 'เลือกอำเภอ'}
@@ -398,13 +392,13 @@ export const DistrictSelector = ({ id, provinceID, isFieldTouched, onDistrictCha
   );
 };
 
-export const SubDistrictSelector = ({ id, districtID, onSubDistrictChange, isFieldTouched }: { id?: number, districtID: number, onSubDistrictChange: (subDistrict: any) => void, isFieldTouched?: (field: string) => boolean }) => {
+export const SubDistrictSelector = ({ id, districtID, onSubDistrictChange, isFieldTouched, isError }: { id?: number, districtID: number, onSubDistrictChange: (subDistrict: any) => void, isFieldTouched?: (field: string) => boolean, isError?: boolean }) => {
   const [isSubDistrictDropdownOpen, setIsSubDistrictDropdownOpen] = useState(false);
-  const [currentSubDistrictId, setCurrentSubDistrictId] = useState<number>(id || 1);
+  const [currentSubDistrictId, setCurrentSubDistrictId] = useState<number | undefined>(id || undefined);
   const subDistrictDropdownRef = useRef<HTMLDivElement>(null);
   const { subDistricts, isLoading } = useSubDistricts(districtID);
 
-  useEffect(() => {
+  useEffect(() => {    
     const handleClickOutside = (event: MouseEvent) => {
       if (subDistrictDropdownRef.current && !subDistrictDropdownRef.current.contains(event.target as Node)) {
         setIsSubDistrictDropdownOpen(false);
@@ -422,18 +416,14 @@ export const SubDistrictSelector = ({ id, districtID, onSubDistrictChange, isFie
     onSubDistrictChange(subDistrict);
   };
 
-  useEffect(() => {
-    if (subDistricts.length > 0) {
-      const defaultSubDistrict = subDistricts[0];
-      setCurrentSubDistrictId(defaultSubDistrict.subDistrictID);
-      onSubDistrictChange(defaultSubDistrict);
-    }
-    //console.log('districtID', districtID);
-  }, [districtID, subDistricts]);
-
-  useEffect(() => {
-    setCurrentSubDistrictId(id || 1);
-  }, [id]);
+  // useEffect(() => {
+  //   if (subDistricts.length > 0) {
+  //     const defaultSubDistrict = subDistricts[0];
+  //     setCurrentSubDistrictId(defaultSubDistrict.subDistrictID);
+  //     onSubDistrictChange(defaultSubDistrict);
+  //   }
+  //   //console.log('districtID', districtID);
+  // }, [districtID, subDistricts]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -446,7 +436,7 @@ export const SubDistrictSelector = ({ id, districtID, onSubDistrictChange, isFie
         id="subDistrict"
         className={`block w-full rounded border border-gray-600 bg-white px-2 py-1 text-left text-base shadow-sm focus:border-primary-500 focus:ring-primary-500 ${
           isFieldTouched && isFieldTouched('subDistrict') && !id ? 'border-red-500' : ''
-        }`}
+        } ${isError ? 'border-red-500 text-red-500' : ''}`}
         onClick={() => setIsSubDistrictDropdownOpen(!isSubDistrictDropdownOpen)}
       >
         {subDistricts.find(subDistrict => subDistrict.subDistrictID === currentSubDistrictId)?.nameTH || 'เลือกตำบล'}

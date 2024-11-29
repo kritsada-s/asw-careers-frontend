@@ -112,7 +112,7 @@ function JobBlock({className = '', job, status, applyDate}: JobBlockProps) {
                 <h4 className="leading-none text-[36px] mb-2 font-medium flex items-center gap-2 flex-wrap" key={job.jobID}>{job.jobPosition}
                 {status && appliedStatus(status)}
                 </h4>
-                <div className="detail flex flex-col gap-1 mb-2 leading-tight">
+                <div className="detail flex flex-col gap-1 mb-2 leading-none">
                     <p className="flex gap-1 items-center text-gray-500">
                         <Building size={18} /> {companyThName}
                     </p>
