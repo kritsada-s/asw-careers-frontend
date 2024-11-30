@@ -14,6 +14,7 @@ import { CustomFlowbiteTheme } from 'flowbite-react';
 import FormSelect from '../components/ui/FormAddress';
 import { DistrictSelector, GenderSelect, MaritalStatusSelector, ProvinceSelector, SubDistrictSelector, TitleSelector } from '../components/ui/FormInput';
 import { TitleName } from '../components/ui/FormInput';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState<Candidate | null>(null);
@@ -28,6 +29,7 @@ export default function ProfilePage() {
   const { updateProfile, isSubmitting, error: updateError, response } = useProfileUpdate();
   const [editableProfileData, setEditableProfileData] = useState<Candidate>(profileData || {} as Candidate);
   const [isEditing, setIsEditing] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
 
   const tableTheme: CustomFlowbiteTheme['table'] = {
     root: {
@@ -54,8 +56,31 @@ export default function ProfilePage() {
     }
   }
 
+  const LogoutConfirmModal = () => {
+    return (
+      <Dialog
+        open={isLogoutConfirmOpen}
+        onClose={() => setIsLogoutConfirmOpen(false)}
+      >
+          <DialogTitle>ยืนยันการออกจากระบบ</DialogTitle>
+          <DialogContent>
+            <p className='text-neutral-500'>คุณต้องการออกจากระบบหรือไม่ ?</p>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={logOut}>ออกจากระบบ</Button>
+            <Button onClick={() => setIsLogoutConfirmOpen(false)}>ยกเลิก</Button>
+          </DialogActions>
+      </Dialog>
+    )
+  }
+
+  const handleLogout = () => {
+    setIsLogoutConfirmOpen(true);
+  }
+
   const logOut = () => {
     if (typeof window !== 'undefined') {
+      setIsLogoutConfirmOpen(false);
       window?.localStorage.removeItem('authToken')
       console.log('logout redirecting...');
       redirectToHome();
@@ -424,7 +449,7 @@ export default function ProfilePage() {
       </div>
 
       <div className="flex gap-2 justify-end mb-5">
-        <button className='bg-red-500 hover:bg-red-600 text-white rounded-full px-4 py-1' onClick={() => logOut()}>ออกจากระบบ</button>
+        <button className='bg-red-500 hover:bg-red-600 text-white rounded-full px-4 py-1' onClick={handleLogout}>ออกจากระบบ</button>
         {isEditing ? (
           <>
             <button className='bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-1' onClick={handleSave}>บันทึกการเปลี่ยนแปลง</button>
@@ -445,6 +470,10 @@ export default function ProfilePage() {
             ))}
           </div>
         </div>
+      )}
+
+      {isLogoutConfirmOpen && (
+        <LogoutConfirmModal />
       )}
     </div>
   );
