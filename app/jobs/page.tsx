@@ -185,7 +185,7 @@ const JobsPage = () => {
   }
 
   const handleProfileSummaryModalConfirm = async () => {
-    submitApplication();
+    await submitApplication();
     console.log('response', submitApplicationResponse);
     
     if (submitApplicationResponse) {
