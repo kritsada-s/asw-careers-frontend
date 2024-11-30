@@ -49,12 +49,17 @@ export default function AddressInfoForm({
   };
 
   const validateData = () => {
+    // Mark all required fields as touched
     markFieldTouched('addressLine1');
     markFieldTouched('province');
     markFieldTouched('district');
     markFieldTouched('subdistrict');
-
-    return isFieldTouched('addressLine1') && !!formData.addressLine1 && isFieldTouched('province') && !!formData.province && isFieldTouched('district') && !!formData.district && isFieldTouched('subdistrict') && !!formData.subdistrict;
+    
+    // Simply check if all required fields have values
+    return !!formData.addressLine1 && 
+           !!formData.province && 
+           !!formData.district && 
+           !!formData.subdistrict;
   };
 
   const handleNext = () => {    
@@ -62,10 +67,6 @@ export default function AddressInfoForm({
       onNext();
     }
   };
-
-  useEffect(() => {
-    console.log(formData.postalCode);
-  }, []);
 
   return (
     <form onSubmit={handleSubmit}>

@@ -8,7 +8,9 @@ export default function OthersInfoForm({
   updateField,
   onNext,
   onPrevious,
-  isLastStep
+  isLastStep,
+  markFieldTouched,
+  isFieldTouched
 }: FormStepProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEduDropdownOpen, setIsEduDropdownOpen] = useState(false);
@@ -38,14 +40,24 @@ export default function OthersInfoForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate form fields if needed
-    const isValid = true; // Add your validation logic here
-    
-    if (isValid) {
-      onNext(); // This will trigger the main handleSubmit function
-    }
   };
+
+  const handleNext = () => {
+    // Validate required fields
+    const requiredFields = ['education', 'major'] as const;
+    const hasErrors = requiredFields.some(
+      field => !formData[field as keyof typeof formData]
+    );
+
+    if (hasErrors) {
+      console.log('hasErrors', hasErrors);
+      requiredFields.forEach(field => 
+        markFieldTouched(field as keyof typeof formData)
+      );
+      return;
+    }
+    onNext();
+  }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -88,6 +100,7 @@ export default function OthersInfoForm({
               </div>
             )}
           </div>
+          {isFieldTouched('education') && !formData.education && <p className="text-red-500 text-sm">กรุณาเลือกระดับการศึกษา</p>}
         </div>
         <div className='form-input-wrapper w-full md:w-1/2'>
           <label 
@@ -128,8 +141,28 @@ export default function OthersInfoForm({
           </div>
         </div>
       </div>
-      <div>
-        <div className="form-input-wrapper mb-4">
+
+      <div className='flex flex-col md:flex-row gap-4 mb-4'>
+        <div className="form-input-wrapper w-full md:w-1/2">
+          <label 
+            htmlFor="major" 
+            className="block text-base font-medium text-gray-700"
+          >
+            สาขาวิชา <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="major"
+            name="major" 
+            type="text"
+            required
+            value={formData.major || ''}
+            onChange={(e) => updateField('major', e.target.value)}
+            onBlur={() => markFieldTouched('major')}
+            className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 ${isFieldTouched('major') && !formData.major ? 'border-red-500' : ''}`}
+          />
+          {isFieldTouched('major') && !formData.major && <p className="text-red-500 text-sm">กรุณาระบุสาขาวิชา</p>}
+        </div>
+        <div className="form-input-wrapper w-full md:w-1/2">
           <label 
             htmlFor="skills" 
             className="block text-base font-medium text-gray-700"
@@ -146,6 +179,7 @@ export default function OthersInfoForm({
           />
         </div>
       </div>
+
       <div>
         <div className="form-input-wrapper">
           <label 
@@ -167,7 +201,7 @@ export default function OthersInfoForm({
       <div>
         <FormNavigation
           onPrevious={onPrevious}
-          onNext={onNext}
+          onNext={handleNext}
           isFirstStep={false} // Adjust based on your step logic
           isLastStep={isLastStep}
           isSubmitting={isSubmitting}

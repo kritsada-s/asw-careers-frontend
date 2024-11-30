@@ -487,43 +487,35 @@ export function useFetchBase64PDF(path: string) {
   };
 }
 
-
 export function useSubmitJobApplication(jobID: string, candidateID: string) {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isError, setIsError] = useState<boolean>(false);
   const [response, setResponse] = useState<any>(null);
-  let authToken = '';
-
-  if (typeof window !== 'undefined') {
-    authToken = localStorage.getItem('authToken') || '';
-  }
-
+  
   const submitApplication = async () => {
     setIsSubmitting(true);
     setError(null);
     try {
-      const payload: any = { 
+      const payload = { 
         'jobID': jobID,
         'candidateID': candidateID
       };
       const res = await axios.post(`${prodUrl}/secure/AppliedJob/Create`, payload, {
         headers: {
-          'Authorization': `Bearer ${authToken}`,
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
       });
-      console.log('res', res.data);
       setResponse(res.data);
+      return res.data; // Return the response directly
     } catch (err: any) {
-      console.log('err', err.response.status);
-      if (err.response.status === 400) {
+      if (err.response?.status === 400) {
         setIsError(true);
         setError(err.response.data);
-        setIsSubmitting(false);
       } else {
-        console.error('Error submitting job application:', err);
         setError(err?.message || 'An unknown error occurred');
       }
+      return false;
     } finally {
       setIsSubmitting(false);
     }

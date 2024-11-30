@@ -1,5 +1,5 @@
 "use client";
-import { fetchPosition } from '@/lib/api';
+import { fetchedJobs, fetchPosition } from '@/lib/api';
 import { Position, ApplicationFormData, FormField } from '@/lib/types';
 import { useParams } from 'next/navigation';
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
@@ -18,6 +18,8 @@ import LoaderHorizontal from '@/app/components/ui/loader';
 import { Alert } from 'flowbite-react';
 import { HiInformationCircle } from 'react-icons/hi';
 import { useFetchBase64Image, useUserProfile } from '@/app/hooks/useDataFetching';
+import { Dialog } from '@mui/material';
+import { Button, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 
 const FORM_STEPS = [
   { id: 'basic', title: 'ข้อมูลเบื้องต้น' },
@@ -25,6 +27,18 @@ const FORM_STEPS = [
   { id: 'address', title: 'ที่อยู่' },
   { id: 'others', title: 'ข้อมูลเพิ่มเติม' }
 ] as const;
+
+export async function generateStaticParams() {
+  try {
+    const response = await fetchedJobs();
+    return response.jobs.map((job) => ({
+      id: job.jobID,
+    }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
+}
 
 const ApplyJobPage = () => {
   const params = useParams();
@@ -42,6 +56,7 @@ const ApplyJobPage = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const token = useToken();
   const requiredFields: FormField[] = ['expectedSalary', 'experience', 'firstName', 'lastName', 'nickname', 'phone', 'birthDate', 'addressLine1', 'province', 'district', 'postalCode'];
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   
   const {
     formData,
@@ -166,8 +181,6 @@ const ApplyJobPage = () => {
   }, []);
 
   const handleSubmit = async () => {
-    //console.log(decryptedToken.CandidateID);
-
     try {
       const apiFormData = new FormData();
       apiFormData.append('JobID', jobId);
@@ -190,11 +203,11 @@ const ApplyJobPage = () => {
       apiFormData.append('Candidate.District.DistrictID', String(formData.district ? formData.district : '1001'));
       apiFormData.append('Candidate.Subdistrict.SubdistrictID', String(formData.subdistrict ? formData.subdistrict : '100101'));
       apiFormData.append('Candidate.PostalCode', String(formData.postalCode ? formData.postalCode : '10200'));
-      apiFormData.append('Candidate.SourceInformation.SourceInformationID', '1');
+      apiFormData.append('Candidate.SourceInformation.SourceInformationID', String(formData.refferedBy ? formData.refferedBy : '1'));
       apiFormData.append('Candidate.PDPAAccepted', 'true');
       apiFormData.append('Candidate.PDPAAcceptedDate', new Date().toISOString());
       apiFormData.append('Candidate.CandidateEducations[0].EducationID', String(formData.education ? formData.education : '1'));
-      apiFormData.append('Candidate.CandidateEducations[0].Major', 'computer science');
+      apiFormData.append('Candidate.CandidateEducations[0].Major', formData.major ? formData.major : '');
 
       const config = {
         method: 'POST',
@@ -311,6 +324,22 @@ const ApplyJobPage = () => {
   const CurrentStepComponent = formSteps[currentStep].component;
   const currentStepProps = formSteps[currentStep].props;
 
+  const SuccessMessageModal = () => {
+    return (
+      <Dialog open={true} onClose={() => {}}>
+        <DialogTitle>สมัครงานสำเร็จ</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            คุณได้สมัครงานตำแหน่ง {jobTitle} เรียบร้อยแล้ว กรุณารอการติดต่อจากทางบริษัท
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => window.location.href = '/profile'}>ดูข้อมูลส่วนตัว</Button>
+        </DialogActions>
+      </Dialog>
+    )
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Progress Steps */}
@@ -340,6 +369,7 @@ const ApplyJobPage = () => {
       <div className="bg-[#F2F9FF] rounded-lg shadow p-3 lg:p-6">
         <CurrentStepComponent {...currentStepProps}/>
       </div>
+      {showSuccessMessage && <SuccessMessageModal />}
     </div>
   );
 }
@@ -351,5 +381,4 @@ const App = () => {
     </Suspense>
   )
 }
-
 export default App;

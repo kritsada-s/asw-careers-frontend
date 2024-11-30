@@ -186,19 +186,22 @@ const JobsPage = () => {
   }
 
   const handleProfileSummaryModalConfirm = async () => {
-    await submitApplication();
-    console.log('response', submitApplicationResponse);
-    
-    if (submitApplicationResponse) {
-      setIsSummaryModalOpen(false);
-      setIsModalConfirmOpen(false);
-      alert('สมัครงานสำเร็จ');
-      window.location.href = '/profile';
-    } else {
-      setIsModalConfirmOpen(false);
-      setIsSubmitAppError(true);
+    try {
+      const result = await submitApplication();
+      
+      if (result) {
+        setIsSummaryModalOpen(false);
+        setIsModalConfirmOpen(false);
+        alert('สมัครงานสำเร็จ');
+        window.location.href = '/profile';
+      } else {
+        setIsModalConfirmOpen(false);
+        setIsSubmitAppError(true);
+      }
+    } catch (err) {
+      console.error(err);
     }
-  }
+  };
 
   const handleJobSubmit = () => {
     if (token) {
@@ -210,7 +213,7 @@ const JobsPage = () => {
     } else {
       sessionStorage.setItem('jobId', selectedJob?.jobID || '');
       openModal({
-        type: 'auth',
+        type: 'auth', 
         props: {
           initialStep: 'email'
         }

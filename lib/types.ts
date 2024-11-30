@@ -150,6 +150,7 @@ export interface ApplicationFormData {
 
     // Other Info
     education?: number;
+    major?: string;
     skills?: string[];
     certificates?: File[];
     nationality: string;
