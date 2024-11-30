@@ -20,6 +20,7 @@ import Image from 'next/image';
 import { EducationLevel } from '../components/ui/FormInput';
 import { FacebookShareButton, LineShareButton, TwitterShareButton } from 'react-share';
 import { AuthContext } from '../providers';
+import LoaderHorizontal from '../components/ui/loader';
 
 interface fetchedJobs {
   jobs: Job
@@ -217,7 +218,7 @@ const JobsPage = () => {
     }
   };
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  if (loading) return <div className="flex items-center justify-center min-h-screen"><LoaderHorizontal/></div>;
   if (error) return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <iframe src="https://lottie.host/embed/5af278ce-be06-47cf-9901-95b1e823ba14/ZvF1yAFgYj.json" className='mb-3'></iframe>

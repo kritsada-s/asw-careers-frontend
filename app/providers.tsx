@@ -5,7 +5,7 @@ import { ContextTokenProps } from "@/lib/types";
 export const AuthContext = createContext({} as ContextTokenProps);
 
 export function AuthContextProvider({children}: {children: React.ReactNode}) {
-  const [cuData, setCUData] = useState<ContextTokenProps>(); // CU = Current User
+  const [cuData, setCUData] = useState<ContextTokenProps>(); // CU = Current User  
 
   const checkValidToken = useCallback(async (token: string): Promise<boolean> => {
       try {

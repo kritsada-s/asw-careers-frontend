@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { checkAuth, redirectToHome } from '@/lib/auth';
 import { fetchProfileData, type ProfileData } from '@/lib/api';
 import LoaderHorizontal from '../components/ui/loader';
@@ -15,6 +15,7 @@ import FormSelect from '../components/ui/FormAddress';
 import { DistrictSelector, GenderSelect, MaritalStatusSelector, ProvinceSelector, SubDistrictSelector, TitleSelector } from '../components/ui/FormInput';
 import { TitleName } from '../components/ui/FormInput';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { AuthContext } from '../providers';
 
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState<Candidate | null>(null);
@@ -30,6 +31,7 @@ export default function ProfilePage() {
   const [editableProfileData, setEditableProfileData] = useState<Candidate>(profileData || {} as Candidate);
   const [isEditing, setIsEditing] = useState(false);
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+  const authContext = useContext(AuthContext);
 
   const tableTheme: CustomFlowbiteTheme['table'] = {
     root: {
@@ -126,9 +128,13 @@ export default function ProfilePage() {
     setEditableProfileData(profileData || {} as Candidate);
   }, [profileData]);
 
-  // useEffect(() => {
-  //   console.log('editableProfileData', editableProfileData);
-  // }, [editableProfileData]);
+  useEffect(() => {
+    if (authContext) {
+      console.log('authContext', authContext);
+    } else {
+      console.log('no authContext');
+    }
+  }, []);
 
   const handleOpenCV = () => {
     if (typeof window !== 'undefined') {

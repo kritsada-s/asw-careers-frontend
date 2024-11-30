@@ -46,11 +46,13 @@ const Header = () => {
   }
 
   useEffect(() => {
-    console.log('authContext', authContext);
-    if (authContext?.CandidateID) {
-      console.log('candidateID', authContext.CandidateID);
-    } else {
-      console.log('no candidateID');
+    if (authContext !== undefined) {
+      console.log('authContext', authContext);
+      if (authContext?.CandidateID) {
+        console.log('candidateID', authContext.CandidateID);
+      } else {
+        console.log('no candidateID');
+      }
     }
   }, [authContext]);
 
@@ -67,9 +69,7 @@ const Header = () => {
             <Link href={{ pathname:'/jobs' }} title="">ตำแหน่งงาน</Link>
             <Link href="/#welfareBenefit" title="">สวัสดิการ</Link>
           </nav>
-          {authContext?.CandidateID && (
-            <button onClick={()=>checkLogin()} className="leading-none px-4 py-1 font-semibold text-white bg-leadfrog-green hover:bg-kryptonite-green rounded-full">ตรวจสอบสถานะ</button>
-          )}
+          <button onClick={()=>checkLogin()} className="leading-none px-4 py-1 font-semibold text-white bg-leadfrog-green hover:bg-kryptonite-green rounded-full">ตรวจสอบสถานะ</button>
         </div>
       </div>
       <AuthModal isOpen={isAuthopen} onClose={()=>setIsAuthOpen(false)}/>

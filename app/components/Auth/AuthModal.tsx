@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import EmailStep from './Email';
 import OtpStep from './Otp';
+import { AuthContext } from '@/app/providers';
+import { decrypt } from '@/lib/utils';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -20,6 +22,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, onError }: AuthM
   const [currentStep, setCurrentStep] = useState<AuthStep>('email');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const authContext = useContext(AuthContext);
 
   if (!isOpen) return null;
 
@@ -31,22 +34,44 @@ export default function AuthModal({ isOpen, onClose, onSuccess, onError }: AuthM
 
   // Success handler
   const handleSuccess = (token: string) => {
-    // Store token in session
-    if (typeof window !== 'undefined') {
-      const authToken = window?.localStorage.getItem('authToken');
-      if (authToken) {
-        window?.localStorage.removeItem('authToken');
-        window?.localStorage.setItem('authToken', token);    
-      } else {
-        window?.localStorage.setItem('authToken', token);
-      }
-    }
-    // Show success state briefly before redirecting
     setCurrentStep('success');
-    setTimeout(() => {
-      handleClose();
-      router.push('/profile');
-    }, 3000);
+    // decrypt token
+    const decryptedToken = JSON.parse(decrypt(token));
+
+    if (typeof window !== 'undefined') {
+      if (decryptedToken.CandidateID === '') {
+        console.log('no candidate id in token... redirect to profile create page');
+        const authToken = window?.localStorage.getItem('authToken');
+        if (authToken) {
+          window?.localStorage.removeItem('authToken');
+          window?.localStorage.setItem('authToken', token);    
+        } else {
+          window?.localStorage.setItem('authToken', token);
+        }
+        const path = '/apply-job/'+sessionStorage.getItem('jobId') || '';
+        setTimeout(() => {
+          handleClose();
+          router.push(path);
+        }, 1000);
+      } else {
+        console.log('candidate id in token... redirect to profile page');
+        const authToken = window?.localStorage.getItem('authToken');
+        if (authToken) {
+          window?.localStorage.removeItem('authToken');
+          window?.localStorage.setItem('authToken', token);    
+        } else {
+          window?.localStorage.setItem('authToken', token);
+        }
+        setTimeout(() => {
+          handleClose();
+          router.push('/profile');
+        }, 3000);
+
+      }
+    } else {
+      console.log('Window is undefined');
+      return;
+    }
   };
 
   return (
