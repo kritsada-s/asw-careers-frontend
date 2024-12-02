@@ -249,6 +249,7 @@ export function useUserProfile (email: string) {
         console.error('Error fetching user profile:', error);
         if (error.response.status === 404) {
           localStorage.removeItem('authToken');
+          console.log('remove authToken...');
           return;
         } else {
           setError(error?.message || 'An unknown error occurred');
@@ -365,6 +366,7 @@ export function useFetchBase64Image(path: string) {
     if (path) {
       const cacheKey = `${path}_${authToken}`;
       localStorage.removeItem(`img_${cacheKey}`);
+      console.log('remove img cache...');
       fetchImage();
     }
   }, [path, authToken, fetchImage]);
@@ -475,6 +477,7 @@ export function useFetchBase64PDF(path: string) {
     if (path) {
       const cacheKey = `${path}_${authToken}`;
       localStorage.removeItem(`pdf_${cacheKey}`);
+      console.log('remove pdf cache...');
       fetchPDF();
     }
   }, [path, authToken, fetchPDF]);

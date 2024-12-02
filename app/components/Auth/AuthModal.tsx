@@ -35,38 +35,34 @@ export default function AuthModal({ isOpen, onClose, onSuccess, onError }: AuthM
   // Success handler
   const handleSuccess = (token: string) => {
     setCurrentStep('success');
-    // decrypt token
     const decryptedToken = JSON.parse(decrypt(token));
+    console.log('decryptedToken', decryptedToken);
 
     if (typeof window !== 'undefined') {
+      const authToken = window.localStorage.getItem('authToken');
+      console.log('Existing authToken:', authToken);
+
+      // Set the new authToken
+      window.localStorage.setItem('authToken', token);
+      console.log('New authToken set:', token);
+
       if (decryptedToken.CandidateID === '') {
-        console.log('no candidate id in token... redirect to profile create page');
-        const authToken = window?.localStorage.getItem('authToken');
-        if (authToken) {
-          window?.localStorage.removeItem('authToken');
-          window?.localStorage.setItem('authToken', token);    
-        } else {
-          window?.localStorage.setItem('authToken', token);
+        console.log('No candidate id in token... redirect to profile create page');
+        const jobId = sessionStorage.getItem('jobId');
+        let path = '/apply-job/';
+        if (jobId) {
+          path = '/apply-job/' + jobId;
         }
-        const path = '/apply-job/'+sessionStorage.getItem('jobId') || '';
         setTimeout(() => {
           handleClose();
           router.push(path);
         }, 1000);
       } else {
-        console.log('candidate id in token... redirect to profile page');
-        const authToken = window?.localStorage.getItem('authToken');
-        if (authToken) {
-          window?.localStorage.removeItem('authToken');
-          window?.localStorage.setItem('authToken', token);    
-        } else {
-          window?.localStorage.setItem('authToken', token);
-        }
+        console.log('Candidate id in token... redirect to profile page');
         setTimeout(() => {
           handleClose();
           router.push('/profile');
         }, 3000);
-
       }
     } else {
       console.log('Window is undefined');
