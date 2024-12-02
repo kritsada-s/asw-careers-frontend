@@ -205,7 +205,7 @@ const JobsPage = () => {
 
   const handleJobSubmit = () => {
     if (token) {
-      if (authContext.CandidateID) {
+      if (authContext?.CandidateID) {
         setIsSummaryModalOpen(true);
       } else {
         window.location.href = '/apply-job/'+selectedJob?.jobID;

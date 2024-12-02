@@ -2,10 +2,11 @@
 import { createContext, useCallback, useEffect, useState } from "react";
 import { decrypt, prodUrl } from "@/lib/utils";
 import { ContextTokenProps } from "@/lib/types";
-export const AuthContext = createContext({} as ContextTokenProps);
+export const AuthContext = createContext<ContextTokenProps | null>(null);
 
 export function AuthContextProvider({children}: {children: React.ReactNode}) {
-  const [cuData, setCUData] = useState<ContextTokenProps>(); // CU = Current User  
+  const [cuData, setCUData] = useState<ContextTokenProps | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const checkValidToken = useCallback(async (token: string): Promise<boolean> => {
       try {
@@ -28,6 +29,9 @@ export function AuthContextProvider({children}: {children: React.ReactNode}) {
 
   useEffect(() => {
     const validateToken = async () => {
+      console.log('token', localStorage.getItem('authToken'));
+    
+      setIsLoading(true);
       if (typeof window !== 'undefined') {
         const authToken = localStorage.getItem('authToken');
         if (authToken) {
@@ -38,16 +42,24 @@ export function AuthContextProvider({children}: {children: React.ReactNode}) {
             setCUData(rest as ContextTokenProps);
           } else {
             localStorage.removeItem('authToken');
+            console.log('remove authToken...');
+            
+            setCUData(null);
           }
         }
       }
+      setIsLoading(false);
     };
 
     validateToken();
   }, []);
 
+  if (isLoading) {
+    return null;
+  }
+
   return (
-    <AuthContext.Provider value={cuData as ContextTokenProps}>
+    <AuthContext.Provider value={cuData}>
       {children}
     </AuthContext.Provider>
   )

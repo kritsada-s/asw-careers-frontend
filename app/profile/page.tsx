@@ -83,11 +83,20 @@ export default function ProfilePage() {
   const logOut = () => {
     if (typeof window !== 'undefined') {
       setIsLogoutConfirmOpen(false);
-      window?.localStorage.removeItem('authToken')
-      console.log('logout redirecting...');
-      redirectToHome();
+      
+      // Clear all auth-related storage
+      window.localStorage.clear();
+      console.log('clear local storage...');
+      // or specifically remove: window.localStorage.removeItem('authToken')
+      window.sessionStorage.clear();
+      
+      // Force a small delay to ensure storage is cleared
+      setTimeout(() => {
+        console.log('Storage cleared, redirecting...');
+        window.location.href = '/';
+      }, 100);
     }
-  }
+  };
 
   useEffect(() => {
     async function initializeProfile() {
@@ -108,7 +117,7 @@ export default function ProfilePage() {
         setProfileData(data);
       } catch (err: any) {
         if (err.response.status === 404) {
-          window.location.href = '/apply-job/'+sessionStorage.getItem('jobId');
+          window.location.href = '/apply-job/';
         } else {
           setError('ไม่สามารถโหลดข้อมูลโปรไฟล์ได้');
         }
@@ -458,7 +467,7 @@ export default function ProfilePage() {
         <button className='bg-red-500 hover:bg-red-600 text-white rounded-full px-4 py-1' onClick={handleLogout}>ออกจากระบบ</button>
         {isEditing ? (
           <>
-            <button className='bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-1' onClick={handleSave}>บันทึกการเปลี่ยนแปลง</button>
+            <button className='bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-1' onClick={handleSave}>บันทึกการเปลี่ยนแ��ลง</button>
             <button className="text-gray-600 hover:text-gray-600 rounded-full p-1" onClick={() => setIsEditing(false)}>ยกเลิก</button>
           </>
 

@@ -47,17 +47,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <AuthContextProvider>
-        <MUIProvider>
-          <body className={`${dbFont.variable} font-db`}>
+    <html lang="en" className={dbFont.variable}>
+      <body className="font-db">
+        <AuthContextProvider>
+          <MUIProvider>
             <HolyLoader color="#123F6D"/>
             <Header/>
             {children}
             <Footer/>
-          </body>
-        </MUIProvider>
-      </AuthContextProvider>
+          </MUIProvider>
+        </AuthContextProvider>
+      </body>
     </html>
   );
 }

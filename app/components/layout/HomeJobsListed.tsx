@@ -28,7 +28,7 @@ function HomeJobsListed() {
     const userData = useContext(AuthContext);
 
     const path = "/JobAnnouncement/JobAnnouncementsByPage";
-
+    
     useEffect(() => {
         const dataObj = {
             companyID: "00000000-0000-0000-0000-000000000000",
@@ -81,6 +81,7 @@ function HomeJobsListed() {
             },
             onSuccess: (data) => {
                 // Handle success if needed
+                router.push('/submit-profile');
             },
             onError: (error) => {
                 // Handle error if needed

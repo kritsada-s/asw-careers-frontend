@@ -91,8 +91,6 @@ export default function ApplyJobPage() {
     });
   }, [updateField]);
 
-  const { profile, isLoading: isLoadingProfile, error } = useUserProfile(decryptedToken?.Email);
-
   // const prefillFormWithUserData = useCallback(() => {
   //   //updateField('profileImage', profile?.imageUrl);
   //   updateField('profileImagePath', profile?.imageUrl);
@@ -250,7 +248,7 @@ export default function ApplyJobPage() {
       component: BasicInfoForm,
       props: {
         jobId,
-        jobTitle,
+        jobTitle: jobTitle || '',
         formData,
         updateField,
         markFieldTouched,
@@ -342,10 +340,18 @@ export default function ApplyJobPage() {
 
       {/* Title */}
       <h2 className="text-[30px] lg:text-[40px] text-gray-600 text-center">
-        สมัครงานตำแหน่ง{' '}
-        <strong className='text-primary-700 text-[1.2em] relative underline decoration-1'>
-          {jobTitle}
-        </strong>
+        {jobTitle ? 
+          <>
+            สมัครงานตำแหน่ง{' '}
+            <strong className='text-primary-700 text-[1.2em] relative underline decoration-1'>
+              {jobTitle}
+            </strong>
+          </>
+        : (
+          <>
+            ฝากประวัติ
+          </>
+        )}
       </h2>
 
       {isError && (
