@@ -212,10 +212,10 @@ export default function ApplyJobPage() {
       const response = await axios.request(config);
       
       if (response.status === 200) {
-        //console.log('Job applied successfully', response.data);
-        //console.log('response', response.data);
+        console.log('Job applied successfully', response.data);
+        console.log('response', response.data);
         localStorage.setItem('authToken', response.data);
-        window.location.href = '/profile';
+        setShowSuccessMessage(true);
       } else {
         console.error('API Error Response:', {
           status: response.status,

@@ -102,7 +102,7 @@ export default function ProfilePage() {
     async function initializeProfile() {
       // Check authentication
       const authData = checkAuth();
-      //console.log('authData', authData);
+      console.log('authData', authData);
 
       if (!authData) {
         alert('Please log in to view your profile');
