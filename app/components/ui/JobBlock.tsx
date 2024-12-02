@@ -70,34 +70,34 @@ function JobBlock({className = '', job, status, applyDate}: JobBlockProps) {
     function handleApplyJob() {
         window.location.href = '/jobs/?id='+job.jobID;
         return;
-        if (userData) {
-            // Assuming you have an API endpoint to send the application data
-            fetch('/secure/AppliedJob/Create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    jobID: job.jobID,
-                    candidateID: userData.CandidateID,
-                }),
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Application successful:', data);
-                // Optionally, redirect or show a success message
-            })
-            .catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
-            });
-        } else {
-            window.location.href = '/jobs/?id='+job.jobID;
-        }
+        // if (userData) {
+        //     // Assuming you have an API endpoint to send the application data
+        //     fetch('/secure/AppliedJob/Create', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({
+        //             jobID: job.jobID,
+        //             candidateID: userData.CandidateID,
+        //         }),
+        //     })
+        //     .then(response => {
+        //         if (!response.ok) {
+        //             throw new Error('Network response was not ok');
+        //         }
+        //         return response.json();
+        //     })
+        //     .then(data => {
+        //         console.log('Application successful:', data);
+        //         // Optionally, redirect or show a success message
+        //     })
+        //     .catch(error => {
+        //         console.error('There was a problem with the fetch operation:', error);
+        //     });
+        // } else {
+        //     window.location.href = '/jobs/?id='+job.jobID;
+        // }
     }
 
     const ApplyJobButton = () => {
