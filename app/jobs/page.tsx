@@ -208,6 +208,9 @@ const JobsPage = () => {
       if (authContext?.CandidateID) {
         setIsSummaryModalOpen(true);
       } else {
+        console.log('redirect to apply job...');
+        sessionStorage.setItem('jobId', selectedJob?.jobID || '');
+        authContext?.refreshAuth();
         window.location.href = '/apply-job/'+selectedJob?.jobID;
       }
     } else {
@@ -215,9 +218,12 @@ const JobsPage = () => {
       openModal({
         type: 'auth', 
         props: {
-          initialStep: 'email'
+          initialStep: 'email',
+          onAuthSuccess: () => {
+            authContext?.refreshAuth();
+          }
         }
-      })
+      });
     }
   };
 

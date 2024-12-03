@@ -251,6 +251,7 @@ export interface ContextTokenProps {
     Email: string;
     CreateDate: string;
     ExpiredDate: string;
+    refreshAuth: () => void;
 }
 
 export type ModalType = 'auth' | 'confirm' | 'alert';

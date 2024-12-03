@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useCallback, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useState, useMemo } from "react";
 import { decrypt, prodUrl } from "@/lib/utils";
 import { ContextTokenProps } from "@/lib/types";
 export const AuthContext = createContext<ContextTokenProps | null>(null);
@@ -7,6 +7,11 @@ export const AuthContext = createContext<ContextTokenProps | null>(null);
 export function AuthContextProvider({children}: {children: React.ReactNode}) {
   const [cuData, setCUData] = useState<ContextTokenProps | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const refreshContext = useCallback(() => {
+    setRefreshTrigger(prev => prev + 1);
+  }, []);
 
   const checkValidToken = useCallback(async (token: string): Promise<boolean> => {
       try {
@@ -51,8 +56,7 @@ export function AuthContextProvider({children}: {children: React.ReactNode}) {
 
   useEffect(() => {
     const validateToken = async () => {
-      console.log('token', localStorage.getItem('authToken'));
-    
+      console.log('Validating token...');
       setIsLoading(true);
       if (typeof window !== 'undefined') {
         const authToken = localStorage.getItem('authToken');
@@ -89,14 +93,22 @@ export function AuthContextProvider({children}: {children: React.ReactNode}) {
     };
 
     validateToken();
-  }, []);
+  }, [refreshTrigger, checkValidToken, validateCandidate]);
+
+  const contextValue = useMemo(() => ({
+    CandidateID: cuData?.CandidateID ?? '',
+    Email: cuData?.Email ?? '',
+    CreateDate: cuData?.CreateDate ?? '',
+    ExpiredDate: cuData?.ExpiredDate ?? '',
+    refreshAuth: refreshContext
+  }), [cuData, refreshContext]);
 
   if (isLoading) {
     return null;
   }
 
   return (
-    <AuthContext.Provider value={cuData}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   )
