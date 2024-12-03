@@ -61,14 +61,14 @@ export default function OtpStep({
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">Enter verification code</h2>
+      <h2 className="text-2xl font-bold mb-6">กรุณากรอกรหัสยืนยัน</h2>
       <p className="text-gray-600 mb-6">
-        We have sent a code to {email}
+        OTP ได้ถูกส่งไปยังอีเมล {email}
       </p>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Verification Code
+            รหัสยืนยัน
           </label>
           <input
             type="text"
@@ -87,9 +87,9 @@ export default function OtpStep({
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300"
+            className="w-full bg-primary-700 text-white py-2 px-4 rounded-md hover:bg-primary-800 transition-colors disabled:bg-primary-300"
           >
-            {isLoading ? 'Verifying...' : 'Verify'}
+            {isLoading ? 'กำลังตรวจสอบรหัส...' : 'ตรวจสอบรหัส'}
           </button>
           <button
             type="button"
@@ -97,7 +97,7 @@ export default function OtpStep({
             disabled={isLoading}
             className="w-full text-gray-600 py-2 px-4 rounded-md hover:bg-gray-100 transition-colors"
           >
-            Back
+            กลับ
           </button>
         </div>
       </form>

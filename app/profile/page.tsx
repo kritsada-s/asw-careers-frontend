@@ -467,7 +467,7 @@ export default function ProfilePage() {
         <button className='bg-red-500 hover:bg-red-600 text-white rounded-full px-4 py-1' onClick={handleLogout}>ออกจากระบบ</button>
         {isEditing ? (
           <>
-            <button className='bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-1' onClick={handleSave}>บันทึกการเปลี่ยนแ��ลง</button>
+            <button className='bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-1' onClick={handleSave}>บันทึกการเปลี่ยนแปลง</button>
             <button className="text-gray-600 hover:text-gray-600 rounded-full p-1" onClick={() => setIsEditing(false)}>ยกเลิก</button>
           </>
 
