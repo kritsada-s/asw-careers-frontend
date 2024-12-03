@@ -227,7 +227,7 @@ export default function ProfilePage() {
         <h2 className="text-2xl font-bold leading-none">ข้อมูลผู้สมัคร</h2>
         <small className='text-neutral-500 mb-4'>อัพเดตล่าสุด : {new Date(profileData.updateDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</small>
       </div>
-      <div className="flex flex-col md:flex-row gap-6 mb-7 text-[26px]">
+      <div className="flex flex-col md:flex-row gap-6 text-[26px] justify-between">
         <div className="w-full md:w-2/6">
           {editableProfileData.image ? (
             <div className="flex flex-col items-center">
@@ -289,191 +289,209 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="w-full md:w-4/5 flex flex-col gap-2">
-          <p><span className='font-medium'>รหัสประจำตัวผู้สมัคร :</span> {profileData.candidateID}</p>
+        <div className="w-full md:min-w-[750px] flex flex-col">
+          <h3 className='text-2xl font-medium mb-3'><span className='font-medium'>รหัสประจำตัวผู้สมัคร :</span> {profileData.candidateID}</h3>
           {isEditing ? (
-            <div className='flex gap-2 items-baseline'>
-              <div>
-                <TitleSelector id={editableProfileData.titleID} onTitleChange={(title) => handleEdit('titleID', title ? title.titleID : 1)} />
+            // Edit Form
+            <div className='flex flex-col gap-3 text-[20px]'>
+              <div className='flex flex-col md:flex-row gap-2 md:gap-4 items-baseline justify-between'>
+                <div className='w-full md:w-1/5'>
+                  <p className='text-neutral-900'>คำนำหน้าชื่อ</p>
+                  <TitleSelector id={editableProfileData.titleID} onTitleChange={(title) => handleEdit('titleID', title ? title.titleID : 1)} />
+                </div>
+                <div className='w-full md:w-1/2'>
+                  <p className='text-neutral-900'>ชื่อ</p>
+                  <input
+                    type="text"
+                    value={editableProfileData.firstName}
+                    onChange={(e) => handleEdit('firstName', e.target.value)}
+                    className="border rounded p-1 w-full"
+                  />
+                </div>
+                <div className='w-full md:w-1/2'>
+                  <p className='text-neutral-900'>นามสกุล</p>
+                  <input
+                    type="text"
+                    value={editableProfileData.lastName}
+                    onChange={(e) => handleEdit('lastName', e.target.value)}
+                    className="border rounded p-1 w-full"
+                  />
+                </div>
               </div>
-              <label className="font-medium">ชื่อ :</label>
-              <input
-                type="text"
-                value={editableProfileData.firstName}
-                onChange={(e) => handleEdit('firstName', e.target.value)}
-                className="border rounded p-1"
-              />
-              <label className="font-medium">นามสกุล :</label>
-              <input
-                type="text"
-                value={editableProfileData.lastName}
-                onChange={(e) => handleEdit('lastName', e.target.value)}
-                className="border rounded p-1"
-              />
+              <div className='flex flex-col md:flex-row gap-2 md:gap-4 items-baseline justify-between'>
+                <div className='w-full md:w-1/2'>
+                  <p className='text-neutral-900'>ชื่อเล่น</p>
+                  <input
+                    type="text"
+                    value={editableProfileData.nickName}
+                    onChange={(e) => handleEdit('nickName', e.target.value)}
+                    className="border rounded p-1 w-full"
+                  />
+                </div>
+                <div className='w-full md:w-1/2'>
+                  <p className='text-neutral-900'>อีเมล</p>
+                  <input
+                    type="email"
+                    value={editableProfileData.email}
+                    onChange={(e) => handleEdit('email', e.target.value)}
+                    className="border rounded p-1  min-w-[240px] bg-gray-100 text-gray-500" disabled
+                  />
+                </div>
+                <div className='w-full md:w-1/2'>
+                  <p className='text-neutral-900'>วันเกิด</p>
+                  <input type="date" value={new Date(editableProfileData.dateOfBirth).toISOString().split('T')[0]} onChange={(e) => handleEdit('dateOfBirth', e.target.value)} className="border rounded p-1 w-full" />
+                </div>
+              </div>
+
+              <div className='flex flex-col md:flex-row gap-2 md:gap-4 items-baseline'>
+                <div className='w-full md:w-1/2'>
+                  <p className='text-neutral-900'>เบอร์โทรศัพท์</p>
+                  <input type="tel" value={editableProfileData.tel} onChange={(e) => handleEdit('tel', e.target.value)} className="border rounded p-1 w-full" />
+                </div>
+                <div className='w-full md:w-1/2'>
+                  <p className='text-neutral-900'>เพศ</p>
+                  <GenderSelect id={profileData.gender.genderID} setGender={(gender) => handleEdit('gender', gender ? String(gender.genderID) : '')} />
+                </div>
+                <div className='w-full md:w-1/2'>
+                  <p className='text-neutral-900'>สถานะสมรส</p>
+                  <MaritalStatusSelector id={profileData.maritalStatus.maritalStatusID} />
+                </div>
+              </div>
+
+              <div className='flex flex-col md:flex-row gap-2 md:gap-4 items-baseline'>
+                <div className='w-full md:w-1/2'>
+                  <p className='text-neutral-900'>ที่อยู่</p>
+                  <input type="text" value={editableProfileData.addressDetails} onChange={(e) => handleEdit('addressDetails', e.target.value)} className="border rounded p-1 w-full" />
+                </div>
+              </div>
+              
+              <div className='flex flex-col md:flex-row gap-2 md:gap-4'>
+                <div className=''>
+                  <p className='text-neutral-900'>จังหวัด</p>
+                  <ProvinceSelector id={editableProfileData.province.provinceID} onProvinceChange={handleProvinceChange} />
+                </div>
+                <div className=''>
+                  <p className='text-neutral-900'>อำเภอ</p>
+                  <DistrictSelector id={editableProfileData.district.districtID} provinceID={editableProfileData.province.provinceID} onDistrictChange={(district) => handleEdit('district', district)} />
+                </div>
+                <div className=''>
+                  <p className='text-neutral-900'>ตำบล</p>
+                  <SubDistrictSelector id={editableProfileData.subdistrict.subDistrictID} districtID={editableProfileData.district.districtID} onSubDistrictChange={(subDistrict) => {
+                    handleEdit('subdistrict', subDistrict);
+                    handleEdit('postalCode', String(subDistrict.postCode));
+                  }} />
+                </div>
+                <div className=''>
+                  <p className='text-neutral-900'>รหัสไปรษณีย์</p>
+                  <input type="text" value={editableProfileData.postalCode} onChange={(e) => handleEdit('postalCode', e.target.value)} className="border rounded p-1 bg-gray-100 text-gray-500" disabled />
+                </div>
+              </div>
+
+              <hr className='mt-4 mb-3 border-neutral-300' />
+
+              <div className="flex gap-2 justify-center md:justify-end">
+                <button className='bg-primary-700 hover:bg-primary-600 text-white rounded-full px-4 py-1' onClick={handleSave}>บันทึกการเปลี่ยนแปลง</button>
+                <button className="text-gray-600 hover:text-gray-600 rounded-full p-1" onClick={() => setIsEditing(false)}>ยกเลิก</button>
+              </div>
             </div>
           ) : (
-            <div className='flex gap-2 items-baseline'>
-              <label className="font-medium">ชื่อ-สกุล :</label>
-              <div><TitleName titleID={profileData.titleID} /> {profileData.firstName} {profileData.lastName}</div>
-            </div>
-          )}
-          <div className='flex gap-2'>
-            <label className="font-medium">ชื่อเล่น :</label>
-            {isEditing ? (<input type="text" value={editableProfileData.nickName} onChange={(e) => handleEdit('nickName', e.target.value)} className="border rounded p-1" />) : (<div>{profileData.nickName}</div>)
-            }
-          </div>
-          <div className='flex gap-2 items-baseline'>
-            <label className="font-medium">อีเมล :</label>
-            {isEditing ? (
-              <input
-                type="email"
-                value={editableProfileData.email}
-                onChange={(e) => handleEdit('email', e.target.value)}
-                className="border rounded p-1"
-              />
-            ) : (
-              <div>{profileData.email}</div>
-            )}
-          </div>
-          <div className='flex gap-2 items-baseline'>
-            <label className="font-medium">วันเกิด :</label>
-            {isEditing ? (<input type="date" value={new Date(editableProfileData.dateOfBirth).toISOString().split('T')[0]} onChange={(e) => handleEdit('dateOfBirth', e.target.value)} className="border rounded p-1" />) : (<div>{new Date(profileData.dateOfBirth).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</div>)
-            }
-          </div>
-          <div className='flex gap-2 items-baseline'>
-            <label className="font-medium">เบอร์โทรศัพท์ :</label>
-            {isEditing ? (
-              <input
-                type="tel"
-                value={editableProfileData.tel}
-                onChange={(e) => handleEdit('tel', e.target.value)}
-                className="border rounded p-1"
-              />
-            ) : (
-              <div>{profileData.tel}</div>
-            )}
-          </div>
-          <div className='flex gap-2 items-baseline'>
-            <label className="font-medium">เพศ :</label>
-            {isEditing ? (
-              <GenderSelect id={profileData.gender.genderID} setGender={(gender) => handleEdit('gender', gender ? String(gender.genderID) : '')} />
-            ) : (
-              <div>{profileData.gender.description}</div>
-            )}
-          </div>
-          <div className='flex gap-2 items-baseline'>
-            <label className="font-medium">สถานะสมรส :</label>
-            {isEditing ? (
-              <MaritalStatusSelector id={profileData.maritalStatus.maritalStatusID} />
-            ) : (
-              <div>{profileData.maritalStatus.description}</div>
-            )}
-          </div>
-          <div className='flex flex-col md:flex-row gap-2 items-baseline'>
-            <label className="font-medium flex-none">ที่อยู่ :</label>
-            {isEditing ? (
-              <input
-                type="text"
-                value={editableProfileData.addressDetails}
-                onChange={(e) => handleEdit('addressDetails', e.target.value)}
-                className="border rounded p-1 flex-1"
-              />
-            ) : (
-              <div>{profileData.addressDetails}</div>
-            )}
-          </div>
-          <div className='flex flex-col md:flex-row gap-2 items-baseline flex-wrap'>
-            <div className='flex gap-1 items-baseline'>
-              <label className="font-medium">จังหวัด:</label>
-              {isEditing ? (
-                <ProvinceSelector
-                  id={profileData.province.provinceID}
-                  onProvinceChange={handleProvinceChange}
-                />
-              ) : (
+            // Display Form
+            <div className='flex flex-col gap-3 text-[28px] leading-none'>
+              <div className='flex gap-2 items-baseline'>
+                <label className="font-medium">ชื่อ-สกุล :</label>
+                <div><TitleName titleID={profileData.titleID} /> {profileData.firstName} {profileData.lastName}</div>
+              </div>
+              <div className='flex gap-2'>
+                <label className="font-medium">ชื่อเล่น :</label>
+                <div>{profileData.nickName}</div>
+              </div>
+              <div className='flex gap-2 items-baseline'>
+                <label className="font-medium">อีเมล :</label>
+                <div>{profileData.email}</div>
+              </div>
+              <div className='flex gap-2 items-baseline'>
+                <label className="font-medium">วันเกิด :</label>
+                <div>{new Date(profileData.dateOfBirth).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+              </div>
+              <div className='flex gap-2 items-baseline'>
+                <label className="font-medium">เบอร์โทรศัพท์ :</label>
+                <div>{profileData.tel}</div>
+              </div>
+              <div className='flex gap-2 items-baseline'>
+                <label className="font-medium">เพศ :</label>
+                <div>{profileData.gender.description}</div>
+              </div>
+              <div className='flex gap-2 items-baseline'>
+                <label className="font-medium">สถานะสมรส :</label>
+                <div>{profileData.maritalStatus.description}</div>
+              </div>
+              <div className='flex flex-col md:flex-row gap-2 items-baseline'>
+                <label className="font-medium flex-none">ที่อยู่ :</label>
+                <div>{profileData.addressDetails}</div>
+              </div>
+              <div className='flex flex-col md:flex-row gap-2 items-baseline'>
+                <label className="font-medium flex-none">จังหวัด :</label>
                 <div>{profileData.province.nameTH}</div>
+              </div>
+              <div className='flex flex-col md:flex-row gap-2 items-baseline'>
+                <label className="font-medium flex-none">อำเภอ :</label>
+                <div>{profileData.district.nameTH}</div>
+              </div>
+              <div className='flex flex-col md:flex-row gap-2 items-baseline'>
+                <label className="font-medium flex-none">ตำบล :</label>
+                <div>{profileData.subdistrict.nameTH || '-'}</div>
+              </div>
+              <div className='flex flex-col md:flex-row gap-2 items-baseline'>
+                <label className="font-medium flex-none">รหัสไปรษณีย์ :</label>
+                <div>{profileData.postalCode || '-'}</div>
+              </div>
+              <div className='flex flex-col'>
+                <h3 className='text-md font-medium leading-none mb-3'>ข้อมูลการศึกษา :</h3>
+                <Table theme={tableTheme}>
+                  <Table.Head>
+                    <Table.HeadCell>ระดับการศึกษา</Table.HeadCell>
+                    <Table.HeadCell>สาขาวิชา</Table.HeadCell>
+                  </Table.Head>
+                  <Table.Body>
+                    {profileData.candidateEducations.map((education) => (
+                      <Table.Row key={education.educationID}>
+                        <Table.Cell>{educations.find((e) => e.educationID === education.educationID)?.description || '-'}</Table.Cell>
+                        <Table.Cell>{education.major}</Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table>
+              </div>
+              {profileData.candidateLanguages.length > 0 && (
+                <div className='flex flex-col'>
+                  <h3 className='text-md font-medium leading-none'>ภาษา</h3>
+                  <ul className='list-disc list-inside'>
+                    {profileData.candidateLanguages.map((language) => (
+                      <li key={language.languageID}>{language.languageID || '-'}</li>
+                    ))}
+                  </ul>
+                </div>
               )}
-            </div>
-            <div className='flex gap-1'>
-              <label className="font-medium">อำเภอ:</label>
-              {isEditing ? (<DistrictSelector
-                id={editableProfileData.district.districtID}
-                provinceID={editableProfileData.province.provinceID}
-                onDistrictChange={(district) => handleEdit('district', district)}
-              />) : (<div>{profileData.district.nameTH}</div>)
-              }
-            </div>
-            <div className='flex gap-1'>
-              <label className="font-medium">ตำบล:</label>
-              {isEditing ? (<SubDistrictSelector
-                id={editableProfileData.subdistrict.subDistrictID}
-                districtID={editableProfileData.district.districtID}
-                onSubDistrictChange={(subDistrict) => {
-                  handleEdit('subdistrict', subDistrict);
-                  handleEdit('postalCode', String(subDistrict.postCode));
-                }}
-              />) : (<div>{profileData.subdistrict.nameTH || '-'}</div>)
-              }
-            </div>
-
-            <div className='flex gap-1'>
-              <label className="font-medium">รหัสไปรษณีย์:</label>
-              <div>{profileData.postalCode || '-'}</div>
-            </div>
-          </div>
-          <div className='flex flex-col'>
-            <h3 className='text-md font-medium leading-none mb-3'>ข้อมูลการศึกษา :</h3>
-            <Table theme={tableTheme}>
-              <Table.Head>
-                <Table.HeadCell>ระดับการศึกษา</Table.HeadCell>
-                <Table.HeadCell>สาขาวิชา</Table.HeadCell>
-              </Table.Head>
-              <Table.Body>
-                {profileData.candidateEducations.map((education) => (
-                  <Table.Row key={education.educationID}>
-                    <Table.Cell>{educations.find((e) => e.educationID === education.educationID)?.description || '-'}</Table.Cell>
-                    <Table.Cell>{education.major}</Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-          </div>
-          {profileData.candidateLanguages.length > 0 && (
-            <div className='flex flex-col'>
-              <h3 className='text-md font-medium leading-none'>ภาษา</h3>
-              <ul className='list-disc list-inside'>
-                {profileData.candidateLanguages.map((language) => (
-                  <li key={language.languageID}>{language.languageID || '-'}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {profileData.cvUrl && (
-            <div className='flex gap-2 items-baseline'>
-              <label className="font-medium block">เรซูเม่ : </label>
-              <div>
-                {isEditing ? (
-                  <input type="file" accept=".pdf" onChange={handleUploadCV} className='text-primary-700 underline' />
-                ) : (
-                  <button onClick={() => handleOpenCV()} className='text-primary-700 underline'>ดาวน์โหลดเรซูเม่</button>
-                )}
+              {profileData.cvUrl && (
+                <div className='flex gap-2 items-baseline'>
+                  <label className="font-medium block">เรซูเม่ : </label>
+                  <div>
+                    {isEditing ? (
+                      <input type="file" accept=".pdf" onChange={handleUploadCV} className='text-primary-700 underline' />
+                    ) : (
+                      <button onClick={() => handleOpenCV()} className='text-primary-700 underline'>ดาวน์โหลดเรซูเม่</button>
+                    )}
+                  </div>
+                </div>
+              )}
+              <hr className='mt-4 mb-3 border-neutral-300' />
+              <div className='flex gap-2 mt-3 justify-end'>
+                <button className='bg-red-500 hover:bg-red-600 text-white rounded-full px-4 py-1' onClick={handleLogout}>ออกจากระบบ</button>
+                <button className='bg-green-500 hover:bg-green-600 text-white rounded-full px-4 py-1' onClick={() => setIsEditing(true)}>แก้ไขข้อมูล</button>
               </div>
             </div>
           )}
         </div>
-      </div>
-
-      <div className="flex gap-2 justify-end mb-5">
-        <button className='bg-red-500 hover:bg-red-600 text-white rounded-full px-4 py-1' onClick={handleLogout}>ออกจากระบบ</button>
-        {isEditing ? (
-          <>
-            <button className='bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-1' onClick={handleSave}>บันทึกการเปลี่ยนแปลง</button>
-            <button className="text-gray-600 hover:text-gray-600 rounded-full p-1" onClick={() => setIsEditing(false)}>ยกเลิก</button>
-          </>
-
-        ) : (
-          <button className='bg-green-500 hover:bg-green-600 text-white rounded-full px-4 py-1' onClick={() => setIsEditing(true)}>แก้ไขข้อมูล</button>
-        )}
       </div>
 
       {appliedJobs.length > 0 && (

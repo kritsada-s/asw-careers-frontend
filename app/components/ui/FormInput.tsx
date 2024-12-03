@@ -112,11 +112,11 @@ export const GenderSelect: React.FC<GenderSelectProps> = ({ id, setGender, isFie
   }, []);
 
   return (
-    <div className="relative w-[180px]" ref={genderDropdownRef}>
+    <div className="relative w-full min-w-[180px]" ref={genderDropdownRef}>
       <button
         type="button"
         id="gender"
-        className={`mt-1 block w-full rounded border border-gray-600 bg-white px-2 py-1 text-left text-base shadow-sm focus:border-primary-500 focus:ring-primary-500 ${
+        className={`block w-full rounded border border-gray-600 bg-white px-2 py-1 text-left text-base shadow-sm focus:border-primary-500 focus:ring-primary-500 ${
           isFieldTouched && isFieldTouched('gender') && !id ? 'border-red-500' : ''
         }`}
         onClick={() => setIsGenderDropdownOpen(!isGenderDropdownOpen)}
@@ -196,11 +196,11 @@ export const MaritalStatusSelector: React.FC<MaritalStatusSelectorProps> = ({ id
   }, [id]);
 
   return (
-    <div className="relative w-[180px]" ref={maritalStatusDropdownRef}>
+    <div className="relative w-full min-w-[180px]" ref={maritalStatusDropdownRef}>
       <button
         type="button"
         id="maritalStatus"
-        className={`mt-1 block w-full rounded border border-gray-600 bg-white px-2 py-1 text-left text-base shadow-sm focus:border-primary-500 focus:ring-primary-500 ${
+        className={`block w-full rounded border border-gray-600 bg-white px-2 py-1 text-left text-base shadow-sm focus:border-primary-500 focus:ring-primary-500 ${
           isFieldTouched && isFieldTouched('maritalStatus') && !id ? 'border-red-500' : ''
         }`}
         onClick={() => setIsMaritalStatusDropdownOpen(!isMaritalStatusDropdownOpen)}
