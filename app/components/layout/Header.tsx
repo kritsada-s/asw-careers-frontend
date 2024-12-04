@@ -45,16 +45,16 @@ const Header = () => {
     }
   }
 
-  useEffect(() => {
-    if (authContext !== undefined) {
-      console.log('authContext', authContext);
-      if (authContext?.CandidateID) {
-        console.log('candidateID', authContext.CandidateID);
-      } else {
-        console.log('no candidateID');
-      }
-    }
-  }, [authContext]);
+  // useEffect(() => {
+  //   if (authContext !== undefined) {
+  //     console.log('authContext', authContext);
+  //     if (authContext?.CandidateID) {
+  //       console.log('candidateID', authContext.CandidateID);
+  //     } else {
+  //       console.log('no candidateID');
+  //     }
+  //   }
+  // }, [authContext]);
 
   return (
     <section id="header" className="bg-white py-3 md:py-4 shadow fixed w-full top-0 z-20">
