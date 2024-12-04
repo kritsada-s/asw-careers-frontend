@@ -14,8 +14,14 @@ import { CustomFlowbiteTheme } from 'flowbite-react';
 import FormSelect from '../components/ui/FormAddress';
 import { DistrictSelector, GenderSelect, MaritalStatusSelector, ProvinceSelector, SubDistrictSelector, TitleSelector } from '../components/ui/FormInput';
 import { TitleName } from '../components/ui/FormInput';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Alert, Slide } from '@mui/material';
 import { AuthContext } from '../providers';
+
+interface EducationDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSave: (data: { educationID: number; major: string }) => void;
+}
 
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState<Candidate | null>(null);
@@ -32,7 +38,9 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const authContext = useContext(AuthContext);
-
+  const [isConfirmUpdateOpen, setIsConfirmUpdateOpen] = useState(false);
+  const [confirmUpdate, setConfirmUpdate] = useState(false);
+  const [updateStatusOpen, setUpdateStatusOpen] = useState(false);
   const tableTheme: CustomFlowbiteTheme['table'] = {
     root: {
       base: "w-full text-left text-sm text-gray-500 dark:text-gray-400",
@@ -74,6 +82,72 @@ export default function ProfilePage() {
           </DialogActions>
       </Dialog>
     )
+  }
+
+  const ConfirmUpdateModal = () => {
+    return (
+      <Dialog
+        open={isConfirmUpdateOpen}
+        onClose={() => setIsConfirmUpdateOpen(false)}
+      >
+        <DialogTitle>ยืนยันการบันทึกการเปลี่ยนแปลง</DialogTitle>
+        <DialogContent>
+          <p className='text-neutral-500'>คุณต้องการบันทึกการเปลี่ยนแปลงหรือไม่?</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleSave}>บันทึก</Button>
+          <Button onClick={() => setIsConfirmUpdateOpen(false)}>ยกเลิก</Button>
+        </DialogActions>
+      </Dialog>
+    )
+  }
+
+  const UpdateStatusSnackBar = () => {
+    return (
+      <Snackbar open={updateStatusOpen} 
+        autoHideDuration={4000} 
+        onClose={() => setUpdateStatusOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity="success">บันทึกการเปลี่ยนแปลงสำเร็จ</Alert>
+      </Snackbar>
+    )
+  }
+
+  const EducationDialog = ({ open, onClose, onSave }: EducationDialogProps) => {
+    const [selectedEducation, setSelectedEducation] = useState<number | null>(null);
+    const [major, setMajor] = useState('');
+
+    const handleSave = () => {
+      onSave({ educationID: selectedEducation || 0, major });
+      onClose();
+    };
+
+    return (
+      <Dialog open={open} onClose={onClose}>
+        <DialogTitle>เพิ่มการศึกษา</DialogTitle>
+        <DialogContent>
+          <div className='flex flex-col gap-4'>
+            <div>
+              <p className='text-neutral-900'>ระดับการศึกษา</p>
+            </div>
+            <div>
+              <p className='text-neutral-900'>สาขาวิชา</p>
+              <input
+                type="text"
+                value={major}
+                onChange={(e) => setMajor(e.target.value)}
+                className="border rounded p-1 w-full"
+              />
+            </div>
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>ยกเลิก</Button>
+          <Button onClick={handleSave}>บันทึก</Button>
+        </DialogActions>
+      </Dialog>
+  );
   }
 
   const handleLogout = () => {
@@ -138,12 +212,28 @@ export default function ProfilePage() {
   }, [profileData]);
 
   useEffect(() => {
-    if (authContext) {
-      console.log('authContext', authContext);
-    } else {
-      console.log('no authContext');
-    }
-  }, []);
+    console.log('editableProfileData', editableProfileData);
+  }, [editableProfileData]);
+
+  useEffect(() => {
+    const updateProfileData = async () => {
+      if (confirmUpdate) {
+        try {
+          await updateProfile(editableProfileData);
+          setConfirmUpdate(false);
+          setProfileData(editableProfileData);
+          setIsEditing(false);
+          setIsConfirmUpdateOpen(false);
+          setUpdateStatusOpen(true);
+        } catch (error) {
+          console.error('Error updating profile:', error);
+          setIsConfirmUpdateOpen(false);
+        }
+      }
+    };
+
+    updateProfileData();
+  }, [confirmUpdate]);
 
   const handleOpenCV = () => {
     if (typeof window !== 'undefined') {
@@ -162,6 +252,27 @@ export default function ProfilePage() {
   const handleUploadCV = () => {
     console.log('uploading CV');
   }
+
+  const handleEdit = (field: keyof Candidate, value: string | number) => {
+    //console.log('field', field, 'value', value);
+    setEditableProfileData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handlePromptSave = () => {
+    setIsConfirmUpdateOpen(true);
+  }
+
+  const handleSave = async () => {
+    setConfirmUpdate(true);
+  };
+
+  const handleProvinceChange = (province: any) => {
+    handleEdit('province', province);
+  };
+
+  const handleDistrictChange = (district: any) => {
+    handleEdit('district', district);
+  };
 
   if (loading) {
     return (
@@ -193,34 +304,6 @@ export default function ProfilePage() {
     );
   }
 
-  const handleEdit = (field: keyof Candidate, value: string | number) => {
-    //console.log('field', field, 'value', value);
-    setEditableProfileData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSave = async () => {
-    const confirmUpdate = window.confirm("คุณต้องการบันทึกการเปลี่ยนแปลงหรือไม่?");
-    if (confirmUpdate) {
-      try {
-        // Call your API to update the profile data
-        console.log('editableProfileData', editableProfileData);
-        await updateProfile(editableProfileData);
-        setProfileData(editableProfileData);
-        setIsEditing(false);
-      } catch (error) {
-        console.error('Error updating profile:', error);
-      }
-    }
-  };
-
-  const handleProvinceChange = (province: any) => {
-    handleEdit('province', province);
-  };
-
-  const handleDistrictChange = (district: any) => {
-    handleEdit('district', district);
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="profile-header flex gap-2 items-baseline">
@@ -240,7 +323,7 @@ export default function ProfilePage() {
               />
             </div>
           ) : imageData ? (
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center xx">
               <Image
                 src={imageData}
                 alt="Profile Image"
@@ -387,11 +470,24 @@ export default function ProfilePage() {
                 </div>
               </div>
 
+              {/* <div className="flex flex-col md:flex-row gap-2 md:gap-4">
+                <div className='w-full md:w-1/2'>
+                  <p className='text-neutral-900'>ประวัติการศึกษา</p>
+                  { editableProfileData.candidateEducations.map((education) => (
+                    <div className='flex gap-2'>
+                      <div key={education.educationID}>ระดับ {educations.find((e) => e.educationID === education.educationID)?.description || '-'}</div>
+                      <div key={education.educationID}>สาขาวิชา {education.major}</div>
+                      <button className='text-primary-700 underline' onClick={() => {}}>แก้ไข</button>
+                    </div>
+                  )) }
+                </div>
+              </div> */}
+
               <hr className='mt-4 mb-3 border-neutral-300' />
 
               <div className="flex gap-2 justify-center md:justify-end">
-                <button className='bg-primary-700 hover:bg-primary-600 text-white rounded-full px-4 py-1' onClick={handleSave}>บันทึกการเปลี่ยนแปลง</button>
-                <button className="text-gray-600 hover:text-gray-600 rounded-full p-1" onClick={() => setIsEditing(false)}>ยกเลิก</button>
+                <button className='bg-primary-700 hover:bg-primary-600 text-white rounded-full px-4 py-1 text-[24px] transition-all' onClick={handlePromptSave}>บันทึกการเปลี่ยนแปลง</button>
+                <button className="text-gray-600 hover:text-gray-600 rounded-full px-4 py-1 text-[24px] transition-all" onClick={() => setIsEditing(false)}>ยกเลิก</button>
               </div>
             </div>
           ) : (
@@ -485,9 +581,9 @@ export default function ProfilePage() {
                 </div>
               )}
               <hr className='mt-4 mb-3 border-neutral-300' />
-              <div className='flex gap-2 mt-3 justify-end'>
-                <button className='bg-red-500 hover:bg-red-600 text-white rounded-full px-4 py-1' onClick={handleLogout}>ออกจากระบบ</button>
-                <button className='bg-green-500 hover:bg-green-600 text-white rounded-full px-4 py-1' onClick={() => setIsEditing(true)}>แก้ไขข้อมูล</button>
+              <div className='flex gap-2 mt-3 justify-end leading-[36px]'>
+                <button className='bg-red-500 hover:bg-red-600 text-white rounded-full px-4 py-1 text-[24px] transition-all' onClick={handleLogout}>ออกจากระบบ</button>
+                <button className='bg-green-500 hover:bg-green-600 text-white rounded-full px-4 py-1 text-[24px] transition-all' onClick={() => setIsEditing(true)}>แก้ไขข้อมูล</button>
               </div>
             </div>
           )}
@@ -503,6 +599,12 @@ export default function ProfilePage() {
             ))}
           </div>
         </div>
+      )}
+
+      <UpdateStatusSnackBar />
+
+      {isConfirmUpdateOpen && (
+        <ConfirmUpdateModal />
       )}
 
       {isLogoutConfirmOpen && (

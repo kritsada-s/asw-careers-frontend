@@ -53,6 +53,7 @@ export interface Candidate {
   };
   image: File;
   imageUrl: string;
+  cv: File;
   cvUrl: string;
   addressDetails: string;
   province: {

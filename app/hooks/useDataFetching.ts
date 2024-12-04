@@ -575,14 +575,17 @@ export function useProfileUpdate() {
     setError(null);
     let authToken = '';
 
-    if (profileData.image && typeof profileData.image.name === 'string') {
-      const isUpperCase = profileData.image.name === profileData.image.name.toUpperCase();
-      if (isUpperCase) {
-        const lowerCaseImageName = profileData.image.name.toLowerCase();
-        Object.defineProperty(profileData.image, 'name', {
-          value: lowerCaseImageName,
-          writable: true,
-        });
+    if (profileData) {
+
+      if (profileData.image) {
+        const isUpperCase = profileData.image.name === profileData.image.name.toUpperCase();
+        if (isUpperCase) {
+          const lowerCaseImageName = profileData.image.name.toLowerCase();
+          Object.defineProperty(profileData.image, 'name', {
+            value: lowerCaseImageName,
+            writable: true,
+          });
+        }
       }
 
       // Update the profile data with the new image name
@@ -591,8 +594,7 @@ export function useProfileUpdate() {
       }
   
       try {        
-        console.log('image', profileData.image);
-        
+        //console.log('image', profileData.image);
         const formData = new FormData();
         formData.append('Candidate.CandidateID', profileData.candidateID);
         formData.append('Candidate.Revision', profileData.revision ? Number(profileData.revision) : 1);
@@ -606,7 +608,7 @@ export function useProfileUpdate() {
         formData.append('Candidate.Gender.GenderID', 1);
         formData.append('Candidate.MaritalStatus.MaritalStatusID', 1);
         formData.append('Candidate.Image', profileData.image);
-        formData.append('Candidate.CV', profileData.cvUrl);
+        formData.append('Candidate.CV', profileData.cv);
         formData.append('Candidate.AddressDetails', profileData.addressDetails);
         formData.append('Candidate.Province.ProvinceID', profileData.province ? profileData.province.provinceID : 1);
         formData.append('Candidate.District.DistrictID', profileData.district ? profileData.district.districtID : 1001);
@@ -619,9 +621,9 @@ export function useProfileUpdate() {
         formData.append('Candidate.CandidateEducations[0].Major', profileData.candidateEducations[0].major);
         formData.append("Content-Type", "multipart/form-data");
   
-        for (const [key, value] of (formData as any).entries()) {
-          console.log(`${key}:`, value);
-        }
+        // for (const [key, value] of (formData as any).entries()) {
+        //   console.log(`${key}:`, value);
+        // }
   
         const res = await axios.post(`${prodUrl}/secure/Candidate/Update`, formData, {
           headers: {
@@ -636,6 +638,8 @@ export function useProfileUpdate() {
       } finally {
         setIsSubmitting(false);
       }
+    } else {
+      console.log('no profile data');
     }
   };
 
