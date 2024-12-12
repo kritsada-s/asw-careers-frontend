@@ -218,8 +218,8 @@ export default function ProfilePage() {
   useEffect(() => {
     const updateProfileData = async () => {
       if (confirmUpdate) {
-        console.log(editableProfileData);
-        return;
+        //console.log(editableProfileData);
+        //return;
         try {
           await updateProfile(editableProfileData);
           setConfirmUpdate(false);
