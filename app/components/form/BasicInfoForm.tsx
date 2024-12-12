@@ -171,7 +171,7 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
                 <input
                   type="file"
                   id="profileImage"
-                  accept="image/*"
+                  accept=".jpg,.jpeg,.png"
                   className="hidden"
                   onChange={(e) => handleFileChange(e, 'profileImage')}
                   disabled={isSubmitting}
