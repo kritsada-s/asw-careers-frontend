@@ -218,6 +218,8 @@ export default function ProfilePage() {
   useEffect(() => {
     const updateProfileData = async () => {
       if (confirmUpdate) {
+        console.log(editableProfileData);
+        return;
         try {
           await updateProfile(editableProfileData);
           setConfirmUpdate(false);
@@ -437,7 +439,10 @@ export default function ProfilePage() {
                 </div>
                 <div className='w-full md:w-1/2'>
                   <p className='text-neutral-900'>สถานะสมรส</p>
-                  <MaritalStatusSelector id={profileData.maritalStatus.maritalStatusID} />
+                  <MaritalStatusSelector 
+                    id={profileData.maritalStatus.maritalStatusID} 
+                    onMaritalStatusChange={(maritalStatus) => handleEdit('maritalStatus', maritalStatus ? String(maritalStatus.maritalStatusID) : '')} 
+                  />
                 </div>
               </div>
 
@@ -591,7 +596,7 @@ export default function ProfilePage() {
       </div>
 
       {appliedJobs.length > 0 && (
-        <div className="flex flex-col border-t border-gray-200 pt-4">
+        <div className="flex flex-col pt-4">
           <h3 className="text-2xl font-bold mb-4">ประวัติการสมัครงาน</h3>
           <div className="grid lg:grid-cols-3 gap-4 mb-7">
             {appliedJobs.map((job) => (

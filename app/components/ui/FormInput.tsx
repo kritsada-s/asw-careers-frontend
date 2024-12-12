@@ -156,9 +156,10 @@ interface MaritalStatusOption {
 interface MaritalStatusSelectorProps {
   id?: number;
   isFieldTouched?: (field: string) => boolean;
+  onMaritalStatusChange: (maritalStatus: MaritalStatusOption | null) => void;
 }
 
-export const MaritalStatusSelector: React.FC<MaritalStatusSelectorProps> = ({ id, isFieldTouched }) => {
+export const MaritalStatusSelector: React.FC<MaritalStatusSelectorProps> = ({ id, isFieldTouched, onMaritalStatusChange }) => {
   const [isMaritalStatusDropdownOpen, setIsMaritalStatusDropdownOpen] = useState(false);
   const [maritalStatus, setMaritalStatus] = useState<MaritalStatusOption | null>(null);
   const [currentMaritalStatus, setCurrentMaritalStatus] = useState(id || 1);
@@ -171,11 +172,12 @@ export const MaritalStatusSelector: React.FC<MaritalStatusSelectorProps> = ({ id
     { maritalStatusID: 4, description: 'หม้าย' }
   ];
 
-  const onMaritalStatusChange = (status: MaritalStatusOption | null) => {
-    //console.log('maritalStatus', status);
+  const handleMaritalStatusChange = (status: MaritalStatusOption | null) => {
+    console.log('maritalStatus', status?.maritalStatusID);
     setMaritalStatus(status);
     setCurrentMaritalStatus(status?.maritalStatusID || 1);
     setIsMaritalStatusDropdownOpen(false);
+    onMaritalStatusChange(status);
   }
 
   useEffect(() => {
@@ -192,8 +194,9 @@ export const MaritalStatusSelector: React.FC<MaritalStatusSelectorProps> = ({ id
   }, []);
 
   useEffect(() => {
-    setCurrentMaritalStatus(id || 1);
-  }, [id]);
+    console.log('currentMaritalStatus', currentMaritalStatus);
+    
+  }, [currentMaritalStatus]);
 
   return (
     <div className="relative w-full min-w-[180px]" ref={maritalStatusDropdownRef}>
@@ -219,7 +222,7 @@ export const MaritalStatusSelector: React.FC<MaritalStatusSelectorProps> = ({ id
               key={option.maritalStatusID}
               className={`cursor-pointer px-4 py-2 hover:bg-gray-100 ${id === option.maritalStatusID ? 'bg-primary-50 text-primary-600' : ''}`}
               onClick={() => {
-                onMaritalStatusChange(option);
+                handleMaritalStatusChange(option);
                 setIsMaritalStatusDropdownOpen(false);
               }}
             >
