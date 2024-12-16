@@ -4,10 +4,16 @@ const theme = createTheme({
   palette: {
     primary: {
       main: '#123F6D',
-      light: '#2A527C',
-      dark: '#0e355e',
+      light: '#123F6D',
+      dark: '#123F6D',
       contrastText: '#ffffff',
-    }
+    },
+    secondary: {
+      main: '#F1683B',
+      light: '#F1683B',
+      dark: '#F1683B',
+      contrastText: '#ffffff',
+    },
   },
   typography: {
     fontFamily: 'DB Heavent, sans-serif',

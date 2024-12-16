@@ -1,6 +1,7 @@
 import Client from "./client";
 import { Metadata } from "next";
 
+
 export const metadata: Metadata = {
   title: "สร้างโปรไฟล์",
   description: "สร้างโปรไฟล์",
@@ -8,9 +9,7 @@ export const metadata: Metadata = {
 
 function page() {
   return (
-    <div>
-      <Client />
-    </div>
+    <Client />
   );
 }
 
