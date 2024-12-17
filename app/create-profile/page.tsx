@@ -9,7 +9,9 @@ export const metadata: Metadata = {
 
 function page() {
   return (
-    <Client />
+    <div id="createProfile">
+      <Client />
+    </div>
   );
 }
 
