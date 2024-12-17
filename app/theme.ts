@@ -1,9 +1,5 @@
 import { createTheme } from '@mui/material/styles';
 
-const typography = {
-  fontFamily: ['DB Heavent', 'sans-serif'].join(','),
-}
-
 const theme = createTheme({
   palette: {
     primary: {
@@ -19,7 +15,9 @@ const theme = createTheme({
       contrastText: '#ffffff',
     },
   },
-  typography,
+  typography: {
+    fontFamily: ['DB Heavent', 'sans-serif'].join(','),
+  },
   components: {
     MuiOutlinedInput: {
       styleOverrides: {
