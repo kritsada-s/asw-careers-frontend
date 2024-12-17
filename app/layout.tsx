@@ -17,9 +17,9 @@ const dbFont = localFont({
     // { path: '../public/fonts/DBHeavent322/DBHeaventLiv322.woff', weight: '300', style: 'normal' },
     { path: '../public/fonts/DBHeavent322/DBHeaventLiv322.woff2', weight: '300', style: 'normal' },
 
-    { path: '../public/fonts/DBHeavent322/DBHeaventv322.ttf', weight: '400', style: 'normal' },
-    // { path: '../public/fonts/DBHeavent322/DBHeaventv322.woff', weight: '400', style: 'normal' },
-    { path: '../public/fonts/DBHeavent322/DBHeaventv322.woff2', weight: '400', style: 'normal' },
+    // { path: '../public/fonts/DBHeavent322/DBHeaventv322.ttf', weight: '400', style: 'normal' },
+    { path: '../public/fonts/DBHeavent322/DBHeavent.woff', style: 'normal' },
+    { path: '../public/fonts/DBHeavent322/DBHeavent.woff2', style: 'normal' },
 
     { path: '../public/fonts/DBHeavent322/DBHeaventMedv322.ttf', weight: '500', style: 'normal' },
     // { path: '../public/fonts/DBHeavent322/DBHeaventMedv322.woff', weight: '500', style: 'normal' },
