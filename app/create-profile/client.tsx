@@ -8,6 +8,8 @@ import { useEffect, useRef, useState } from 'react';
 import { ProgressSteps } from '../components/layout/FormProgress';
 import FileUploadButton from '../components/ui/FileUploadButton';
 import { DistrictSelector, ProvinceSelector, SubDistrictSelector } from '../components/ui/FormInput';
+import Select from 'react-select';
+import { districts, provinces, subDistricts } from '@/lib/data';
 
 gsap.registerPlugin(useGSAP);
 
@@ -17,10 +19,10 @@ interface Step {
   ref: React.RefObject<HTMLElement>;
 }
 
-const styles = {
-  section: {
-    backgroundColor: '#F2F9FF',
-}
+interface Option {
+  value: number;
+  label: string;
+  postCode?: string;
 }
 
 function Client() {
@@ -29,6 +31,9 @@ function Client() {
   const personalInfoRef = useRef<HTMLElement>(null);
   const addressInfoRef = useRef<HTMLElement>(null);
   const otherInfoRef = useRef<HTMLElement>(null);
+  const provinceSelect = useRef<any>(null);
+  const districtSelect = useRef<any>(null);
+  const subDistrictSelect = useRef<any>(null);
 
   const [isLastStep, setIsLastStep] = useState(false);
   const steps: Step[] = [
@@ -121,16 +126,18 @@ function Client() {
   };
 
   const handleProvinceChange = (province: any) => {
-    setProvince(province.provinceID);
+    setProvince(province.value);
+    setDistrict(0);
+    setSubDistrict(0);
     setPostcode('');
   };
 
   const handleDistrictChange = (district: any) => {
-    setDistrict(district.districtID);
+    setDistrict(district.value);
   };
 
   const handleSubDistrictChange = (subDistrict: any) => {
-    setSubDistrict(subDistrict.subDistrictID);
+    setSubDistrict(subDistrict.value);
     setPostcode(subDistrict.postCode);
   };
 
@@ -154,13 +161,6 @@ function Client() {
   };
 
   useEffect(() => {
-    console.log(province);
-    console.log(district);
-    console.log(subDistrict);
-    console.log(postcode);
-  }, [province, district, subDistrict, postcode]);
-
-  useEffect(() => {
     if (currentStep) {
       const currentStepRef = currentStep.ref.current;
       const fields = currentStepRef?.querySelectorAll('input, select');
@@ -180,7 +180,7 @@ function Client() {
         <form className="space-y-1">
           <div className="form-wrapper min-h-[500px]">
             {/* Basic Information Section */}
-            <section ref={basicInfoRef} className={`bg-white px-6 py-10 rounded-lg shadow relative`} style={styles.section}>
+            <section ref={basicInfoRef} className={`bg-white px-6 py-10 rounded-lg shadow relative`}>
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="w-1/4">
                   <div className="flex flex-col items-center">
@@ -249,7 +249,7 @@ function Client() {
             </section>
 
             {/* Personal Information Section */}
-            <section ref={personalInfoRef} className={`bg-white p-6 rounded-lg shadow relative`} style={styles.section}>
+            <section ref={personalInfoRef} className={`bg-white p-6 rounded-lg shadow relative`}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xl">
                 <div>
                   <label className="block mb-1">ชื่อ <span className="text-red-500">*</span></label>
@@ -280,24 +280,63 @@ function Client() {
             </section>
 
             {/* Address Information Section */}
-            <section ref={addressInfoRef} className={`bg-white p-6 rounded-lg shadow relative`} style={styles.section}>
+            <section ref={addressInfoRef} className={`bg-white p-6 rounded-lg shadow relative`} >
               <div className="space-y-4">
                 <div>
                   <label className="block mb-1">ที่อยู่</label>
-                  <input type="text" name="address" className="w-full h-[50px] border rounded px-2 py-1 text-xl" />
+                  <input type="text" name="address" className="w-full h-[50px] border border-gray-300 rounded px-2 py-1 text-xl" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
                     <label className="block mb-1">จังหวัด</label>
-                    <ProvinceSelector onProvinceChange={handleProvinceChange} />
+                    <Select<Option> 
+                      options={provinces.map(province => ({ 
+                        value: province.ProvinceID, 
+                        label: province.NameTH 
+                      }))} 
+                      onChange={(selectedOption) => {
+                        handleProvinceChange(selectedOption as Option);
+                      }}
+                      placeholder="เลือกจังหวัด"
+                    />
                   </div>
                   <div>
                     <label className="block mb-1">อำเภอ</label>
-                    <DistrictSelector id={district} provinceID={province} onDistrictChange={handleDistrictChange} />
+                    <Select<Option>
+                      ref={districtSelect}
+                      options={districts
+                        .filter((district) => district.ProvinceID === province)
+                        .map((district) => ({
+                          value: district.DistrictID,
+                          label: district.NameTH
+                        }))}
+                      value={district ? { 
+                        value: district, 
+                        label: districts.find(d => d.DistrictID === district)?.NameTH || ''
+                      } as Option : null}
+                      onChange={(selectedOption) => handleDistrictChange(selectedOption as Option)}
+                      placeholder="เลือกอำเภอ"
+                    />
                   </div>
                   <div>
                     <label className="block mb-1">ตำบล</label>
-                    <SubDistrictSelector id={subDistrict} districtID={district} onSubDistrictChange={handleSubDistrictChange} />
+                    <Select<Option>
+                      ref={subDistrictSelect}
+                      options={subDistricts
+                        .filter((subDistrict) => subDistrict.DistrictID === district)
+                        .map((subDistrict) => ({
+                          value: subDistrict.SubDistrictID,
+                          label: subDistrict.NameTH,
+                          postCode: subDistrict.PostCode.toString()
+                        }))}
+                      value={subDistrict ? {
+                        value: subDistrict,
+                        label: subDistricts.find(s => s.SubDistrictID === subDistrict)?.NameTH || '',
+                        postCode: subDistricts.find(s => s.SubDistrictID === subDistrict)?.PostCode || ''
+                      } as Option : null}
+                      onChange={(selectedOption) => handleSubDistrictChange(selectedOption as Option)}
+                      placeholder="เลือกตำบล"
+                    />
                   </div>
                   <div>
                     <label className="block mb-1">รหัสไปรษณีย์</label>
@@ -308,7 +347,7 @@ function Client() {
             </section>
 
             {/* Other Information Section */}
-            <section ref={otherInfoRef} className={`bg-white p-6 rounded-lg shadow relative`} style={styles.section}>
+            <section ref={otherInfoRef} className={`bg-white p-6 rounded-lg shadow relative`}>
               <div className="space-y-6">
                 <div>
                   <h3 className="font-medium mb-2">ประวัติการศึกษา</h3>
