@@ -10,6 +10,7 @@ import FileUploadButton from '../components/ui/FileUploadButton';
 import { DistrictSelector, ProvinceSelector, SubDistrictSelector } from '../components/ui/FormInput';
 import Select from 'react-select';
 import { districts, provinces, subDistricts } from '@/lib/data';
+import BuddhistDatePicker from '../components/ui/DatePicker';
 
 gsap.registerPlugin(useGSAP);
 
@@ -174,7 +175,7 @@ function Client() {
   }, [currentStep]);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}> 
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="th"> 
       <div className="max-w-4xl mx-auto p-6">
         <ProgressSteps currentStep={currentStepIndex} steps={steps} />
         <form className="space-y-1">
@@ -253,27 +254,27 @@ function Client() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xl">
                 <div>
                   <label className="block mb-1">ชื่อ <span className="text-red-500">*</span></label>
-                  <input type="text" name="firstname" className="w-full border rounded p-2" />
+                  <input type="text" name="firstname" className="w-full border rounded p-2 border-gray-300" />
                 </div>
                 <div>
                   <label className="block mb-1">นามสกุล <span className="text-red-500">*</span></label>
-                  <input type="text" name="lastname" className="w-full border rounded p-2" />
+                  <input type="text" name="lastname" className="w-full border rounded p-2 border-gray-300" />
                 </div>
                 <div>
                   <label className="block mb-1">ชื่อเล่น <span className="text-red-500">*</span></label>
-                  <input type="text" name="nickname" className="w-full border rounded p-2" />
+                  <input type="text" name="nickname" className="w-full border rounded p-2 border-gray-300" />
                 </div>
                 <div>
                   <label className="block mb-1">วันเกิด <span className="text-red-500">*</span></label>
-                  <DatePicker name="birthday" />
+                  <BuddhistDatePicker />
                 </div>
                 <div>
                   <label className="block mb-1">เบอร์โทรศัพท์ <span className="text-red-500">*</span></label>
-                  <input type="tel" name="phone" className="w-full border rounded p-2" />
+                  <input type="tel" name="phone" className="w-full border rounded p-2 border-gray-300" />
                 </div>
                 <div>
                   <label className="block mb-1">อีเมล</label>
-                  <input type="email" name="email" className="w-full border rounded p-2" disabled />
+                  <input type="email" name="email" className="w-full border rounded p-2 border-gray-300" disabled />
                   <span className="text-gray-500 text-sm">อีเมลไม่สามารถแก้ไขได้</span>
                 </div>
               </div>

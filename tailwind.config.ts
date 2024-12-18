@@ -89,7 +89,7 @@ const config: Config = {
 				},
 			},
 			fontFamily: {
-				db: ['var(--font-db)'],
+				db: ["DB Heavent", "sans-serif"],
 			},
 		}
 	},
