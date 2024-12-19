@@ -86,7 +86,6 @@ const CustomHeader = ({
   prevMonthButtonDisabled,
   nextMonthButtonDisabled,
 }: ReactDatePickerCustomHeaderProps): JSX.Element => {
-  const [isMonthOpen, setIsMonthOpen] = useState<boolean>(false);
   const years = generateYearRange(date);
   const currentBuddhistYear = toBuddhistYear(date);
   
@@ -105,30 +104,15 @@ const CustomHeader = ({
 
         {/* Month Selector */}
         <div className="relative">
-          <button
-            type="button"
-            onClick={() => setIsMonthOpen(!isMonthOpen)}
-            className="px-2 py-1 border rounded outline-none cursor-pointer hover:bg-gray-50 flex items-center justify-between min-w-[120px]"
+          <select
+            value={date.getMonth()}
+            onChange={(e) => changeMonth(Number(e.target.value))}
+            className="px-2 py-1 border rounded outline-none cursor-pointer hover:bg-gray-50"
           >
-            {thaiMonths[date.getMonth()]}
-            <span className="ml-2">▼</span>
-          </button>
-          {isMonthOpen && (
-            <div className="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-48 overflow-y-auto">
-              {thaiMonths.map((month, index) => (
-                <button
-                  key={month}
-                  onClick={() => {
-                    changeMonth(index);
-                    setIsMonthOpen(false);
-                  }}
-                  className="w-full px-2 py-1 text-left hover:bg-gray-100"
-                >
-                  {month}
-                </button>
-              ))}
-            </div>
-          )}
+            {thaiMonths.map((month, index) => (
+              <option key={index} value={index}>{month}</option>
+            ))}
+          </select>
         </div>
 
         {/* Year Selector */}
