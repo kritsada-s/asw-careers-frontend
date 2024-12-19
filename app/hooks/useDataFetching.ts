@@ -701,3 +701,30 @@ export function useSourceInformations() {
 
   return { sourceInformations, isLoading, error };
 }
+
+export function useBenefits(companyID: string) {
+  const [benefits, setBenefits] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchBenefits() {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(`${prodUrl}/Benefit/Benefits/${companyID}`);
+        setBenefits(response.data);
+      } catch (err: any) {
+        console.error('Error fetching benefits:', err);
+        setError(err?.message || 'An unknown error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (companyID) {
+      fetchBenefits();
+    }
+  }, [companyID]);
+
+  return { benefits, isLoading, error };
+}
