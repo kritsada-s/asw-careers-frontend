@@ -57,6 +57,13 @@ function HomeJobsListed() {
         };
 
         axios.request(config).then((response:any) => {
+            // Sort jobs to put urgent ones first
+            const sortedJobs = [...response.data.jobs].sort((a, b) => {
+                if (a.urgently && !b.urgently) return -1;
+                if (!a.urgently && b.urgently) return 1;
+                return 0;
+            });
+            response.data.jobs = sortedJobs;
             setJobs(response.data.jobs)
             setLoading(false)
         }).catch((error:any) => {

@@ -11,7 +11,7 @@ import { useToken, useDecryptedToken } from '@/app/hooks/useToken';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Button, CustomFlowbiteTheme, Modal } from 'flowbite-react';
-import { useFetchBase64Image, useFetchBase64PDF, useSubmitJobApplication, useUserProfile } from '../hooks/useDataFetching';
+import { useBenefits, useFetchBase64Image, useFetchBase64PDF, useSubmitJobApplication, useUserProfile } from '../hooks/useDataFetching';
 import Link from 'next/link';
 import { HiExternalLink, HiOutlineCheckCircle, HiOutlineExclamationCircle, HiX } from 'react-icons/hi';
 import { FaFacebook, FaLine, FaXTwitter } from "react-icons/fa6";
@@ -21,6 +21,7 @@ import { EducationLevel } from '../components/ui/FormInput';
 import { FacebookShareButton, LineShareButton, TwitterShareButton } from 'react-share';
 import { AuthContext } from '../providers';
 import LoaderHorizontal from '../components/ui/loader';
+import { Benefit } from '@/lib/types';
 
 interface fetchedJobs {
   jobs: Job
@@ -66,6 +67,7 @@ const JobsPage = () => {
   const [isSubmitAppError, setIsSubmitAppError] = useState<boolean>(false);
   const [companyName, setCompanyName] = useState<string>('N/A');
   const authContext = useContext(AuthContext);
+  const { benefits, isLoading: isLoadingBenefits, error: benefitsError } = useBenefits(selectedJob?.companyID || '');
 
 
   const modalTheme: CustomFlowbiteTheme['modal'] = {
@@ -115,6 +117,19 @@ const JobsPage = () => {
           if (response.jobs.length > 0) {
             if (params.get('id')) {
               const paramsId = params.get('id');
+              // Find and move the selected job to the front, followed by urgent jobs
+              const selectedJobIndex = response.jobs.findIndex(job => job.jobID === paramsId);
+              if (selectedJobIndex !== -1) {
+                const selectedJob = response.jobs[selectedJobIndex];
+                const otherJobs = response.jobs.filter((_, index) => index !== selectedJobIndex);
+                
+                // Sort remaining jobs to put urgent ones first
+                const urgentJobs = otherJobs.filter(job => job.urgently);
+                const nonUrgentJobs = otherJobs.filter(job => !job.urgently);
+                
+                response.jobs = [selectedJob, ...urgentJobs, ...nonUrgentJobs];
+                setJobs(response.jobs);
+              }
               setSelectedJob(findJobById(response.jobs, paramsId))
             } else {
               setSelectedJob(response.jobs[0]);
@@ -144,6 +159,7 @@ const JobsPage = () => {
 
   const handleJobSelect = (job: Job) => {
     setSelectedJob(job);
+    console.log(job.companyID);
     if (isMobile) {
       setIsSelectedJobOpen(true);
     }
@@ -227,6 +243,26 @@ const JobsPage = () => {
     }
   };
 
+  const Benefits = ({benefits}: {benefits: Benefit[]}) => {
+    return (
+      <div>
+        <h4 className='text-lg font-medium mt-4'>สวัสดิการของบริษัท</h4>
+        {benefits.map((benefit, key) => (
+          <>
+          <p key={key}>{benefit.description}</p>
+          {benefit.benefitSubs.length > 0 && <>
+            <ul className='list-disc list-inside'>
+              {benefit.benefitSubs.map((sub, subKey) => (
+                <li className='marker:mr-[10px]' key={subKey}>{sub.description}</li>
+              ))}
+            </ul>
+          </>}
+          </>
+        ))}
+      </div>
+    )
+  }
+
   if (loading) return <div className="flex items-center justify-center min-h-screen"><LoaderHorizontal/></div>;
   if (error) return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -250,6 +286,7 @@ const JobsPage = () => {
               onClick={() => handleJobSelect(job)}
               className={`p-4 leading-none cursor-pointer bg-white hover:bg-gray-50 rounded transition-colors ${selectedJob?.jobID === job.jobID ? 'bg-gradient-to-br from-primary-400 to-primary-700' : ''}`}
             >
+              {job.urgently && <span className="bg-red-700 text-white px-2 py-0 rounded-full text-xs leading-none">ด่วน</span>}
               <h3 className={`font-medium text-lg ${selectedJob?.jobID === job.jobID ? 'text-white' : 'text-gray-900'}`}>
                 {job.jobPosition}
               </h3>
@@ -270,6 +307,7 @@ const JobsPage = () => {
             {/* Header */}
             <div id='detailsHeader' className="p-4 md:p-6 border-b border-gray-200 flex justify-between gap-2 md:gap-0 items-center bg-primary-700 min-h-[200px]">
               <div>
+                {selectedJob.urgently && <span className="bg-red-700 text-white px-2 py-0 rounded-full text-xs leading-none">ด่วน</span>}
                 <h1 className="text-2xl md:text-3xl font-bold text-white">
                   {selectedJob.jobPosition}
                 </h1>
@@ -309,11 +347,17 @@ const JobsPage = () => {
                 className="prose max-w-none"
                 dangerouslySetInnerHTML={{ __html: selectedJob.requiredRequirements }} 
               />
-              <h4 className='text-lg font-medium mt-4'>คุณสมบัติอื่นๆ</h4>
-              <div 
-                className='prose max-w-none' 
-                dangerouslySetInnerHTML={{ __html: selectedJob.requirements }} 
-              />
+              {selectedJob.requirements.length}
+              { selectedJob.requirements.length > 0 && <>
+                <h4 className='text-lg font-medium mt-4'>คุณสมบัติอื่นๆ</h4>
+                <div 
+                  className='prose max-w-none' 
+                  dangerouslySetInnerHTML={{ __html: selectedJob.requirements }} 
+                />
+              </>}
+              { isLoadingBenefits && <LoaderHorizontal /> }
+              { benefitsError && <p className='text-red-500'>{benefitsError}</p> }
+              { benefits.length > 0 && <Benefits benefits={benefits} /> }
               <ShareJob id={selectedJob.jobID} position={selectedJob.jobPosition} />
             </div>
           </div>

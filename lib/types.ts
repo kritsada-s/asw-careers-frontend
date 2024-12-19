@@ -279,3 +279,23 @@ export interface AppliedJob {
     };
     updateBy: string;
 }
+
+interface BenefitSub {
+    benefitSubID: string;
+    benefitID: string;
+    description: string;
+    createBy: string;
+    updateBy: string;
+    active: boolean;
+  }
+  
+export interface Benefit {
+    benefitID: string;
+    companyID: string;
+    iconContent: string | null; 
+    description: string;
+    createBy: string;
+    updateBy: string;
+    active: boolean;
+    benefitSubs: BenefitSub[];
+}
