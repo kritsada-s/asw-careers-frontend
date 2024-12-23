@@ -4,7 +4,7 @@ import {prodUrl, default_params } from './utils';
 import { Company, JobResponse, Position} from './types';
 import { Candidate } from './form';
 import { useContext } from 'react';
-import { AuthContext } from '@/app/providers';
+import { AuthContext } from '@/pages/providers';
 
 interface ApiResponse<T> {
   data: T;

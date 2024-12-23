@@ -247,11 +247,12 @@ export interface TokenProps {
 }
 
 export interface ContextTokenProps {
-    CandidateID: string;
-    Email: string;
-    CreateDate: string;
-    ExpiredDate: string;
-    refreshAuth: () => void;
+    CandidateID?: string;
+    Email?: string;
+    CreateDate?: string;
+    ExpiredDate?: string;
+    refreshAuth?: () => void;
+    setShowAuthModal: (show: boolean) => void;
 }
 
 export type ModalType = 'auth' | 'confirm' | 'alert';

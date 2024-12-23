@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-import flowbite from "flowbite-react/tailwind";
+import { nextui } from "@nextui-org/react";
 
 const config: Config = {
 	darkMode: ["class"],
@@ -7,7 +7,7 @@ const config: Config = {
 		"./pages/**/*.{js,ts,jsx,tsx,mdx}",
 		"./components/**/*.{js,ts,jsx,tsx,mdx}",
 		"./app/**/*.{js,ts,jsx,tsx,mdx}",
-		flowbite.content(),
+		"./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
 	],
 	theme: {
 		container: {
@@ -38,8 +38,8 @@ const config: Config = {
 					foreground: 'hsl(var(--popover-foreground))'
 				},
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					DEFAULT: '#123F6D',
+					foreground: '#fff',
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -95,7 +95,26 @@ const config: Config = {
 	},
 	plugins: [
 		require("tailwindcss-animate"),
-		flowbite.plugin(),
+		nextui({
+			//addCommonColors: true,
+			themes: {
+				light: {
+					colors: {
+						danger: {
+							DEFAULT: '#ef4444',
+							foreground: '#fff',
+						},
+					},
+				},
+			},
+			layout: {
+				radius: {
+					small: '4px',
+					medium: '8px',
+					large: '12px',
+				},
+			},
+		}),
 	],
 };
 export default config;
