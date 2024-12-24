@@ -159,7 +159,7 @@ const JobsPage = () => {
 
   const handleJobSelect = (job: Job) => {
     setSelectedJob(job);
-    console.log(job.companyID);
+    //console.log(job.companyID);
     if (isMobile) {
       setIsSelectedJobOpen(true);
     }
@@ -170,7 +170,7 @@ const JobsPage = () => {
   }
 
   useGSAP(() => {
-    if (jobDetailsRef.current) {
+    if (jobDetailsRef.current && isMobile) {
       if (isSelectedJobOpen) {
         gsap.fromTo(jobDetailsRef.current, { opacity: 0, y: 800 }, { opacity: 1, y: 0, duration: 0.3});
       } else {
@@ -248,16 +248,16 @@ const JobsPage = () => {
       <div>
         <h4 className='text-lg font-medium mt-4'>สวัสดิการของบริษัท</h4>
         {benefits.map((benefit, key) => (
-          <>
-          <p key={key}>{benefit.description}</p>
+          <div key={key}>
+          <p>{benefit.description}</p>
           {benefit.benefitSubs.length > 0 && <>
             <ul className='list-disc list-inside'>
               {benefit.benefitSubs.map((sub, subKey) => (
                 <li className='marker:mr-[10px]' key={subKey}>{sub.description}</li>
               ))}
             </ul>
-          </>}
-          </>
+            </>}
+          </div>
         ))}
       </div>
     )
