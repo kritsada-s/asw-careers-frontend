@@ -195,6 +195,10 @@ export function useEducations() {
     },
     {
       "educationID": 5,
+      "description": "ปริญญาโท / Master's degree"
+    },
+    {
+      "educationID": 6,
       "description": "ปริญญาเอก / Ph.D."
     }
   ], []);
@@ -756,3 +760,49 @@ export function useJobTitle(jobId: string) {
   return { jobTitle, isLoading, error };
 }
 
+export function useLanguages() {
+  const [languages, setLanguages] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const preLanguages = useMemo(() => {
+    return [
+      {
+        "languageID": 1,
+        "description": "อังกฤษ / English"
+      },
+      {
+        "languageID": 2,
+        "description": "จีน / Chinese"
+      },
+      {
+        "languageID": 3,
+        "description": "ญี่ปุ่น / Japanese"
+      },
+      {
+        "languageID": 4,
+        "description": "รัสเซีย / Russia"
+      }
+    ];
+  }, []);
+
+  useEffect(() => {
+    async function fetchLanguages() {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(`${prodUrl}/Language/Languages`);
+        setLanguages(response.data);
+      } catch (err: any) {
+        console.error('Error fetching languages:', err);
+        setError(err?.message || 'An unknown error occurred');
+        setLanguages(preLanguages);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchLanguages();
+  }, []);
+
+  return { languages, isLoading, error };
+}
