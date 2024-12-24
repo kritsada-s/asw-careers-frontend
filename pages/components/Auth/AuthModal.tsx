@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import EmailStep from './Email';
 import OtpStep from './Otp';
-import { AuthContext } from '@/app/providers';
+import { AuthContext } from '@/pages/providers';
 import { decrypt } from '@/lib/utils';
 
 interface AuthModalProps {

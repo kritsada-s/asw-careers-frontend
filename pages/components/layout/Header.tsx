@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import AuthModal from "../Auth/AuthModal";
 import { useModal } from "../MUIProvider";
-import { AuthContext } from "@/app/providers";
+import { AuthContext } from "@/pages//providers";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

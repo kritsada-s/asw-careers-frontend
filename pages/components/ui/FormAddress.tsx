@@ -1,4 +1,4 @@
-import { useDistricts, useProvinces, useSubDistricts} from "@/app/hooks/useDataFetching";
+import { useDistricts, useProvinces, useSubDistricts} from "@/pages/hooks/useDataFetching";
 import { useEffect, useState } from "react";
 
 interface FormSelectProps {

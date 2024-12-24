@@ -7,7 +7,7 @@ import { WorkLocation } from '../components/ui/WorkLocation';
 import { fetchCompanyName, timeAgo } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 import { useModal } from '../components/MUIProvider';
-import { useToken, useDecryptedToken } from '@/app/hooks/useToken';
+import { useToken, useDecryptedToken } from '@/pages/hooks/useToken';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Button, CustomFlowbiteTheme, Modal } from 'flowbite-react';

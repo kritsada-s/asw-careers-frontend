@@ -1,4 +1,4 @@
-import { useDepartment } from '@/app/hooks/useDataFetching';
+import { useDepartment } from '@/pages/hooks/useDataFetching';
 
 interface WorkLocationProps {
   comp: string;

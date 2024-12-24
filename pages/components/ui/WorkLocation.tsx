@@ -1,6 +1,6 @@
 import { fetchLocationByID } from '@/lib/api';
 import React, { useState, useEffect } from 'react';
-import { useWorkLocation } from '@/app/hooks/useDataFetching';
+import { useWorkLocation } from '@/pages/hooks/useDataFetching';
 
 interface WorkLocationProps {
   comp: string;

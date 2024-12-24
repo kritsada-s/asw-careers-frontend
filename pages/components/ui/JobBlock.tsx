@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { Job, TokenProps } from "@/lib/types";
 import { MapPin, Building, CircleDollarSign, CircleDot, CalendarCheck } from 'lucide-react';
 import { fetchLocationByID } from "@/lib/api";
-import { AuthContext } from "@/app/providers";
+import { AuthContext } from "@/pages/providers";
 
 interface JobBlockProps {
     className?: string;

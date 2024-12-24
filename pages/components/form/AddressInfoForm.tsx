@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FormStepProps, SubDistrict } from '@/lib/types';
 import { Province } from '@/lib/types';
 import FormNavigation from '../ui/FormNavigation';
-import { useProvinces, useDistricts, useSubDistricts } from '@/app/hooks/useDataFetching';
+import { useProvinces, useDistricts, useSubDistricts } from '@/pages/hooks/useDataFetching';
 import { DistrictSelector, ProvinceSelector, SubDistrictSelector } from '../ui/FormInput';
 
 export default function AddressInfoForm({
