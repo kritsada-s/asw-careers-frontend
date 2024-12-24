@@ -300,3 +300,8 @@ export interface Benefit {
     active: boolean;
     benefitSubs: BenefitSub[];
 }
+
+export interface Language {
+    language: string;
+    level: string;
+}
