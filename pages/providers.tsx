@@ -1,115 +1,38 @@
 "use client"
 import { createContext, useCallback, useEffect, useState, useMemo } from "react";
+import { Dialog, DialogTitle } from "@mui/material";
 import { decrypt, prodUrl } from "@/lib/utils";
-import { ContextTokenProps } from "@/lib/types";
-export const AuthContext = createContext<ContextTokenProps | null>(null);
 
-export function AuthContextProvider({children}: {children: React.ReactNode}) {
-  const [cuData, setCUData] = useState<ContextTokenProps | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+interface ContextTokenProps {
+  CandidateID: string;
+  isAuthModalOpen: boolean;
+  setIsAuthModalOpen: (isOpen: boolean) => void;
+  refreshAuth: () => void;
+  // ... other existing props
+}
 
-  const refreshContext = useCallback(() => {
-    setRefreshTrigger(prev => prev + 1);
-  }, []);
+export const AuthContext = createContext<ContextTokenProps | undefined>(undefined);
 
-  const checkValidToken = useCallback(async (token: string): Promise<boolean> => {
-      try {
-        const formData = new FormData();
-        formData.append('token', token);
-        const response = await fetch(`${prodUrl}/Authorization/TokenValidation`, {
-            method: 'POST',
-            body: formData,
-        });
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [CandidateID, setCandidateID] = useState('');
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-        const data = await response.json();
-        console.log('Token validation response:', data);
-
-        return data; // Assuming the API returns an object with an 'isValid' property
-      } catch (error) {
-          console.error('Error validating token:', error);
-          return false;
-      }
-  }, []);
-
-  const validateCandidate = useCallback(async (token: string, email: string): Promise<boolean> => {
-      try {
-        const formData = new FormData();
-        formData.append('email', email);
-        
-        const response = await fetch(`${prodUrl}/secure/Candidate/GetCandidate/${email}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        const data = await response.json();
-        console.log('Candidate validation response:', data);
-
-        return data; // Assuming the API returns an object with a property indicating success
-      } catch (error) {
-          console.error('Error validating candidate:', error);
-          return false;
-      }
-  }, []);
-
-  useEffect(() => {
-    const validateToken = async () => {
-      console.log('Validating token...');
-      setIsLoading(true);
-      if (typeof window !== 'undefined') {
-        const authToken = localStorage.getItem('authToken');
-        if (authToken) {
-          const isValidToken = await checkValidToken(authToken);                    
-          if (isValidToken) {
-            console.log('token is valid...');
-            
-            const userData = JSON.parse(decrypt(authToken));
-            const { KeyType, ...rest } = userData;
-            console.log('user data to validate: ', rest);
-            
-            const isValidCandidate = await validateCandidate(authToken, rest.Email); // Assuming email is part of userData
-            if (isValidCandidate) {
-              console.log('candidate is valid...');
-              setCUData(rest as ContextTokenProps);
-            } else {
-              console.log('Invalid candidate data');
-              localStorage.removeItem('authToken');
-              setCUData(null);
-            }
-          } else {
-            localStorage.removeItem('authToken');
-            console.log('remove authToken...');
-            setCUData(null);
-          }
-        } else {
-          localStorage.removeItem('authToken');
-          console.log('remove authToken...');
-          setCUData(null);
-        }
-      }
-      setIsLoading(false);
-    };
-
-    validateToken();
-  }, [refreshTrigger, checkValidToken, validateCandidate]);
-
-  const contextValue = useMemo(() => ({
-    CandidateID: cuData?.CandidateID ?? '',
-    Email: cuData?.Email ?? '',
-    CreateDate: cuData?.CreateDate ?? '',
-    ExpiredDate: cuData?.ExpiredDate ?? '',
-    refreshAuth: refreshContext
-  }), [cuData, refreshContext]);
-
-  if (isLoading) {
-    return null;
+  const refreshAuth = () => {
+    setCandidateID('');
   }
 
   return (
-    <AuthContext.Provider value={contextValue}>
+    <AuthContext.Provider value={{
+      CandidateID,
+      isAuthModalOpen,
+      setIsAuthModalOpen,
+      refreshAuth: refreshAuth,
+      // ... other values
+    }}>
       {children}
+      <Dialog open={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)}>
+        <DialogTitle>กรุณากรอกข้อมูลของคุณ</DialogTitle>
+      </Dialog>
     </AuthContext.Provider>
-  )
+  );
 }

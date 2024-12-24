@@ -4,16 +4,17 @@ import { useContext, useState, useEffect } from "react";
 import { Button } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
-import AuthModal from "../Auth/AuthModal";
-import { useModal } from "../MUIProvider";
+//import AuthModal from "../Auth/AuthModal";
+//import { useModal } from "../MUIProvider";
 import { AuthContext } from "@/pages//providers";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthopen, setIsAuthOpen] = useState(false);
-  const { openModal } = useModal();
+  //const { openModal } = useModal();
   const authContext = useContext(AuthContext);
-
+  const router = useRouter();
   const menuItems = [
     "ตำแหน่งงาน",
     "สวัสดิการ",
@@ -25,22 +26,30 @@ const Header = () => {
   };
 
   const checkLogin = () => {
+    if (authContext?.CandidateID !== '') {
+      router.push('/profile');
+    } else {
+      console.log('open auth modal');
+      authContext?.setIsAuthModalOpen(true);
+    }
+
     if (typeof window !== 'undefined') {
       if (window?.localStorage.getItem('authToken')) {
         window.location.href = '/profile'
       } else {
-        openModal({
-          type: 'auth',
-          props: {
-            initialStep: 'otp'
-        },
-        onSuccess: (data) => {
-          console.log('Login successful:', data);
-        },
-        onError: (error) => {
-          console.error('Login failed:', error);
-          }
-        });
+        authContext?.setIsAuthModalOpen(true);
+        // openModal({
+        //   type: 'auth',
+        //   props: {
+        //     initialStep: 'otp'
+        // },
+        // onSuccess: (data) => {
+        //   console.log('Login successful:', data);
+        // },
+        // onError: (error) => {
+        //   console.error('Login failed:', error);
+        //   }
+        // });
       } 
     }
   }
@@ -72,7 +81,6 @@ const Header = () => {
           <button onClick={()=>checkLogin()} className="leading-none px-4 py-1 font-semibold text-white bg-leadfrog-green hover:bg-kryptonite-green rounded-full">ตรวจสอบสถานะ</button>
         </div>
       </div>
-      <AuthModal isOpen={isAuthopen} onClose={()=>setIsAuthOpen(false)}/>
     </section>
   );
 };

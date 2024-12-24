@@ -61,7 +61,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, onError }: AuthM
         console.log('Candidate id in token... redirect to profile page');
         setTimeout(() => {
           handleClose();
-          authContext?.refreshAuth();
+          authContext?.refreshAuth;
           router.push('/profile');
         }, 3000);
       }

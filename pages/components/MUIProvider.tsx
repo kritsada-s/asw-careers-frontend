@@ -30,43 +30,43 @@ interface ModalContextType {
   isTokenNotExpired: () => boolean;
 }
 
-const ModalContext = createContext<ModalContextType | null>(null);
+// const ModalContext = createContext<ModalContextType | null>(null);
 
-function ModalPortal({ 
-  modalState, 
-  onClose, 
-  onSuccess, 
-  onError 
-}: { 
-  modalState: { isOpen: boolean; config: ModalConfig | null; };
-  onClose: () => void;
-  onSuccess: (data: any) => void;
-  onError: (error: any) => void;
-}) {
-  const [mounted, setMounted] = useState(false);
+// function ModalPortal({ 
+//   modalState, 
+//   onClose, 
+//   onSuccess, 
+//   onError 
+// }: { 
+//   modalState: { isOpen: boolean; config: ModalConfig | null; };
+//   onClose: () => void;
+//   onSuccess: (data: any) => void;
+//   onError: (error: any) => void;
+// }) {
+//   const [mounted, setMounted] = useState(false);
 
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+//   React.useEffect(() => {
+//     setMounted(true);
+//   }, []);
 
-  if (!mounted || !modalState.config) return null;
+//   if (!mounted || !modalState.config) return null;
 
-  const modalContent = (
-    <>
-      {modalState.config.type === 'auth' && (
-        <AuthModal 
-          isOpen={modalState.isOpen}
-          onClose={onClose}
-          onSuccess={onSuccess}
-          onError={onError}
-          {...modalState.config.props}
-        />
-      )}
-    </>
-  );
+//   const modalContent = (
+//     <>
+//       {modalState.config.type === 'auth' && (
+//         <AuthModal 
+//           isOpen={modalState.isOpen}
+//           onClose={onClose}
+//           onSuccess={onSuccess}
+//           onError={onError}
+//           {...modalState.config.props}
+//         />
+//       )}
+//     </>
+//   );
 
-  return createPortal(modalContent, document.body);
-}
+//   return createPortal(modalContent, document.body);
+// }
 
 export default function MUIProvider({ children }: { children: React.ReactNode }) {
   const [modalState, setModalState] = useState<{
@@ -114,25 +114,9 @@ export default function MUIProvider({ children }: { children: React.ReactNode })
   }, [modalState.config]);
 
   return (
-    <ModalContext.Provider value={{ openModal, closeModal, modalState, isTokenNotExpired: isTokenNotExpiredFn }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         {children}
-        <ModalPortal 
-          modalState={modalState}
-          onClose={closeModal}
-          onSuccess={handleSuccess}
-          onError={handleError}
-        />
       </ThemeProvider>
-    </ModalContext.Provider>
   );
-}
-
-export function useModal() {
-  const context = useContext(ModalContext);
-  if (!context) {
-    throw new Error('useModal must be used within MUIProvider');
-  }
-  return context;
 }

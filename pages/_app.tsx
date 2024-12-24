@@ -5,9 +5,10 @@ import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 import HolyLoader from 'holy-loader'
 import { useContext, useState } from 'react'
-import { AuthContext, AuthContextProvider } from './providers'
+import { AuthContext, AuthProvider } from './providers'
 import AuthModal from './components/Auth/AuthModal'
 import MUIProvider from './components/MUIProvider'
+import { Dialog, DialogContent, DialogTitle } from '@mui/material'
 
 const APP_NAME = 'AssetWise Careers'
 
@@ -19,16 +20,12 @@ const AppContent = ({ Component, pageProps, router }: AppProps) => {
       <Header />
       <HolyLoader color='#123F6D' />
       <Component {...pageProps} />
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={(data) => {
-          setIsAuthModalOpen(false);
-          authContext?.refreshAuth;
-        }}
-        //router={router}
-        //authContext={authContext}
-      />
+      <Dialog open={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)}>
+        <DialogTitle>กรุณากรอกข้อมูลของคุณ</DialogTitle>
+        <DialogContent>
+          <p>กรุณากรอกข้อมูลของคุณ</p>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
@@ -42,9 +39,9 @@ export default function App(props: AppProps) {
         <meta name="description" content="AssetWise Careers" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <AuthContextProvider>
+      <AuthProvider>
         <AppContent {...props} />
-      </AuthContextProvider>
+      </AuthProvider>
       <Footer />
     </MUIProvider>
   );
