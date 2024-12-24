@@ -10,12 +10,22 @@ import FileUploadButton from '../components/ui/FileUploadButton';
 import { DistrictSelector, ProvinceSelector, SubDistrictSelector } from '../components/ui/FormInput';
 import Select, { GroupBase, StylesConfig } from 'react-select';
 import { districts, provinces, subDistricts } from '@/lib/data';
-import { DatePicker, Button, Input } from '@nextui-org/react';
+import { Button, Input } from '@nextui-org/react';
+import { Calendar } from 'react-calendar';
+// import { DatePicker } from 'react-date-picker';
+import DatePicker from 'react-datepicker';
+import { registerLocale } from 'react-datepicker';
+import { th } from 'date-fns/locale';
 import {DateValue, now, parseAbsoluteToLocal} from "@internationalized/date";
 import {I18nProvider} from "@react-aria/i18n";
-import { useJobTitle } from '../hooks/useDataFetching';
+import { useEducations, useJobTitle } from '../hooks/useDataFetching';
+import LanguagesInput from '../components/ui/languagesInput';
+import { Language } from '@/lib/types';
+import "react-datepicker/dist/react-datepicker.css";
+
 
 gsap.registerPlugin(useGSAP);
+registerLocale('th', th);
 
 interface Step {
   title: string;
@@ -57,10 +67,22 @@ function Client() {
   const [subDistrict, setSubDistrict] = useState<number>(0);
   const [postcode, setPostcode] = useState<string>('');
   const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [educationLevels, setEducationLevels] = useState<any[]>([]);
+  const { educations, isLoading: isLoadingEducations, error: errorEducations } = useEducations();
+  const [languages, setLanguages] = useState<Language[]>([{ language: '', level: '' }]);
+  const [candidate, setCandidate] = useState<any>(null);
+  const [birthDate, setBirthDate] = useState<Date | null>(null);
+
+  const inputStyle = {
+    input: 'w-full text-xl font-light',
+    inputWrapper: 'bg-white'
+  }
 
   const selectStyles: StylesConfig<Option, false, GroupBase<Option>> = {
     control: (styles) => ({
       ...styles,
+      fontSize: '1rem',
+      fontWeight: '300',
       borderRadius: '8px'
     })
   };
@@ -68,6 +90,7 @@ function Client() {
   useGSAP(() => {
     // Hide all sections except first on start
     setCurrentStepIndex(0);
+    setIsLastStep(false);
     steps.forEach((step, index) => {
       if (index === 0) {
         gsap.set(step.ref.current, { opacity: 1, x: 0, display: 'block' });
@@ -167,6 +190,8 @@ function Client() {
   };
 
   const handleValidateField = (event: React.FocusEvent<HTMLInputElement> | React.ChangeEvent<HTMLInputElement>) => {
+    console.log('field changing:', event.target.name, 'value:', event.target.value);
+    
     const value = event.target.value;
     if (value === '') {
       setInvalidField(event.target.name);
@@ -175,17 +200,32 @@ function Client() {
     }
   };
 
+  const handleLanguagesChange = (languages: Language[]) => {
+    console.log(languages);
+    setLanguages(languages);
+  };
+
+  const handleBirthDateChange = (date: Date | null) => {
+    console.log(date?.toString());
+    setBirthDate(date);
+  };
+
+  const handleFormSubmit = () => {
+    console.log('--- submit form ---');
+    console.log(candidate);
+  }
+
   useEffect(() => {
-    if (currentStep) {
-      const currentStepRef = currentStep.ref.current;
-      const fields = currentStepRef?.querySelectorAll('input, select');
-      if (fields) {
-        console.log('==============');
-        fields.forEach(field => {
-          console.log((field as HTMLInputElement).name);
-        });
-      }
-    }
+    // if (currentStep) {
+    //   const currentStepRef = currentStep.ref.current;
+    //   const fields = currentStepRef?.querySelectorAll('input, select');
+    //   if (fields) {
+    //     console.log('==============');
+    //     fields.forEach(field => {
+    //       console.log((field as HTMLInputElement).name);
+    //     });
+    //   }
+    // }
   }, [currentStep]);
 
   return (
@@ -195,8 +235,8 @@ function Client() {
         <div className="my-4">
           <h2 className="text-3xl font-medium text-center">สมัครงานตำแหน่ง <span className="text-primary-600 underline">{ jobTitle }</span></h2>
         </div>
-        <form className="space-y-1">
-          <div className="form-wrapper min-h-[500px]">
+        <form className="space-y-4">
+          <div className="form-wrapper min-h-[300px]">
             {/* Basic Information Section */}
             <section ref={basicInfoRef} className={`bg-white px-6 py-10 rounded-lg shadow relative`}>
               <div className="flex flex-col md:flex-row gap-6">
@@ -228,7 +268,6 @@ function Client() {
                       className="bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white cursor-pointer h-auto min-h-[45px] px-4 py-1"
                       onPress={() => {
                         document.getElementById('profile-image')?.click();
-
                       }}
                     >
                       อัพโหลดรูปภาพ
@@ -239,15 +278,26 @@ function Client() {
                   <div>
                     <label className="block mb-1 text-xl font-medium">ประสบการณ์การทำงาน (ปี) <span className="text-red-500">*</span></label>
                     <Input
-                      name="experience"
+                      name="experience" 
                       type="number"
                       min="0"
                       required
                       pattern='[0-9]*'
                       onBlur={handleValidateField}
                       variant="bordered"
+                      onKeyDown={(e) => {
+                        if (e.key === '-' || e.key === 'e') {
+                          e.preventDefault();
+                        }
+                      }}
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        if (value < 0) {
+                          e.target.value = '0';
+                        }
+                      }}
                       isInvalid={invalidFields.includes('experience')}
-                      className="w-full bg-white"
+                      classNames={inputStyle}
                     />
                     {invalidFields.includes('experience') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
                   </div>
@@ -268,7 +318,7 @@ function Client() {
                         }
                       }}
                       isInvalid={invalidFields.includes('salary')}
-                      className="w-full bg-white"
+                      classNames={inputStyle}
                       variant="bordered"
                     />
                     {invalidFields.includes('salary') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
@@ -289,44 +339,42 @@ function Client() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xl">
                 <div>
                   <label className="block mb-1">ชื่อ <span className="text-red-500">*</span></label>
-                  <Input type="text" name="firstname" aria-label="ชื่อ" className="w-full bg-white" variant="bordered" isInvalid={invalidFields.includes('firstname')} onBlur={handleValidateField} />
+                  <Input type="text" name="firstname" aria-label="ชื่อ" classNames={inputStyle} variant="bordered" isInvalid={invalidFields.includes('firstname')} onBlur={handleValidateField} />
                   {invalidFields.includes('firstname') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
                 </div>
                 <div>
                   <label className="block mb-1">นามสกุล <span className="text-red-500">*</span></label>
-                  <Input type="text" name="lastname" aria-label="นามสกุล" className="w-full bg-white" variant="bordered" isInvalid={invalidFields.includes('lastname')} onBlur={handleValidateField} />
+                  <Input type="text" name="lastname" aria-label="นามสกุล" classNames={inputStyle} variant="bordered" isInvalid={invalidFields.includes('lastname')} onBlur={handleValidateField} />
                   {invalidFields.includes('lastname') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
                 </div>
                 <div>
                   <label className="block mb-1">ชื่อเล่น <span className="text-red-500">*</span></label>
-                  <Input type="text" name="nickname" aria-label="ชื่อเล่น" className="w-full bg-white" variant="bordered" isInvalid={invalidFields.includes('nickname')} onBlur={handleValidateField} />
+                  <Input type="text" name="nickname" aria-label="ชื่อเล่น" classNames={inputStyle} variant="bordered" isInvalid={invalidFields.includes('nickname')} onBlur={handleValidateField} />
                   {invalidFields.includes('nickname') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
                 </div>
                 <div>
                   <label className="block mb-1">วันเกิด <span className="text-red-500">*</span></label>
-                  <I18nProvider locale="th">
-                    <DatePicker showMonthAndYearPickers variant="bordered" calendarWidth={320} className="text-xl w-full bg-white" aria-label="วันเกิด"/>
-                  </I18nProvider>
+                  <DatePicker locale="th" id="birthDateInput" onChange={handleBirthDateChange} />
                 </div>
                 <div>
                   <label className="block mb-1">เบอร์โทรศัพท์ <span className="text-red-500">*</span></label>
-                  <Input type="tel" name="phone" className="w-full bg-white" variant="bordered" aria-label="เบอร์โทรศัพท์" isInvalid={invalidFields.includes('phone')} onBlur={handleValidateField} />
+                  <Input type="tel" name="phone" classNames={inputStyle} variant="bordered" aria-label="เบอร์โทรศัพท์" isInvalid={invalidFields.includes('phone')} onBlur={handleValidateField} />
                   {invalidFields.includes('phone') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
                 </div>
                 <div>
                   <label className="block mb-1">อีเมล</label>
-                  <Input type="email" name="email" className="w-full bg-white" variant="bordered" isDisabled aria-label="อีเมล" isInvalid={invalidFields.includes('email')} />
+                  <Input type="email" name="email" classNames={inputStyle} variant="bordered" isDisabled aria-label="อีเมล" isInvalid={invalidFields.includes('email')} />
                   <span className="text-gray-500 text-sm">อีเมลไม่สามารถแก้ไขได้</span>
                 </div>
               </div>
             </section>
 
             {/* Address Information Section */}
-            <section ref={addressInfoRef} className={`bg-white p-6 rounded-lg shadow relative`} >
+            <section ref={addressInfoRef} className={`bg-white p-6 rounded-lg shadow relative text-xl`} >
               <div className="space-y-4">
                 <div>
                   <label className="block mb-1">ที่อยู่</label>
-                  <Input type="text" name="address" className="w-full bg-white" variant="bordered" aria-label="ที่อยู่" />
+                  <Input type="text" name="address" className="w-full bg-white" variant="bordered" aria-label="ที่อยู่" onBlur={handleValidateField} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
@@ -395,21 +443,28 @@ function Client() {
             </section>
 
             {/* Other Information Section */}
-            <section ref={otherInfoRef} className={`bg-white p-6 rounded-lg shadow relative`}>
+            <section ref={otherInfoRef} className={`bg-white p-6 rounded-lg shadow relative text-xl`}>
               <div className="space-y-6">
                 <div>
                   <h3 className="font-medium mb-2">ประวัติการศึกษา</h3>
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block mb-1">ระดับการศึกษา</label>
-                        <select className="w-full border rounded p-2" aria-label="ระดับการศึกษา">
-                          <option>Select Level</option>
-                        </select>
+                        <label className="block mb-1">ระดับการศึกษา<span className="text-red-500">*</span></label>
+                        <Select<Option>
+                          options={educations.map(level => ({ value: level.educationID, label: level.description }))}
+                          onChange={(selectedOption) => {
+                            console.log(selectedOption);
+                          }}
+                          placeholder="เลือกระดับการศึกษา"
+                          aria-label="เลือกระดับการศึกษา"
+                          styles={selectStyles}
+                        />
                       </div>
                       <div>
-                        <label className="block mb-1">สาขาวิชา</label>
-                        <input type="text" className="w-full border rounded p-2" aria-label="สาขาวิชา" />
+                        <label className="block mb-1">สาขาวิชา<span className="text-red-500">*</span></label>
+                        <Input type="text" name="major" className="w-full bg-white" variant="bordered" aria-label="สาขาวิชา" isInvalid={invalidFields.includes('major')} onBlur={handleValidateField} />
+                        {invalidFields.includes('major') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
                       </div>
                     </div>
                   </div>
@@ -418,25 +473,14 @@ function Client() {
                 <div>
                   <h3 className="font-medium mb-2">ภาษา</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block mb-1">ภาษา</label>
-                      <select className="w-full border rounded p-2" aria-label="ภาษา">
-                        <option>Select Language</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block mb-1">ระดับ</label>
-                      <select className="w-full border rounded p-2" aria-label="ระดับ">
-                        <option>Select Level</option>
-                      </select>
-                    </div>
+                    <LanguagesInput languages={languages} setLanguages={handleLanguagesChange} />
                   </div>
                 </div>
               </div>
             </section>
           </div>
 
-          <div className="flex justify-end space-x-4">
+          <div className="flex justify-end space-x-4 mt-4">
             {currentStepIndex > 0 && (
               <button 
                 type="button"
@@ -451,7 +495,7 @@ function Client() {
             <button
               type="button"
               className="px-6 py-2 bg-kryptonite-green text-white rounded cursor-pointer"
-              onClick={() => console.log('Submit form')}
+              onClick={handleFormSubmit}
             >
               ส่งข้อมูล
             </button> 

@@ -316,6 +316,13 @@ body {
   .react-datepicker__day, .react-datepicker__day-name {
     font-size: 24px;
   }
+  #birthDateInput {
+    .react-date-picker__calendar {
+      .react-calendar {
+        @apply bg-white font-light text-base shadow-sm rounded-lg;
+      }
+    }
+  }
 }
       
 #jobsPage {
