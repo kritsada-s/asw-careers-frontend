@@ -7,6 +7,7 @@ import HolyLoader from 'holy-loader'
 import { useContext, useState } from 'react'
 import { AuthContext, AuthContextProvider } from './providers'
 import AuthModal from './components/Auth/AuthModal'
+import MUIProvider from './components/MUIProvider'
 
 const APP_NAME = 'AssetWise Careers'
 
@@ -15,10 +16,11 @@ const AppContent = ({ Component, pageProps, router }: AppProps) => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   return (
     <>
-      <Header />
-      <HolyLoader color='#123F6D' />
-      <Component {...pageProps} />
-      <AuthModal 
+      <MUIProvider>
+        <Header />
+        <HolyLoader color='#123F6D' />
+        <Component {...pageProps} />
+        <AuthModal 
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)}
         onSuccess={(data) => {
@@ -26,8 +28,9 @@ const AppContent = ({ Component, pageProps, router }: AppProps) => {
           authContext?.refreshAuth;
         }}
         router={router}
-        authContext={authContext}
-      />
+          authContext={authContext}
+        />
+      </MUIProvider>
     </>
   );
 };

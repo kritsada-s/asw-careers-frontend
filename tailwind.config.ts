@@ -95,26 +95,6 @@ const config: Config = {
 	},
 	plugins: [
 		require("tailwindcss-animate"),
-		nextui({
-			//addCommonColors: true,
-			themes: {
-				light: {
-					colors: {
-						danger: {
-							DEFAULT: '#ef4444',
-							foreground: '#fff',
-						},
-					},
-				},
-			},
-			layout: {
-				radius: {
-					small: '4px',
-					medium: '8px',
-					large: '12px',
-				},
-			},
-		}),
 	],
 };
 export default config;

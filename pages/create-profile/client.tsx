@@ -10,10 +10,8 @@ import FileUploadButton from '../components/ui/FileUploadButton';
 import { DistrictSelector, ProvinceSelector, SubDistrictSelector } from '../components/ui/FormInput';
 import Select, { GroupBase, StylesConfig } from 'react-select';
 import { districts, provinces, subDistricts } from '@/lib/data';
-import { Button, Input } from '@nextui-org/react';
-import { Calendar } from 'react-calendar';
-// import { DatePicker } from 'react-date-picker';
-import DatePicker from 'react-datepicker';
+import { Button, TextField } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { registerLocale } from 'react-datepicker';
 import { th } from 'date-fns/locale';
 import {DateValue, now, parseAbsoluteToLocal} from "@internationalized/date";
@@ -22,7 +20,7 @@ import { useEducations, useJobTitle } from '../hooks/useDataFetching';
 import LanguagesInput from '../components/ui/languagesInput';
 import { Language } from '@/lib/types';
 import "react-datepicker/dist/react-datepicker.css";
-
+import dayjs, { Dayjs } from 'dayjs';
 
 gsap.registerPlugin(useGSAP);
 registerLocale('th', th);
@@ -71,12 +69,14 @@ function Client() {
   const { educations, isLoading: isLoadingEducations, error: errorEducations } = useEducations();
   const [languages, setLanguages] = useState<Language[]>([{ language: '', level: '' }]);
   const [candidate, setCandidate] = useState<any>(null);
-  const [birthDate, setBirthDate] = useState<Date | null>(null);
+  const [birthDate, setBirthDate] = useState<Dayjs | null>(null);
 
-  const inputStyle = {
-    input: 'w-full text-xl font-light',
-    inputWrapper: 'bg-white'
-  }
+  const textFieldStyle = {
+    width: '100%',
+    '& .MuiOutlinedInput-root': {
+      fontWeight: 300
+    }
+  };
 
   const selectStyles: StylesConfig<Option, false, GroupBase<Option>> = {
     control: (styles) => ({
@@ -102,7 +102,6 @@ function Client() {
 
   const handleNext = () => {
     if (invalidFields.length > 0) {
-
       return;
     }
     const nextIndex = currentStepIndex + 1;
@@ -160,7 +159,6 @@ function Client() {
 
   const handleResumeFileChange = (file: File) => {
     setResumeFile(file);
-    //console.log(file.name);
   };
 
   const handleProvinceChange = (province: any) => {
@@ -189,9 +187,7 @@ function Client() {
     setInvalidFields(invalidFields.filter(f => f !== field));
   };
 
-  const handleValidateField = (event: React.FocusEvent<HTMLInputElement> | React.ChangeEvent<HTMLInputElement>) => {
-    console.log('field changing:', event.target.name, 'value:', event.target.value);
-    
+  const handleValidateField = (event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const value = event.target.value;
     if (value === '') {
       setInvalidField(event.target.name);
@@ -205,8 +201,7 @@ function Client() {
     setLanguages(languages);
   };
 
-  const handleBirthDateChange = (date: Date | null) => {
-    console.log(date?.toString());
+  const handleBirthDateChange = (date: Dayjs | null) => {
     setBirthDate(date);
   };
 
@@ -263,10 +258,18 @@ function Client() {
                       }}
                     />
                     <Button
-                      as="label"
-                      variant="solid"
-                      className="bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white cursor-pointer h-auto min-h-[45px] px-4 py-1"
-                      onPress={() => {
+                      variant="contained"
+                      component="label"
+                      sx={{
+                        bgcolor: 'primary.main',
+                        '&:hover': {
+                          bgcolor: 'primary.dark'
+                        },
+                        minHeight: '45px',
+                        px: 2,
+                        py: 0.5
+                      }}
+                      onClick={() => {
                         document.getElementById('profile-image')?.click();
                       }}
                     >
@@ -277,14 +280,19 @@ function Client() {
                 <div className="space-y-4 flex-1">
                   <div>
                     <label className="block mb-1 text-xl font-medium">ประสบการณ์การทำงาน (ปี) <span className="text-red-500">*</span></label>
-                    <Input
-                      name="experience" 
+                    <TextField
+                      name="experience"
                       type="number"
-                      min="0"
                       required
-                      pattern='[0-9]*'
+                      inputProps={{
+                        min: "0",
+                        pattern: '[0-9]*'
+                      }}
                       onBlur={handleValidateField}
-                      variant="bordered"
+                      error={invalidFields.includes('experience')}
+                      helperText={invalidFields.includes('experience') ? "กรุณากรอกข้อมูล" : ""}
+                      sx={textFieldStyle}
+                      size="small"
                       onKeyDown={(e) => {
                         if (e.key === '-' || e.key === 'e') {
                           e.preventDefault();
@@ -296,32 +304,30 @@ function Client() {
                           e.target.value = '0';
                         }
                       }}
-                      isInvalid={invalidFields.includes('experience')}
-                      classNames={inputStyle}
                     />
-                    {invalidFields.includes('experience') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
                   </div>
                   <div>
                     <label className="block mb-1 text-xl font-medium">ค่าจ้างที่คาดหวัง <span className="text-red-500">*</span></label>
-                    <Input
+                    <TextField
                       name="salary"
-                      type="text" 
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      min="0"
                       required
+                      inputProps={{
+                        inputMode: 'numeric',
+                        pattern: '[0-9]*',
+                        min: "0"
+                      }}
+                      size="small"
                       onBlur={handleValidateField}
+                      error={invalidFields.includes('salary')}
+                      helperText={invalidFields.includes('salary') ? "กรุณากรอกข้อมูล" : ""}
+                      sx={textFieldStyle}
                       onChange={(e) => {
                         const value = e.target.value.replace(/,/g, '');
                         if (value) {
                           e.target.value = Number(value).toLocaleString();
                         }
                       }}
-                      isInvalid={invalidFields.includes('salary')}
-                      classNames={inputStyle}
-                      variant="bordered"
                     />
-                    {invalidFields.includes('salary') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
                   </div>
                   <div>
                     <label className="block mb-1 text-xl font-medium">เอกสารประกอบการสมัคร (CV/Resume) <span className="text-red-500">*</span></label>
@@ -339,31 +345,65 @@ function Client() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xl">
                 <div>
                   <label className="block mb-1">ชื่อ <span className="text-red-500">*</span></label>
-                  <Input type="text" name="firstname" aria-label="ชื่อ" classNames={inputStyle} variant="bordered" isInvalid={invalidFields.includes('firstname')} onBlur={handleValidateField} />
-                  {invalidFields.includes('firstname') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
+                  <TextField
+                    name="firstname"
+                    required
+                    error={invalidFields.includes('firstname')}
+                    helperText={invalidFields.includes('firstname') ? "กรุณากรอกข้อมูล" : ""}
+                    onBlur={handleValidateField}
+                    sx={textFieldStyle}
+                  />
                 </div>
                 <div>
                   <label className="block mb-1">นามสกุล <span className="text-red-500">*</span></label>
-                  <Input type="text" name="lastname" aria-label="นามสกุล" classNames={inputStyle} variant="bordered" isInvalid={invalidFields.includes('lastname')} onBlur={handleValidateField} />
-                  {invalidFields.includes('lastname') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
+                  <TextField
+                    name="lastname"
+                    required
+                    error={invalidFields.includes('lastname')}
+                    helperText={invalidFields.includes('lastname') ? "กรุณากรอกข้อมูล" : ""}
+                    onBlur={handleValidateField}
+                    sx={textFieldStyle}
+                  />
                 </div>
                 <div>
                   <label className="block mb-1">ชื่อเล่น <span className="text-red-500">*</span></label>
-                  <Input type="text" name="nickname" aria-label="ชื่อเล่น" classNames={inputStyle} variant="bordered" isInvalid={invalidFields.includes('nickname')} onBlur={handleValidateField} />
-                  {invalidFields.includes('nickname') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
+                  <TextField
+                    name="nickname"
+                    required
+                    error={invalidFields.includes('nickname')}
+                    helperText={invalidFields.includes('nickname') ? "กรุณากรอกข้อมูล" : ""}
+                    onBlur={handleValidateField}
+                    sx={textFieldStyle}
+                  />
                 </div>
                 <div>
                   <label className="block mb-1">วันเกิด <span className="text-red-500">*</span></label>
-                  <DatePicker locale="th" id="birthDateInput" onChange={handleBirthDateChange} />
+                  <DatePicker 
+                    value={birthDate}
+                    onChange={handleBirthDateChange}
+                    sx={textFieldStyle}
+                  />
                 </div>
                 <div>
                   <label className="block mb-1">เบอร์โทรศัพท์ <span className="text-red-500">*</span></label>
-                  <Input type="tel" name="phone" classNames={inputStyle} variant="bordered" aria-label="เบอร์โทรศัพท์" isInvalid={invalidFields.includes('phone')} onBlur={handleValidateField} />
-                  {invalidFields.includes('phone') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
+                  <TextField
+                    name="phone"
+                    type="tel"
+                    required
+                    error={invalidFields.includes('phone')}
+                    helperText={invalidFields.includes('phone') ? "กรุณากรอกข้อมูล" : ""}
+                    onBlur={handleValidateField}
+                    sx={textFieldStyle}
+                  />
                 </div>
                 <div>
                   <label className="block mb-1">อีเมล</label>
-                  <Input type="email" name="email" classNames={inputStyle} variant="bordered" isDisabled aria-label="อีเมล" isInvalid={invalidFields.includes('email')} />
+                  <TextField
+                    name="email"
+                    type="email"
+                    disabled
+                    sx={textFieldStyle}
+                  />
                   <span className="text-gray-500 text-sm">อีเมลไม่สามารถแก้ไขได้</span>
                 </div>
               </div>
@@ -374,7 +414,12 @@ function Client() {
               <div className="space-y-4">
                 <div>
                   <label className="block mb-1">ที่อยู่</label>
-                  <Input type="text" name="address" className="w-full bg-white" variant="bordered" aria-label="ที่อยู่" onBlur={handleValidateField} />
+                  <TextField
+                    name="address"
+                    fullWidth
+                    onBlur={handleValidateField}
+                    sx={textFieldStyle}
+                  />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
@@ -388,7 +433,6 @@ function Client() {
                         handleProvinceChange(selectedOption as Option);
                       }}
                       placeholder="เลือกจังหวัด"
-                      aria-label="เลือกจังหวัด"
                       styles={selectStyles}
                     />
                   </div>
@@ -408,7 +452,6 @@ function Client() {
                       } as Option : null}
                       onChange={(selectedOption) => handleDistrictChange(selectedOption as Option)}
                       placeholder="เลือกอำเภอ"
-                      aria-label="เลือกอำเภอ"
                       styles={selectStyles}
                     />
                   </div>
@@ -430,13 +473,17 @@ function Client() {
                       } as Option : null}
                       onChange={(selectedOption) => handleSubDistrictChange(selectedOption as Option)}
                       placeholder="เลือกตำบล"
-                      aria-label="เลือกตำบล"
                       styles={selectStyles}
                     />
                   </div>
                   <div>
                     <label className="block mb-1">รหัสไปรษณีย์</label>
-                    <Input type="text" name="zipcode" variant="bordered" className="w-full bg-gray-400" isDisabled defaultValue={postcode || ''} aria-label="รหัสไปรษณีย์" />
+                    <TextField
+                      name="zipcode"
+                      disabled
+                      value={postcode || ''}
+                      sx={textFieldStyle}
+                    />
                   </div>
                 </div>
               </div>
@@ -457,14 +504,19 @@ function Client() {
                             console.log(selectedOption);
                           }}
                           placeholder="เลือกระดับการศึกษา"
-                          aria-label="เลือกระดับการศึกษา"
                           styles={selectStyles}
                         />
                       </div>
                       <div>
                         <label className="block mb-1">สาขาวิชา<span className="text-red-500">*</span></label>
-                        <Input type="text" name="major" className="w-full bg-white" variant="bordered" aria-label="สาขาวิชา" isInvalid={invalidFields.includes('major')} onBlur={handleValidateField} />
-                        {invalidFields.includes('major') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
+                        <TextField
+                          name="major"
+                          required
+                          error={invalidFields.includes('major')}
+                          helperText={invalidFields.includes('major') ? "กรุณากรอกข้อมูล" : ""}
+                          onBlur={handleValidateField}
+                          sx={textFieldStyle}
+                        />
                       </div>
                     </div>
                   </div>
@@ -482,35 +534,49 @@ function Client() {
 
           <div className="flex justify-end space-x-4 mt-4">
             {currentStepIndex > 0 && (
-              <button 
-                type="button"
-                className="px-6 py-2 border rounded"
+              <Button
+                variant="outlined"
                 onClick={handlePrevious}
+                sx={{ px: 3, py: 1 }}
               >
-              ก่อนหน้า
-            </button>
-          )}
+                ก่อนหน้า
+              </Button>
+            )}
 
-          {isLastStep ? (
-            <button
-              type="button"
-              className="px-6 py-2 bg-kryptonite-green text-white rounded cursor-pointer"
-              onClick={handleFormSubmit}
-            >
-              ส่งข้อมูล
-            </button> 
-          ) : (
-            <button
-              type="button"
-              className="px-6 py-2 bg-primary-700 hover:bg-primary-600 active:bg-primary-900 text-white rounded cursor-pointer"
-              onClick={handleNext}
-            >
-              ต่อไป
-            </button>
-          )}
-        </div>
-      </form>
-    </div>
+            {isLastStep ? (
+              <Button
+                variant="contained"
+                onClick={handleFormSubmit}
+                sx={{
+                  bgcolor: 'success.main',
+                  '&:hover': {
+                    bgcolor: 'success.dark'
+                  },
+                  px: 3,
+                  py: 1
+                }}
+              >
+                ส่งข้อมูล
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                onClick={handleNext}
+                sx={{
+                  bgcolor: 'primary.main',
+                  '&:hover': {
+                    bgcolor: 'primary.dark'
+                  },
+                  px: 3,
+                  py: 1
+                }}
+              >
+                ต่อไป
+              </Button>
+            )}
+          </div>
+        </form>
+      </div>
     </LocalizationProvider>
   );
 }
