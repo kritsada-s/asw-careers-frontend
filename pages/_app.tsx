@@ -23,7 +23,7 @@ const AppContent = ({ Component, pageProps, router }: AppProps) => {
       <Dialog open={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)}>
         <DialogTitle>กรุณากรอกข้อมูลของคุณ</DialogTitle>
         <DialogContent>
-          <p>กรุณากรอกข้อมูลของคุณ</p>
+          
         </DialogContent>
       </Dialog>
     </>

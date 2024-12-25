@@ -48,11 +48,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, onError }: AuthM
 
       if (decryptedToken.CandidateID === '') {
         console.log('No candidate id in token... redirect to profile create page');
-        const jobId = sessionStorage.getItem('jobId');
-        let path = '/apply-job/';
-        if (jobId) {
-          path = '/apply-job/' + jobId;
-        }
+        let path = '/create-profile/';
         setTimeout(() => {
           handleClose();
           router.push(path);

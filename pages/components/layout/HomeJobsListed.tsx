@@ -8,7 +8,7 @@ import JobBlock from "../ui/JobBlock";
 import LastestPositions from "./LastestPositions";
 import { getCompanies } from "@/lib/api";
 import { Job } from "@/lib/types";
-import { useModal } from "../MUIProvider";
+//import { useModal } from "../MUIProvider";
 import { useRouter } from "next/navigation";
 import { useToken } from "@/pages/hooks/useToken";
 import { AuthContext } from "@/pages/providers";
@@ -23,7 +23,7 @@ function HomeJobsListed() {
     const [jobs, setJobs] = useState<Job[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { openModal } = useModal();
+    // const { openModal } = useModal();
     const token = useToken();
     const userData = useContext(AuthContext);
 
@@ -81,19 +81,19 @@ function HomeJobsListed() {
         if (userData) {
             router.push('/profile');
         } else {
-            openModal({
-                type: 'auth',
-                props: {
-                // You can pass additional props if needed
-            },
-            onSuccess: (data) => {
-                // Handle success if needed
-                router.push('/submit-profile');
-            },
-            onError: (error) => {
-                // Handle error if needed
-                }
-            });
+            // openModal({
+            //     type: 'auth',
+            //     props: {
+            //     // You can pass additional props if needed
+            // },
+            // onSuccess: (data) => {
+            //     // Handle success if needed
+            //     router.push('/submit-profile');
+            // },
+            // onError: (error) => {
+            //     // Handle error if needed
+            //     }
+            // });
         }
     };
 

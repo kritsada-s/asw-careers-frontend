@@ -195,6 +195,10 @@ export function useEducations() {
     },
     {
       "educationID": 5,
+      "description": "ปริญญาโท / Master's degree"
+    },
+    {
+      "educationID": 6,
       "description": "ปริญญาเอก / Ph.D."
     }
   ], []);
@@ -727,4 +731,79 @@ export function useBenefits(companyID: string) {
   }, [companyID]);
 
   return { benefits, isLoading, error };
+}
+
+
+export function useJobTitle(jobId: string) {
+  const [jobTitle, setJobTitle] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchJobTitle() {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(`${prodUrl}/JobAnnouncement/JobAnnouncement/${jobId}`);
+        setJobTitle(response.data.jobPosition);
+      } catch (err: any) {
+        console.error('Error fetching job title:', err);
+        setError(err?.message || 'An unknown error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (jobId) {
+      fetchJobTitle();
+    }
+  }, [jobId]);
+
+  return { jobTitle, isLoading, error };
+}
+
+export function useLanguages() {
+  const [languages, setLanguages] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const preLanguages = useMemo(() => {
+    return [
+      {
+        "languageID": 1,
+        "description": "อังกฤษ / English"
+      },
+      {
+        "languageID": 2,
+        "description": "จีน / Chinese"
+      },
+      {
+        "languageID": 3,
+        "description": "ญี่ปุ่น / Japanese"
+      },
+      {
+        "languageID": 4,
+        "description": "รัสเซีย / Russia"
+      }
+    ];
+  }, []);
+
+  useEffect(() => {
+    async function fetchLanguages() {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(`${prodUrl}/Language/Languages`);
+        setLanguages(response.data);
+      } catch (err: any) {
+        console.error('Error fetching languages:', err);
+        setError(err?.message || 'An unknown error occurred');
+        setLanguages(preLanguages);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchLanguages();
+  }, []);
+
+  return { languages, isLoading, error };
 }

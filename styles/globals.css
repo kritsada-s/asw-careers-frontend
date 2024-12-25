@@ -308,6 +308,12 @@ body {
       &:focus {
         box-shadow: none;
       }
+      &[type="text"] {
+        font-size: 26px;
+      }
+    }
+    label {
+      @apply font-medium text-xl;
     }
   }
   .react-datepicker {
@@ -315,6 +321,14 @@ body {
   }
   .react-datepicker__day, .react-datepicker__day-name {
     font-size: 24px;
+  }
+  .custom-selector {
+    input[type="text"] {
+      height: auto;
+    }
+    .css-hlgwow {
+      height: 50px;
+    }
   }
 }
       

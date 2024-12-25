@@ -24,7 +24,7 @@ const FileUploadButton = styled(Button)<ButtonProps>(({ theme }) => ({
   },
 }));
 
-export default function InputFileUpload({ onChange }: { onChange: (file: File) => void }) {
+export default function InputFileUpload({ onChange, file }: { onChange: (file: File) => void, file: File | null }) {
   return (
     <FileUploadButton
       component="label"
@@ -32,8 +32,9 @@ export default function InputFileUpload({ onChange }: { onChange: (file: File) =
       variant="contained"
       tabIndex={-1}
       startIcon={<CloudUploadIcon />}
+      className="!text-sm px-4 py-1"
       >
-      อัพโหลดเอกสาร
+      { file?.name || 'อัพโหลดเอกสาร'}
       <VisuallyHiddenInput
         type="file"
         onChange={(event) => {
