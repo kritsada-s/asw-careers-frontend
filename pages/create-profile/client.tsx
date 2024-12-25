@@ -178,6 +178,7 @@ function Client() {
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="th"> 
       <div className="max-w-4xl mx-auto p-6">
         <ProgressSteps currentStep={currentStepIndex} steps={steps} />
+        <h2 className="text-2xl font-bold mb-4">สมัครงานตำแหน่ง {job?.jobTitle}</h2>
         <form className="space-y-1">
           <div className="form-wrapper min-h-[500px]">
             {/* Basic Information Section */}
