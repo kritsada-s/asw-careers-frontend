@@ -14,6 +14,8 @@ import BuddhistDatePicker from '../components/ui/DatePicker';
 import { useEducations, useJobTitle } from '../hooks/useDataFetching';
 import { useSearchParams } from 'next/navigation';
 import CustomDatePicker from '../components/ui/DatePicker';
+import CandidateLanguage from '../components/ui/CandidateLanguage';
+import { CandidateLanguageProps, Language } from '@/lib/types';
 
 gsap.registerPlugin(useGSAP);
 
@@ -162,6 +164,7 @@ function Client() {
   const handleSubDistrictChange = (subDistrict: any) => {
     setSubDistrict(subDistrict.value);
     setPostcode(subDistrict.postCode);
+    console.log(subDistrict.postCode);
   };
 
   const setInvalidField = (field: string) => {
@@ -189,6 +192,10 @@ function Client() {
 
   const handleEducationChange = (education: any) => {
     setEducation(education.value);
+  };
+
+  const handleLanguageChange = (languages: Language[]) => {
+    console.log(languages);
   };
 
   useEffect(() => {
@@ -409,7 +416,7 @@ function Client() {
                   </div>
                   <div>
                     <label className="block mb-1">รหัสไปรษณีย์</label>
-                    <input type="text" name="zipcode" className="w-full h-[50px] border rounded px-2 py-1 text-xl bg-neutral-200 text-neutral-400 border-gray-300" defaultValue={postcode || ''} />
+                    <input type="text" name="zipcode" className="w-full h-[50px] border rounded px-2 py-1 text-xl bg-neutral-200 text-neutral-400 border-gray-300" value={postcode || ''} disabled />
                   </div>
                 </div>
               </div>
@@ -447,18 +454,7 @@ function Client() {
                 <div>
                   <h3 className="font-medium mb-2">ภาษา</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block mb-1">ภาษา</label>
-                      <select className="w-full border rounded p-2">
-                        <option>Select Language</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block mb-1">ระดับ</label>
-                      <select className="w-full border rounded p-2">
-                        <option>Select Level</option>
-                      </select>
-                    </div>
+                    <CandidateLanguage onChange={handleLanguageChange} />
                   </div>
                 </div>
               </div>
