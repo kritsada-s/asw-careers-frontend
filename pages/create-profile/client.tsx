@@ -164,6 +164,7 @@ function Client() {
   const checkInvalidFields = () => {
     // Get all input fields from current active section
     const currentStepRef = currentStep.ref.current;
+    let inValid = false;
     if (currentStepRef) {
       const inputs = currentStepRef.querySelectorAll('input, select');
       const currentStepData: { [key: string]: string } = {};
@@ -182,6 +183,8 @@ function Client() {
               if (!selectedOption?.textContent || selectedOption?.textContent === '' || selectedOption?.textContent === '0' && !invalidFields.includes(inputElement.name)) {
                 setInvalidFields([...invalidFields, inputElement.name]);
               }
+
+              inValid = true;
             }
           } else {
             currentStepData[inputElement.name] = inputElement.value;
@@ -189,25 +192,26 @@ function Client() {
             // Add to invalidFields if no value
             if (!inputElement.value || inputElement.value === '' || inputElement.value === '0' && !invalidFields.includes(inputElement.name)) {
               setInvalidFields([...invalidFields, inputElement.name]); 
+              inValid = true;
             }
+
           }
         }
       });
-
       console.log('Invalid fields:', invalidFields.length);
       console.log('Current step data:', currentStepData);
-
+      return inValid;
     }
   }
 
+
   const handleNext = () => {
-    checkInvalidFields();
-    if (invalidFields.length > 0) {
+    if (!checkInvalidFields()) {
+      handleSectionTransition('next');
+    } else {
       setSnackbarMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
       setSnackbarOpen(true);
-      return;
     }
-    handleSectionTransition('next');
   };
 
   const handlePrevious = () => {
