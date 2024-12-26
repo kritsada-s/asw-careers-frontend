@@ -20,6 +20,7 @@ const CandidateLanguage: React.FC<CandidateLanguageComponentProps> = ({
   return (
     <div id="candidateLanguagesPanel" className="flex gap-2 custom-selector">
       <Select className="min-w-[300px]"
+        instanceId="language-select"
         options={languages.languages.map((language: any) => ({ value: language.languageID, label: language.description }))}
         placeholder="กรุณาเลือกภาษา"
         onChange={(selected) => {

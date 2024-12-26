@@ -17,7 +17,7 @@ import CustomDatePicker from '../components/ui/DatePicker';
 import CandidateLanguage from '../components/ui/CandidateLanguage';
 import { CandidateLanguageProps } from '@/lib/types';
 import { DeleteIcon, X } from 'lucide-react';
-import { Chip } from '@mui/material';
+import { Alert, Chip, Snackbar } from '@mui/material';
 
 gsap.registerPlugin(useGSAP);
 
@@ -77,6 +77,9 @@ function Client() {
   const { educations } = useEducations();
   const [education, setEducation] = useState<Education | null>(null);
   const [candidateLanguages, setCandidateLanguages] = useState<CandidateLanguageProps[]>([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('เกิดข้อผิดพลาด');
+
   const languageLevelLabel = [{
     value: 1,
     label: 'พอใช้'
@@ -104,64 +107,119 @@ function Client() {
     });
   }, []);
 
+  const handleSectionTransition = (direction: 'next' | 'previous') => {
+    if (direction === 'next') {
+      const nextIndex = currentStepIndex + 1;
+      if (nextIndex < steps.length) {
+        // Hide current section
+        gsap.to(currentStep.ref.current, {
+          opacity: 0,
+          x: -50,
+          display: 'none',
+          duration: 0.3,
+          ease: "power2.inOut"
+        });
+
+        // Show next section
+        gsap.to(steps[nextIndex].ref.current, {
+          opacity: 1,
+          x: 0,
+          duration: 0.3,
+          ease: "power2.inOut",
+          display: 'block',
+          delay: 0.33
+        });
+
+        setCurrentStepIndex(nextIndex);
+        setIsLastStep(nextIndex === steps.length - 1);
+      }
+    } else {
+      const prevIndex = currentStepIndex - 1;
+      if (prevIndex >= 0) {
+        // Hide current section
+        gsap.to(currentStep.ref.current, {
+          opacity: 0,
+          x: 50,
+          duration: 0.3,
+          ease: "power2.inOut",
+          display: 'none'
+        });
+
+        // Show previous section
+        gsap.to(steps[prevIndex].ref.current, {
+          opacity: 1,
+          x: 0,
+          duration: 0.3,
+          delay: 0.33,
+          ease: "power2.inOut",
+          display: 'block'
+        });
+
+        setCurrentStepIndex(prevIndex);
+        setIsLastStep(false);
+      }
+    }
+  }
+
+  const checkInvalidFields = () => {
+    // Get all input fields from current active section
+    const currentStepRef = currentStep.ref.current;
+    if (currentStepRef) {
+      const inputs = currentStepRef.querySelectorAll('input, select');
+      const currentStepData: { [key: string]: string } = {};
+
+      inputs.forEach((input: Element) => {
+        const inputElement = input as HTMLInputElement;
+        if (inputElement.name) {
+          // For select elements using react-select, get value from parent div
+          if (inputElement.tagName.toLowerCase() === 'select' && !inputElement.value) {
+            const selectParent = inputElement.closest('.custom-selector');
+            if (selectParent) {
+              const selectedOption = selectParent.querySelector('[class*="singleValue"]');
+              currentStepData[inputElement.name] = selectedOption?.textContent || '';
+              
+              // Add to invalidFields if no value
+              if (!selectedOption?.textContent || selectedOption?.textContent === '' || selectedOption?.textContent === '0' && !invalidFields.includes(inputElement.name)) {
+                setInvalidFields([...invalidFields, inputElement.name]);
+              }
+            }
+          } else {
+            currentStepData[inputElement.name] = inputElement.value;
+            
+            // Add to invalidFields if no value
+            if (!inputElement.value || inputElement.value === '' || inputElement.value === '0' && !invalidFields.includes(inputElement.name)) {
+              setInvalidFields([...invalidFields, inputElement.name]); 
+            }
+          }
+        }
+      });
+
+      console.log('Invalid fields:', invalidFields.length);
+      console.log('Current step data:', currentStepData);
+
+    }
+  }
+
   const handleNext = () => {
+    checkInvalidFields();
     if (invalidFields.length > 0) {
+      setSnackbarMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
+      setSnackbarOpen(true);
       return;
     }
-    const nextIndex = currentStepIndex + 1;
-    if (nextIndex < steps.length) {
-      // Hide current section
-      gsap.to(currentStep.ref.current, {
-        opacity: 0,
-        x: -50,
-        display: 'none',
-        duration: 0.3,
-        ease: "power2.inOut"
-      });
-
-      // Show next section
-      gsap.to(steps[nextIndex].ref.current, {
-        opacity: 1,
-        x: 0,
-        duration: 0.3,
-        ease: "power2.inOut",
-        display: 'block',
-        delay: 0.33
-      });
-
-      setCurrentStepIndex(nextIndex);
-      setIsLastStep(nextIndex === steps.length - 1);
-    }
+    handleSectionTransition('next');
   };
 
   const handlePrevious = () => {
-    const prevIndex = currentStepIndex - 1;
-    if (prevIndex >= 0) {
-      // Hide current section
-      gsap.to(currentStep.ref.current, {
-        opacity: 0,
-        x: 50,
-        duration: 0.3,
-        ease: "power2.inOut",
-        display: 'none'
-      });
-
-      // Show previous section
-      gsap.to(steps[prevIndex].ref.current, {
-        opacity: 1,
-        x: 0,
-        duration: 0.3,
-        delay: 0.33,
-        ease: "power2.inOut",
-        display: 'block'
-      });
-
-      setCurrentStepIndex(prevIndex);
-      setIsLastStep(false);
-    }
+    handleSectionTransition('previous');
   };
 
   const handleResumeFileChange = (file: File) => {
+    if (!['application/pdf', 'image/jpeg', 'image/jpg'].includes(file.type)) {
+      setSnackbarMessage('ไฟล์ต้องเป็น PDF, JPG หรือ JPEG');
+      setSnackbarOpen(true);
+      return;
+    }
     setResumeFile(file);
     //console.log(file.name);
   };
@@ -211,9 +269,14 @@ function Client() {
   };
 
   const handleLanguageAdd = (language: CandidateLanguageProps) => {
-    console.log(language);
+    if (language.languageID === 0 || language.level === 0) {
+      setSnackbarMessage('กรุณาเลือกภาษาและระดับภาษา');
+      setSnackbarOpen(true);
+      return;
+    }
     if (candidateLanguages.find(l => l.languageID === language.languageID)) {
-      alert('Language already exists');
+      setSnackbarMessage('ภาษานี้มีอยู่ในรายการแล้ว');
+      setSnackbarOpen(true);
       return;
     }
     setCandidateLanguages([...candidateLanguages, language]);
@@ -221,6 +284,58 @@ function Client() {
 
   const handleLanguageDelete = (languageID: number) => {
     setCandidateLanguages(candidateLanguages.filter(l => l.languageID !== languageID));
+  };
+
+  const handleSubmitProfile = () => {
+    const form = document.querySelector('form');
+    const formData = new FormData(form as HTMLFormElement);
+    
+    const candidateData = {
+      // Basic Info
+      profileImage: profileImage,
+      firstName: formData.get('firstName') as string,
+      lastName: formData.get('lastName') as string,
+      email: formData.get('email') as string,
+      phone: formData.get('phone') as string,
+      resume: resumeFile,
+
+      // Personal Info 
+      birthDate: formData.get('birthDate') as string,
+      idCard: formData.get('idCard') as string,
+      gender: formData.get('gender') as string,
+
+      // Address Info
+      address: formData.get('address') as string,
+      province: province,
+      district: district,
+      subDistrict: subDistrict,
+      postcode: postcode,
+
+      // Other Info
+      education: education,
+      major: formData.get('major') as string,
+      languages: candidateLanguages,
+    };
+
+    // Validate required fields
+    const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'birthDate', 'idCard', 'address'];
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+      if (!candidateData[field as keyof typeof candidateData]) {
+        setInvalidField(field);
+        isValid = false;
+      }
+    });
+
+    if (!isValid) {
+      setSnackbarMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    console.log('Submitting profile data:', candidateData);
+    // TODO: Add API call to submit data
   };
 
   useEffect(() => {
@@ -326,7 +441,7 @@ function Client() {
                       required
                       onBlur={handleValidateField}
                       onChange={(e) => {
-                        const value = e.target.value.replace(/,/g, '');
+                        const value = e.target.value.replace(/[^0-9,]/g, '').replace(/,/g, '');
                         if (value) {
                           e.target.value = Number(value).toLocaleString();
                         }
@@ -388,6 +503,7 @@ function Client() {
                   <div>
                     <label className="block mb-1">จังหวัด</label>
                     <Select<Option>
+                      instanceId="province-select"
                       options={provinces.map(province => ({
                         value: province.ProvinceID,
                         label: province.NameTH
@@ -403,6 +519,7 @@ function Client() {
                     <label className="block mb-1">อำเภอ</label>
                     <Select<Option>
                       ref={districtSelect}
+                      instanceId="district-select"
                       options={districts
                         .filter((district) => district.ProvinceID === province)
                         .map((district) => ({
@@ -422,6 +539,7 @@ function Client() {
                     <label className="block mb-1">ตำบล</label>
                     <Select<Option>
                       ref={subDistrictSelect}
+                      instanceId="sub-district-select"
                       options={subDistricts
                         .filter((subDistrict) => subDistrict.DistrictID === district)
                         .map((subDistrict) => ({
@@ -461,6 +579,7 @@ function Client() {
                             value: education.educationID,
                             label: education.description
                           }))}
+                          instanceId="education-level"
                           onChange={(selectedOption) => {
                             handleEducationChange(selectedOption as Option);
                           }}
@@ -508,7 +627,7 @@ function Client() {
               <button
                 type="button"
                 className="px-6 py-2 bg-blue-500 text-white rounded"
-                onClick={() => console.log('Submit form')}
+                onClick={handleSubmitProfile}
               >
                 ส่งข้อมูล
               </button>
@@ -522,6 +641,11 @@ function Client() {
               </button>
             )}
           </div>
+          <Snackbar open={snackbarOpen} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} onClose={() => setSnackbarOpen(false)} autoHideDuration={4500}>
+            <Alert severity="error" onClose={() => setSnackbarOpen(false)} variant="filled">
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
         </form>
       </div>
     </LocalizationProvider>

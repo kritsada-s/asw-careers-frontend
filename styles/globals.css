@@ -337,5 +337,8 @@ body {
       @apply border-custom-orange;
     }
   }
+  .MuiAlert-icon {
+    align-items: center;
+  }
 }
       
