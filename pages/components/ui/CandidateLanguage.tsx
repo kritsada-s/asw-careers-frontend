@@ -1,144 +1,46 @@
-import React, { useState } from 'react';
-import { CandidateLanguageProps, Language } from '@/lib/types';
+import { CandidateLanguageProps } from "@/lib/types";
+import { useLanguages } from "@/pages/hooks/useDataFetching";
+import { Button, ButtonGroup } from "@mui/material";
+import { PlusIcon } from "lucide-react";
+import { useState } from "react";
+import Select from 'react-select';
 
 interface CandidateLanguageComponentProps {
-  onChange: (languages: Language[]) => void;
+  handleLanguageAdd: (language: CandidateLanguageProps) => void;
 }
 
-const CandidateLanguage: React.FC<CandidateLanguageComponentProps> = ({ onChange }) => {
-  const [languages, setLanguages] = useState<Language[]>([]);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [newLanguage, setNewLanguage] = useState<Language>({
-    languageID: 0,
-    languageName: '',
-    level: ''
-  });
+const CandidateLanguage: React.FC<CandidateLanguageComponentProps> = ({ 
+  handleLanguageAdd 
+}) => {
 
-  const languageLevels = [
-    'Beginner',
-    'Elementary', 
-    'Intermediate',
-    'Upper Intermediate',
-    'Advanced',
-    'Native'
-  ];
-
-  const handleAdd = () => {
-    if (newLanguage.languageName && newLanguage.level) {
-      const updatedLanguages = [
-        ...languages,
-        { ...newLanguage, languageID: Date.now() }
-      ];
-      setLanguages(updatedLanguages);
-      onChange(updatedLanguages);
-      setNewLanguage({ languageID: 0, languageName: '', level: '' });
-    }
-  };
-
-  const handleEdit = (id: number) => {
-    if (editingId === id) {
-      setEditingId(null);
-    } else {
-      setEditingId(id);
-    }
-  };
-
-  const handleUpdate = (id: number, field: string, value: string) => {
-    const updatedLanguages = languages.map(lang => 
-      lang.languageID === id ? { ...lang, [field]: value } : lang
-    );
-    setLanguages(updatedLanguages);
-    onChange(updatedLanguages);
-  };
-
-  const handleRemove = (id: number) => {
-    const updatedLanguages = languages.filter(lang => lang.languageID !== id);
-    setLanguages(updatedLanguages);
-    onChange(updatedLanguages);
-  };
+  const [selectedLanguage, setSelectedLanguage] = useState<CandidateLanguageProps | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
+  const languages = useLanguages();
 
   return (
-    <div className="space-y-4">
-      {/* Add new language */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-        <div>
-          <label className="block mb-1">Language</label>
-          <input
-            type="text"
-            className="w-full border border-gray-300 rounded p-2"
-            value={newLanguage.languageName}
-            onChange={(e) => setNewLanguage({ ...newLanguage, languageName: e.target.value })}
-            placeholder="Enter language"
-          />
-        </div>
-        <div>
-          <label className="block mb-1">Level</label>
-          <select 
-            className="w-full border border-gray-300 rounded p-2"
-            value={newLanguage.level}
-            onChange={(e) => setNewLanguage({ ...newLanguage, level: e.target.value })}
-          >
-            <option value="">Select Level</option>
-            {languageLevels.map(level => (
-              <option key={level} value={level}>{level}</option>
-            ))}
-          </select>
-        </div>
-        <button
-          onClick={handleAdd}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Add Language
-        </button>
-      </div>
-
-      {/* Language list */}
-      <div className="space-y-2">
-        {languages.map(lang => (
-          <div key={lang.languageID} className="flex items-center space-x-4 p-2 border rounded">
-            {editingId === lang.languageID ? (
-              <>
-                <input
-                  type="text"
-                  className="flex-1 border rounded p-1"
-                  value={lang.languageName}
-                  onChange={(e) => handleUpdate(lang.languageID, 'languageName', e.target.value)}
-                />
-                <select
-                  className="flex-1 border rounded p-1"
-                  value={lang.level}
-                  onChange={(e) => handleUpdate(lang.languageID, 'level', e.target.value)}
-                >
-                  {languageLevels.map(level => (
-                    <option key={level} value={level}>{level}</option>
-                  ))}
-                </select>
-              </>
-            ) : (
-              <>
-                <span className="flex-1">{lang.languageName}</span>
-                <span className="flex-1">{lang.level}</span>
-              </>
-            )}
-            <div className="space-x-2">
-              <button
-                onClick={() => handleEdit(lang.languageID)}
-                className="px-3 py-1 bg-gray-100 rounded hover:bg-gray-200"
-              >
-                {editingId === lang.languageID ? 'Save' : 'Edit'}
-              </button>
-              <button
-                onClick={() => handleRemove(lang.languageID)}
-                className="px-3 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200"
-              >
-                Remove
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+    <div id="candidateLanguagesPanel" className="flex gap-2 custom-selector">
+      <Select className="min-w-[300px]"
+        options={languages.languages.map((language: any) => ({ value: language.languageID, label: language.description }))}
+        placeholder="กรุณาเลือกภาษา"
+        onChange={(selected) => {
+          if (selected) {
+            setSelectedLanguage({
+              languageID: selected.value,
+              languageName: selected.label,
+              level: 0  // Set default level or get it from input
+            });
+          }
+        }}
+      />
+      <ButtonGroup variant="outlined" size="small" className="inline self-center">
+        <Button value={1} onClick={() => setSelectedLevel(1)} className={`${selectedLevel === 1 ? 'bg-custom-orange text-white' : ''}`}>พอใช้</Button>
+        <Button value={2} onClick={() => setSelectedLevel(2)} className={`${selectedLevel === 2 ? 'bg-custom-orange text-white' : ''}`}>ดี</Button>
+        <Button value={3} onClick={() => setSelectedLevel(3)} className={`${selectedLevel === 3 ? 'bg-custom-orange text-white' : ''}`}>ดีมาก</Button>
+        <Button value={4} onClick={() => setSelectedLevel(4)} className={`${selectedLevel === 4 ? 'bg-custom-orange text-white' : ''}`}>เชี่ยวชาญ</Button>
+      </ButtonGroup>
+      <button className="bg-primary-700 text-white px-3 py-1 rounded-md flex items-center gap-1 md:hover:scale-95 transition text-sm h-fit self-center" onClick={() => handleLanguageAdd({ languageID: selectedLanguage?.languageID ?? 0, languageName: selectedLanguage?.languageName ?? '', level: selectedLevel ?? 0 })}><PlusIcon className="w-3 h-3" /> เพิ่ม</button>
     </div>
   );
-};
+}
 
 export default CandidateLanguage;

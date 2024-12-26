@@ -304,11 +304,4 @@ export interface CandidateLanguageProps {
     languageID: number;
     languageName: string;
     level: number;
-    onChange: (languages: CandidateLanguageProps[]) => void;
-}
-
-export interface Language {
-    languageID: number;
-    languageName: string;
-    level: string;
-  }
+} []

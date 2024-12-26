@@ -15,7 +15,9 @@ import { useEducations, useJobTitle } from '../hooks/useDataFetching';
 import { useSearchParams } from 'next/navigation';
 import CustomDatePicker from '../components/ui/DatePicker';
 import CandidateLanguage from '../components/ui/CandidateLanguage';
-import { CandidateLanguageProps, Language } from '@/lib/types';
+import { CandidateLanguageProps } from '@/lib/types';
+import { DeleteIcon, X } from 'lucide-react';
+import { Chip } from '@mui/material';
 
 gsap.registerPlugin(useGSAP);
 
@@ -74,6 +76,20 @@ function Client() {
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const { educations } = useEducations();
   const [education, setEducation] = useState<Education | null>(null);
+  const [candidateLanguages, setCandidateLanguages] = useState<CandidateLanguageProps[]>([]);
+  const languageLevelLabel = [{
+    value: 1,
+    label: 'พอใช้'
+  }, {
+    value: 2,
+    label: 'ดี'
+  }, {
+    value: 3,
+    label: 'ดีมาก'
+  }, {
+    value: 4,
+    label: 'เชี่ยวชาญ'
+  }]
 
   useGSAP(() => {
     // Hide all sections except first on start
@@ -194,8 +210,17 @@ function Client() {
     setEducation(education.value);
   };
 
-  const handleLanguageChange = (languages: Language[]) => {
-    console.log(languages);
+  const handleLanguageAdd = (language: CandidateLanguageProps) => {
+    console.log(language);
+    if (candidateLanguages.find(l => l.languageID === language.languageID)) {
+      alert('Language already exists');
+      return;
+    }
+    setCandidateLanguages([...candidateLanguages, language]);
+  };
+
+  const handleLanguageDelete = (languageID: number) => {
+    setCandidateLanguages(candidateLanguages.filter(l => l.languageID !== languageID));
   };
 
   useEffect(() => {
@@ -453,8 +478,15 @@ function Client() {
 
                 <div>
                   <h3 className="font-medium mb-2">ภาษา</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <CandidateLanguage onChange={handleLanguageChange} />
+                  <div className="flex flex-col gap-4">
+                    <div className="language-list">
+                      <div className="flex flex-wrap gap-2">
+                        {candidateLanguages.map((language, index) => (
+                          <Chip key={index} label={`${language.languageName} - ${languageLevelLabel[language.level - 1].label}`} onDelete={() => handleLanguageDelete(language.languageID)} />
+                        ))}
+                      </div>
+                    </div>
+                    <CandidateLanguage handleLanguageAdd={handleLanguageAdd} />
                   </div>
                 </div>
               </div>

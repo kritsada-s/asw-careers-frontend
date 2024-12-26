@@ -146,6 +146,7 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --custom-orange: #F1683B;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -172,6 +173,7 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --custom-orange: #F1683B;
   }
 }
 
@@ -328,6 +330,11 @@ body {
     }
     .css-hlgwow {
       height: 50px;
+    }
+  }
+  #candidateLanguagesPanel {
+    .MuiButtonGroup-grouped {
+      @apply border-custom-orange;
     }
   }
 }

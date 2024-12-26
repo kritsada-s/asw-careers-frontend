@@ -1,4 +1,16 @@
 import { createTheme } from '@mui/material/styles';
+const { palette } = createTheme();
+const { augmentColor } = palette;
+const createColor = (mainColor: string) => augmentColor({ color: { main: mainColor } });
+
+declare module '@mui/material/styles' {
+  interface Palette {
+    kryptonite: Palette['primary'];
+  }
+  interface PaletteOptions {
+    kryptonite?: PaletteOptions['primary'];
+  }
+}
 
 const theme = createTheme({
   palette: {
@@ -14,6 +26,7 @@ const theme = createTheme({
       dark: '#F1683B',
       contrastText: '#ffffff',
     },
+    kryptonite: createColor('#419844'),
   },
   typography: {
     fontFamily: ['DB Heavent', 'sans-serif'].join(','),

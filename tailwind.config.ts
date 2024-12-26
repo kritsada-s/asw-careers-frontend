@@ -27,6 +27,7 @@ const config: Config = {
 				'kryptonite-green': '#419844',
 				'custom-light-gray': '#F1F1F1',
 				'custom-light-blue': '#F1F9FF',
+				'custom-orange': '#F1683B',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				card: {
