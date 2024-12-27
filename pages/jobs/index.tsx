@@ -3,24 +3,25 @@
 import React, { Suspense, useEffect, useState, useRef, useCallback, useContext } from 'react';
 import { fetchCompanyLocations, fetchedJobs, fetchLocationByID } from '@/lib/api';
 import { Job } from '@/lib/types';
-import { WorkLocation } from '../components/ui/WorkLocation';
+import WorkLocation from '../../components/ui/WorkLocation';
 import { fetchCompanyName, timeAgo } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 //import { useModal } from '../components/MUIProvider';
-import { useToken, useDecryptedToken } from '@/pages/hooks/useToken';
+import useToken from '@/hooks/useToken';
+import { useDecryptedToken } from '@/hooks/useToken';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Button, CustomFlowbiteTheme, Modal } from 'flowbite-react';
-import { useBenefits, useFetchBase64Image, useFetchBase64PDF, useSubmitJobApplication, useUserProfile } from '../hooks/useDataFetching';
+import { useBenefits, useFetchBase64Image, useFetchBase64PDF, useSubmitJobApplication, useUserProfile } from '../../hooks/useDataFetching';
 import Link from 'next/link';
 import { HiExternalLink, HiOutlineCheckCircle, HiOutlineExclamationCircle, HiX } from 'react-icons/hi';
 import { FaFacebook, FaLine, FaXTwitter } from "react-icons/fa6";
 import Swal from 'sweetalert2';
 import Image from 'next/image';
-import { EducationLevel } from '../components/ui/FormInput';
+import { EducationLevel } from '../../components/ui/FormInput';
 import { FacebookShareButton, LineShareButton, TwitterShareButton } from 'react-share';
 import { AuthContext } from '../providers';
-import LoaderHorizontal from '../components/ui/loader';
+import LoaderHorizontal from '../../components/ui/loader';
 import { Benefit } from '@/lib/types';
 
 interface fetchedJobs {

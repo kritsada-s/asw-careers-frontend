@@ -1,5 +1,5 @@
 import { CandidateLanguageProps } from "@/lib/types";
-import { useLanguages } from "@/pages/hooks/useDataFetching";
+import { useLanguages } from "@/hooks/useDataFetching";
 import { Button, ButtonGroup } from "@mui/material";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";

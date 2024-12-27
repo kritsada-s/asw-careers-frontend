@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import FormNavigation from '../ui/FormNavigation';
 import type { FormField, ApplicationFormData } from '@/lib/types';
 import Image from 'next/image';
-import { useFetchBase64Image, useFetchBase64PDF } from '@/pages/hooks/useDataFetching';
+import { useFetchBase64Image, useFetchBase64PDF } from '@/hooks/useDataFetching';
 import Dialog from '@mui/material/Dialog';
 import { DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 

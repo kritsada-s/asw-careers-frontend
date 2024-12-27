@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FormStepProps } from '@/lib/types';
 import FormNavigation from '../ui/FormNavigation';
-import { useEducations, useSourceInformations } from '@/pages/hooks/useDataFetching';
+import { useEducations, useSourceInformations } from '@/hooks/useDataFetching';
 
 export default function OthersInfoForm({
   formData,

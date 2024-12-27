@@ -5,19 +5,20 @@ import gsap from 'gsap';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useEffect, useRef, useState } from 'react';
-import { ProgressSteps } from '../components/layout/FormProgress';
-import FileUploadButton from '../components/ui/FileUploadButton';
-import { DistrictSelector, ProvinceSelector, SubDistrictSelector } from '../components/ui/FormInput';
+import ProgressSteps from '../../components/layout/FormProgress';
+import FileUploadButton from '../../components/ui/FileUploadButton';
+import { DistrictSelector, ProvinceSelector, SubDistrictSelector } from '../../components/ui/FormInput';
 import Select, { StylesConfig } from 'react-select';
 import { districts, provinces, subDistricts } from '@/lib/data';
-import BuddhistDatePicker from '../components/ui/DatePicker';
-import { useEducations, useJobTitle } from '../hooks/useDataFetching';
+import BuddhistDatePicker from '../../components/ui/DatePicker';
+import { useEducations, useJobTitle } from '../../hooks/useDataFetching';
 import { useSearchParams } from 'next/navigation';
-import CustomDatePicker from '../components/ui/DatePicker';
-import CandidateLanguage from '../components/ui/CandidateLanguage';
+import CustomDatePicker from '../../components/ui/DatePicker';
+import CandidateLanguage from '../../components/ui/CandidateLanguage';
 import { CandidateLanguageProps } from '@/lib/types';
 import { DeleteIcon, X } from 'lucide-react';
 import { Alert, Chip, Snackbar } from '@mui/material';
+import Image from 'next/image';
 
 gsap.registerPlugin(useGSAP);
 
@@ -79,6 +80,7 @@ function Client() {
   const [candidateLanguages, setCandidateLanguages] = useState<CandidateLanguageProps[]>([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('เกิดข้อผิดพลาด');
+  const { jobTitle: position } = useJobTitle(params.get('id') || '');
 
   const languageLevelLabel = [{
     value: 1,
@@ -356,12 +358,10 @@ function Client() {
   }, [currentStep]);
 
   useEffect(() => {
-    const jobId = params.get('id');
-    if (jobId) {
-      const { jobTitle } = useJobTitle(jobId);
-      setJobTitle(jobTitle);
+    if (position) {
+      setJobTitle(position);
     }
-  }, [params]);
+  }, [position]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="th">
@@ -377,7 +377,7 @@ function Client() {
                   <div className="flex flex-col items-center">
                     <div className="w-48 h-52 bg-gray-100 rounded mb-4 flex items-center justify-center border border-gray-300">
                       { profileImage ? (
-                        <img src={URL.createObjectURL(profileImage)} alt="Profile Image" className="w-full h-full object-cover" />
+                        <Image src={URL.createObjectURL(profileImage)} alt="Profile Image" className="w-full h-full object-cover" />
                       ) : (
                         <span className="text-gray-400">รูปภาพประจำตัว</span>
                       )}

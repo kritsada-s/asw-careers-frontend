@@ -10,7 +10,7 @@ import { getCompanies } from "@/lib/api";
 import { Job } from "@/lib/types";
 //import { useModal } from "../MUIProvider";
 import { useRouter } from "next/navigation";
-import { useToken } from "@/pages/hooks/useToken";
+import useToken from "@/hooks/useToken";
 import { AuthContext } from "@/pages/providers";
 
 interface JobResponse {

@@ -304,4 +304,4 @@ export interface CandidateLanguageProps {
     languageID: number;
     languageName: string;
     level: number;
-} []
+}

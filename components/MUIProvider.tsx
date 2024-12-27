@@ -4,11 +4,11 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import theme from '../theme';
+import theme from './theme';
 import AuthModal from './Auth/AuthModal';
 import Crypt from '@/lib/Crypt';
 import { isNotExpired } from '@/lib/dateUtils';
-import { useToken } from '@/pages/hooks/useToken';
+import useToken from '@/hooks/useToken';
 
 // Define types
 type ModalType = 'auth' | 'confirm' | 'alert';

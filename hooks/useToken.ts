@@ -2,7 +2,7 @@ import { decrypt } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { TokenProps } from '@/lib/types';
 
-export const useToken = () => {
+export default function useToken() {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {

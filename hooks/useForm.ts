@@ -1,7 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { ApplicationFormData, FormField } from '@/lib/types';
 
-export function useApplicationForm(
+export default function useApplicationForm(
   initialData: Partial<{
     [K in keyof ApplicationFormData]: ApplicationFormData[K] | null;
   }> = {}

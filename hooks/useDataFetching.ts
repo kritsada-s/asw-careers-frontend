@@ -807,3 +807,5 @@ export function useLanguages() {
 
   return { languages, isLoading, error };
 }
+
+export default useSubmitJobApplication

@@ -2,7 +2,7 @@
 import { createContext, useCallback, useEffect, useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { decrypt, prodUrl } from "@/lib/utils";
-import AuthModal from "./components/Auth/AuthModal";
+import AuthModal from "../components/Auth/AuthModal";
 interface ContextTokenProps {
   CandidateID: string;
   isAuthModalOpen: boolean;
@@ -13,7 +13,7 @@ interface ContextTokenProps {
 
 export const AuthContext = createContext<ContextTokenProps | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const [CandidateID, setCandidateID] = useState('');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 

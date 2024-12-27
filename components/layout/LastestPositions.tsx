@@ -1,8 +1,8 @@
 import { fetchLocationByID } from "@/lib/api";
 import { Job } from "@/lib/types";
 import { ReactNode, useEffect } from "react";
-import { WorkLocation } from "../ui/WorkLocation";
-import { Department } from "../ui/Department";
+import WorkLocation from "../ui/WorkLocation";
+import Department from "../ui/Department";
 import Link from "next/link";
 
 interface LastestPositionsProps {

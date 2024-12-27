@@ -1,7 +1,7 @@
-import { useDistricts, useProvinces, useSubDistricts, useTitles } from '@/pages/hooks/useDataFetching';
+import { useDistricts, useProvinces, useSubDistricts, useTitles } from '@/hooks/useDataFetching';
 import { ApplicationFormData } from '@/lib/types';
 import React, { useEffect, useState, useRef } from 'react';
-import { useEducations } from "@/pages/hooks/useDataFetching";
+import { useEducations } from "@/hooks/useDataFetching";
 
 interface FormInputProps {
   label: string;
@@ -553,3 +553,5 @@ export const EducationLevel = ({educationID}: {educationID: number}) => {
     {educations.find(edu => edu.educationID === educationID)?.description || ''}
   </>;
 }
+
+export default CustomFormInput;

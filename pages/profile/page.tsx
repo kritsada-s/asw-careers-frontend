@@ -3,18 +3,18 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { checkAuth, redirectToHome } from '@/lib/auth';
 import { fetchProfileData, type ProfileData } from '@/lib/api';
-import LoaderHorizontal from '../components/ui/loader';
+import LoaderHorizontal from '../../components/ui/loader';
 import { Candidate } from '@/lib/form';
 import Image from 'next/image';
-import { useEducations, useFetchAppliedJobs, useFetchBase64Image, useFetchBase64PDF, useProfileUpdate } from '../hooks/useDataFetching';
+import { useEducations, useFetchAppliedJobs, useFetchBase64Image, useFetchBase64PDF, useProfileUpdate } from '../../hooks/useDataFetching';
 import { AppliedJob } from '@/lib/types';
-import JobBlock from '../components/ui/JobBlock';
+import JobBlock from '../../components/ui/JobBlock';
 import { Table } from 'flowbite-react';
 import { CustomFlowbiteTheme } from 'flowbite-react';
-import FormSelect from '../components/ui/FormAddress';
-import { DistrictSelector, GenderSelect, MaritalStatusSelector, ProvinceSelector, SubDistrictSelector, TitleSelector } from '../components/ui/FormInput';
-import { TitleName } from '../components/ui/FormInput';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Alert, Slide } from '@mui/material';
+import FormSelect from '../../components/ui/FormAddress';
+import { DistrictSelector, GenderSelect, MaritalStatusSelector, ProvinceSelector, SubDistrictSelector, TitleSelector } from '../../components/ui/FormInput';
+import { TitleName } from '../../components/ui/FormInput';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Alert, Slide, Link } from '@mui/material';
 import { AuthContext } from '../providers';
 
 interface EducationDialogProps {
@@ -288,7 +288,7 @@ export default function ProfilePage() {
         <h4 className='text-xl font-bold'>{error}</h4>
         <p className='text-neutral-500 mb-4'>กรุณาลองอีกครั้งภายหลัง</p>
         <p>
-          <a href="/" title='กลับสู่หน้าแรก' className='text-primary-700 underline'>กลับสู่หน้าแรก</a> หรือ <button className='px-2 py-1 bg-red-500 text-white rounded-md' onClick={() => logOut()}>ออกจากระบบ</button>
+          <Link href="/" title='กลับสู่หน้าแรก' className='text-primary-700 underline'>กลับสู่หน้าแรก</Link> หรือ <button className='px-2 py-1 bg-red-500 text-white rounded-md' onClick={() => logOut()}>ออกจากระบบ</button>
         </p>
       </div>
     );
@@ -300,7 +300,7 @@ export default function ProfilePage() {
         <h4 className='text-xl font-bold'>ไม่พบข้อมูลโปรไฟล์</h4>
         <p className='text-neutral-500 mb-4'>กรุณาลองอีกครั้งภายหลัง</p>
         <p>
-          <a href="/" title='กลับสู่หน้าแรก' className='text-primary-700 underline'>กลับสู่หน้าแรก</a> หรือ <button className='px-2 py-1 bg-red-500 text-white rounded-md' onClick={() => logOut()}>ออกจากระบบ</button>
+          <Link href="/" title='กลับสู่หน้าแรก' className='text-primary-700 underline'>กลับสู่หน้าแรก</Link> หรือ <button className='px-2 py-1 bg-red-500 text-white rounded-md' onClick={() => logOut()}>ออกจากระบบ</button>
         </p>
       </div>
     );
