@@ -37,7 +37,7 @@ export default function App(props: AppProps) {
         <title>{ APP_NAME }</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="AssetWise Careers" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="favicon.ico" />
       </Head>
       <AuthProvider>
         <AppContent {...props} />

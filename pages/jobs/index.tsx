@@ -243,6 +243,14 @@ const JobsPage = () => {
     }
   };
 
+  const handleSendEmail = () => {
+    if (selectedJob) {
+      const subject = `สมัครงานตำแหน่ง ${selectedJob.jobPosition}`;
+      const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}`;
+      window.location.href = mailtoLink;
+    }
+  }
+
   const Benefits = ({benefits}: {benefits: Benefit[]}) => {
     return (
       <div>
@@ -314,7 +322,7 @@ const JobsPage = () => {
                 <p className='text-white'>{companyName}</p>
               </div>
               <button
-                onClick={handleJobSubmit}
+                onClick={handleSendEmail}
                 className="px-5 py-1 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors"
               >
                 สมัครงาน

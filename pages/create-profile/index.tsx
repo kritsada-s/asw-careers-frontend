@@ -10,7 +10,10 @@ export const metadata: Metadata = {
 function page() {
   return (
     <div id="createProfile">
-      <Client />
+      {/* <Client /> */}
+      <div className="container py-32 text-center">
+        <h1 className="text-3xl font-bold text-neutral-700">Coming Soon</h1>
+      </div>
     </div>
   );
 }
