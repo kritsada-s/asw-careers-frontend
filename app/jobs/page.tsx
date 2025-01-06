@@ -115,7 +115,7 @@ const JobsPage = () => {
         if (response) {
           setJobs(response.jobs);
           if (response.jobs.length > 0) {
-            if (params.get('id')) {
+            if (params?.get('id')) {
               const paramsId = params.get('id');
               // Find and move the selected job to the front, followed by urgent jobs
               const selectedJobIndex = response.jobs.findIndex(job => job.jobID === paramsId);
@@ -144,7 +144,7 @@ const JobsPage = () => {
       }
     };
 
-    if (params.get('search')) {
+    if (params?.get('search')) {
       fetchJobs(params.get('search') || '');
     } else {
       fetchJobs();
