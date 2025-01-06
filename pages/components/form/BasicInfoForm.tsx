@@ -4,7 +4,7 @@ import type { FormField, ApplicationFormData } from '@/lib/types';
 import Image from 'next/image';
 import { useFetchBase64Image, useFetchBase64PDF } from '@/pages/hooks/useDataFetching';
 import Dialog from '@mui/material/Dialog';
-import { DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { DialogActions, DialogContent, DialogContentText, DialogTitle, Input, TextField } from '@mui/material';
 
 interface FormInputProps {
   label: string;
@@ -33,55 +33,56 @@ interface FormStepProps {
   jobTitle?: string;
 }
 
-function FormInput({
-  label,
-  name,
-  value,
-  type = 'text',
-  min,
-  required = false,
-  disabled = false,
-  updateField,
-  markFieldTouched,
-  isFieldTouched
-}: FormInputProps) {
-  const hasError = required && isFieldTouched(name) && !value;
+// function FormInput({
+//   label,
+//   name,
+//   value,
+//   type = 'text',
+//   min,
+//   required = false,
+//   disabled = false,
+//   updateField,
+//   markFieldTouched,
+//   isFieldTouched
+// }: FormInputProps) {
+//   const hasError = required && isFieldTouched(name) && !value;
 
-  return (
-    <div className="form-input-wrapper">
-      <label 
-        htmlFor={name} 
-        className="block text-base font-medium text-gray-700"
-      >
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
+//   return (
+//     <div className="form-input-wrapper">
+//       <label 
+//         htmlFor={name} 
+//         className="block text-base font-medium text-gray-700"
+//       >
+//         {label} {required && <span className="text-red-500">*</span>}
+//       </label>
       
-      <input
-        id={name}
-        type={type}
-        value={value || ''}
-        onChange={(e) => updateField(name, e.target.value)}
-        onBlur={() => markFieldTouched(name)}
-        disabled={disabled}
-        className={`
-          w-full px-3 py-2 border rounded-md 
-          ${hasError 
-            ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
-            : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-          }
-          disabled:bg-gray-100 disabled:cursor-not-allowed
-          transition-colors text-xl
-        `}
-      />
+//       <input
+//         id={name}
+//         type={type}
+//         value={value || ''}
+//         onChange={(e) => updateField(name, e.target.value)}
+//         onBlur={() => markFieldTouched(name)}
+//         disabled={disabled}
+//         className={`
+//           w-full px-3 py-2 border rounded-md 
+//           ${hasError 
+//             ? 'border-red-500 focus:ring-red-500 focus:border-red-500' 
+//             : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+//           }
+//           disabled:bg-gray-100 disabled:cursor-not-allowed
+//           transition-colors text-xl
+//         `}
+//       />
       
-      {hasError && (
-        <p className="text-red-500 text-sm mt-1">
-          {label} is required
-        </p>
-      )}
-    </div>
-  );
-}
+//       {hasError && (
+//         <p className="text-red-500 text-sm mt-1">
+//           {label} is required
+//         </p>
+//       )}
+//     </div>
+//   );
+// }
+
 const BasicInfoForm: React.FC<FormStepProps> = ({
   formData,
   updateField,
@@ -197,7 +198,7 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
               >
                 เงินเดือนที่คาดหวัง <span className="text-red-500">*</span>
               </label>
-              <input
+              <TextField
                 id="expectedSalary"
                 name="expectedSalary"
                 type="text" 
@@ -228,7 +229,6 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
                 id="experience"
                 name="experience" 
                 type="number"
-                min={0}
                 value={formData.experience || 0}
                 onChange={(e) => updateField('experience', e.target.value)}
                 onBlur={(e) => {
@@ -259,7 +259,7 @@ const BasicInfoForm: React.FC<FormStepProps> = ({
                     onBlur={() => markFieldTouched('cv')}
                     required
                     disabled={isSubmitting}
-                    className={`mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white ${isFieldTouched('cv') && !formData.cv ? 'border-red-500' : '' }`}
+                    className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white"
                   />
                   <p className="mt-1 text-sm text-gray-500">Accepted file types: JPG, JPEG, PDF</p>
               </div>

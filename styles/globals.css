@@ -306,16 +306,16 @@ body {
   section {
     background-color: #F2F9FF;
     input {
-      height: 50px;
+      /* height: 50px; */
       &:focus {
         box-shadow: none;
       }
-      &[type="text"] {
-        font-size: 26px;
-      }
+      /* &[type="text"] {
+        font-size: 28px;
+      } */
     }
     label {
-      @apply font-medium text-xl;
+      @apply font-medium text-base md:text-xl;
     }
   }
   .react-datepicker {

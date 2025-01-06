@@ -37,6 +37,10 @@ const theme = createTheme({
         root: {
           borderRadius: '6px',
           backgroundColor: '#FFFFFF',
+          overflow: 'hidden',
+          '& .MuiInputBase-input': {
+            fontSize: '32px',
+          }
         }
       }
     },

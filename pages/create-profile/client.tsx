@@ -1,6 +1,7 @@
-"use client";
+
 
 import { useGSAP } from '@gsap/react';
+import React from 'react';
 import gsap from 'gsap';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -17,7 +18,8 @@ import CustomDatePicker from '../components/ui/DatePicker';
 import CandidateLanguage from '../components/ui/CandidateLanguage';
 import { CandidateLanguageProps } from '@/lib/types';
 import { DeleteIcon, X } from 'lucide-react';
-import { Alert, Chip, Snackbar } from '@mui/material';
+import { Alert, Chip, FormControl, FormHelperText, OutlinedInput, Snackbar, TextField } from '@mui/material';
+import { useFormControl } from '@mui/material/FormControl';
 
 gsap.registerPlugin(useGSAP);
 
@@ -290,6 +292,19 @@ function Client() {
     setCandidateLanguages(candidateLanguages.filter(l => l.languageID !== languageID));
   };
 
+  function FormInputHelper() {
+    const { focused } = useFormControl() || {};
+    const helperText = React.useMemo(() => {
+      if (focused) {
+        return 'This field is being focused';
+      }
+  
+      return 'Helper text';
+    }, [focused]);
+  
+    return <FormHelperText>{helperText}</FormHelperText>;
+  }
+
   const handleSubmitProfile = () => {
     const form = document.querySelector('form');
     const formData = new FormData(form as HTMLFormElement);
@@ -373,7 +388,7 @@ function Client() {
             {/* Basic Information Section */}
             <section ref={basicInfoRef} className={`bg-white px-6 py-10 rounded-lg shadow relative`}>
               <div className="flex flex-col md:flex-row gap-6">
-                <div className="w-1/4">
+                <div className="md:w-2/5">
                   <div className="flex flex-col items-center">
                     <div className="w-48 h-52 bg-gray-100 rounded mb-4 flex items-center justify-center border border-gray-300">
                       { profileImage ? (
@@ -405,15 +420,20 @@ function Client() {
                 </div>
                 <div className="space-y-4 flex-1">
                   <div>
-                    <label className="block mb-1">ประสบการณ์การทำงาน (ปี) <span className="text-red-500">*</span></label>
-                    <input
+                    <label htmlFor="experience" className="block mb-1">ประสบการณ์การทำงาน (ปี) <span className="text-red-500">*</span></label>
+                    <TextField 
+                      id="experience"
                       name="experience"
                       type="number" 
-                      min="0"
-                      max="100"
+                      slotProps={{
+                        htmlInput: {
+                          min: 0,
+                          max: 100,
+                          pattern: '[0-9]*',
+                          defaultValue: '0'
+                        }
+                      }}
                       required
-                      pattern='[0-9]*'
-                      onBlur={handleValidateField}
                       defaultValue="0"
                       onKeyDown={(e) => {
                         if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '.') {
@@ -421,36 +441,38 @@ function Client() {
                         }
                       }}
                       onChange={(e) => {
+                        handleValidateField;
                         const value = e.target.value;
                         if (parseInt(value) > 100) {
                           alert('this field allow only 0-100');
                           e.target.value = '0';
                         }
                       }}
-                      onInput={(e) => {
-                        e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, '');
-                      }}
-                      className={`w-full border border-gray-300 rounded-md p-2 text-xl ${invalidFields.includes('experience') ? 'border-red-500' : ''}`}
                     />
                     {invalidFields.includes('experience') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
                   </div>
                   <div>
                     <label className="block mb-1">ค่าจ้างที่คาดหวัง <span className="text-red-500">*</span></label>
-                    <input
+                    <TextField
+                      id="salary"
                       name="salary"
                       type="text"
                       inputMode="numeric"
-                      pattern="[0-9]*"
-                      min="0"
+                      slotProps={{
+                        htmlInput: {
+                          pattern: '[0-9]*',
+                          min: 0,
+                          required: true
+                        }
+                      }}
                       required
-                      onBlur={handleValidateField}
                       onChange={(e) => {
+                        handleValidateField;
                         const value = e.target.value.replace(/[^0-9,]/g, '').replace(/,/g, '');
                         if (value) {
                           e.target.value = Number(value).toLocaleString();
                         }
                       }}
-                      className={`w-full border border-gray-300 rounded-md p-2 text-xl ${invalidFields.includes('salary') ? 'border-red-500' : ''}`}
                     />
                     {invalidFields.includes('salary') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
                   </div>
