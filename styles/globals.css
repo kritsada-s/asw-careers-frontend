@@ -310,9 +310,9 @@ body {
       &:focus {
         box-shadow: none;
       }
-      /* &[type="text"] {
+      &[type="text"], &[type="number"], &[type="tel"], &[type="email"] {
         font-size: 28px;
-      } */
+      }
     }
     label {
       @apply font-medium text-base md:text-xl;

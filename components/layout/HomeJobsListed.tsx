@@ -10,7 +10,7 @@ import { getCompanies } from "@/lib/api";
 import { Job } from "@/lib/types";
 //import { useModal } from "../MUIProvider";
 import { useRouter } from "next/navigation";
-import { useToken } from "@/pages/hooks/useToken";
+import useToken from "@/hooks/useToken";
 import { AuthContext } from "@/pages/providers";
 
 interface JobResponse {
@@ -135,12 +135,12 @@ function HomeJobsListed() {
                 )}
                 <div className="h-5 lg:h-14"></div>
 
-                <div className="flex justify-center text-xl items-center gap-2 flex-col md:flex-row">
+                {/* <div className="flex justify-center text-xl items-center gap-2 flex-col md:flex-row">
                     <h5>{ token ? 'ยังไม่มีตำแหน่งงานที่สนใจ ?' : 'ไม่พบตำแหน่งงานที่สนใจ ?' }</h5>
                     <button onClick={handleLeaveProfile} className="bg-orange-600 text-white px-5 py-1 rounded-full transition hover:scale-105 duration-300">
                         <span>{ token ? 'อัพเดตประวัติ' : 'ลงทะเบียนฝากประวัติ' }</span>
                     </button>
-                </div>
+                </div> */}
             </div>
         </div>
     );

@@ -30,13 +30,17 @@ const datePickerTheme = (theme: Theme) => createTheme({
 
 type LocaleKey = (typeof locales)[number];
 
-export default function CustomDatePicker() {
+interface CustomDatePickerProps {
+  onBlur: (date: Date | null) => void;
+}
+
+function CustomDatePicker({ onBlur }: CustomDatePickerProps) {
   const [locale, setLocale] = React.useState<LocaleKey>('th');
 
   return (
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
-        <DesktopDatePicker 
-          defaultValue={dayjs(new Date())} 
+        <DatePicker 
+          
           sx={{
             '& .MuiInputBase-input': {
               paddingTop: 0,
@@ -50,7 +54,11 @@ export default function CustomDatePicker() {
               fontSize: '1em',
             },
           }}
+
+          onChange={(value) => onBlur(value ? value.toDate() : null)}
         />
       </LocalizationProvider>
   );
 }
+
+export default CustomDatePicker;

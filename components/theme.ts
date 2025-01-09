@@ -39,7 +39,8 @@ const theme = createTheme({
           backgroundColor: '#FFFFFF',
           overflow: 'hidden',
           '& .MuiInputBase-input': {
-            fontSize: '32px',
+            fontSize: '28px',
+            padding: '8px 0 8px 16px',
           }
         }
       }

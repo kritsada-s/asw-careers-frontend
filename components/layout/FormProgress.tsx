@@ -10,7 +10,7 @@ interface ProgressStepsProps {
   steps: Step[];
 }
 
-export function ProgressSteps({ currentStep, steps }: ProgressStepsProps) {
+export default function ProgressSteps({ currentStep, steps }: ProgressStepsProps) {
   return (
     <div className="w-full lg:w-3/4 py-4 mx-auto">
       <div className="flex z-10 relative">

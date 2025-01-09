@@ -3,24 +3,25 @@
 import React, { Suspense, useEffect, useState, useRef, useCallback, useContext } from 'react';
 import { fetchCompanyLocations, fetchedJobs, fetchLocationByID } from '@/lib/api';
 import { Job } from '@/lib/types';
-import { WorkLocation } from '../components/ui/WorkLocation';
+import WorkLocation from '../../components/ui/WorkLocation';
 import { fetchCompanyName, timeAgo } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 //import { useModal } from '../components/MUIProvider';
-import { useToken, useDecryptedToken } from '@/pages/hooks/useToken';
+import useToken from '@/hooks/useToken';
+import { useDecryptedToken } from '@/hooks/useToken';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Button, CustomFlowbiteTheme, Modal } from 'flowbite-react';
-import { useBenefits, useFetchBase64Image, useFetchBase64PDF, useSubmitJobApplication, useUserProfile } from '../hooks/useDataFetching';
+import { useBenefits, useFetchBase64Image, useFetchBase64PDF, useSubmitJobApplication, useUserProfile } from '../../hooks/useDataFetching';
 import Link from 'next/link';
 import { HiExternalLink, HiOutlineCheckCircle, HiOutlineExclamationCircle, HiX } from 'react-icons/hi';
 import { FaFacebook, FaLine, FaXTwitter } from "react-icons/fa6";
 import Swal from 'sweetalert2';
 import Image from 'next/image';
-import { EducationLevel } from '../components/ui/FormInput';
+import { EducationLevel } from '../../components/ui/FormInput';
 import { FacebookShareButton, LineShareButton, TwitterShareButton } from 'react-share';
 import { AuthContext } from '../providers';
-import LoaderHorizontal from '../components/ui/loader';
+import LoaderHorizontal from '../../components/ui/loader';
 import { Benefit } from '@/lib/types';
 
 interface fetchedJobs {
@@ -32,13 +33,13 @@ const ShareJob = ({id, position}: {id: string, position: string}) => {
     <div className='flex gap-2 items-center justify-end bg-gray-100 px-4 py-2 mt-4 rounded'>
       <span className='text-sm text-gray-500'>แชร์ตำแหน่งงานนี้</span>
       <div className='flex gap-1'>
-        <FacebookShareButton url={`${process.env.NEXT_PUBLIC_APP_URL}/jobs?id=${id}`} title={position}>
+        <FacebookShareButton url={`${process.env.NEXT_PUBLIC_APP_URL}/jobs?id=${id}`} title={`ลองดูตำแหน่งงานนี้ที่ Assetwise: ${position}`}>
           <FaFacebook size={18}/>
         </FacebookShareButton>
-        <LineShareButton url={`${process.env.NEXT_PUBLIC_APP_URL}/jobs?id=${id}`} title={position}>
+        <LineShareButton url={`${process.env.NEXT_PUBLIC_APP_URL}/jobs?id=${id}`} title={`ลองดูตำแหน่งงานนี้ที่ Assetwise: ${position}`}>
           <FaLine size={18}/>
         </LineShareButton>
-        <TwitterShareButton url={`${process.env.NEXT_PUBLIC_APP_URL}/jobs?id=${id}`} title={position}>
+        <TwitterShareButton url={`${process.env.NEXT_PUBLIC_APP_URL}/jobs?id=${id}`} title={`ลองดูตำแหน่งงานนี้ที่ Assetwise: ${position}`}>
           <FaXTwitter size={18}/>
         </TwitterShareButton>
       </div>
@@ -231,6 +232,8 @@ const JobsPage = () => {
       }
     } else {
       sessionStorage.setItem('jobId', selectedJob?.jobID || '');
+      console.log(sessionStorage.getItem('jobId'));
+      authContext?.setIsAuthModalOpen(true);
       // openModal({
       //   type: 'auth', 
       //   props: {
@@ -242,6 +245,15 @@ const JobsPage = () => {
       // });
     }
   };
+
+  const handleSendEmail = () => {
+    if (selectedJob) {
+      const subject = `สมัครงานตำแหน่ง ${selectedJob.jobPosition}`;
+      const recipientEmail = 'recruit@assetwise.co.th';
+      const mailtoLink = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}`;
+      window.location.href = mailtoLink;
+    }
+  }
 
   const Benefits = ({benefits}: {benefits: Benefit[]}) => {
     return (
@@ -347,8 +359,7 @@ const JobsPage = () => {
                 className="prose max-w-none"
                 dangerouslySetInnerHTML={{ __html: selectedJob.requiredRequirements }} 
               />
-              {selectedJob.requirements.length}
-              { selectedJob.requirements.length > 0 && <>
+              { selectedJob.requirements.replace(/<[^>]*>?/gm, '').length > 0 && <>
                 <h4 className='text-lg font-medium mt-4'>คุณสมบัติอื่นๆ</h4>
                 <div 
                   className='prose max-w-none' 

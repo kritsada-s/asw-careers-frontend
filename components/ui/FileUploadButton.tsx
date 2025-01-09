@@ -37,6 +37,9 @@ export default function InputFileUpload({ onChange, file }: { onChange: (file: F
       { file?.name || 'อัพโหลดเอกสาร'}
       <VisuallyHiddenInput
         type="file"
+        name="resume"
+        required
+        accept=".pdf,.doc,.docx"
         onChange={(event) => {
           const file = event.target.files?.[0];
           if (file) {

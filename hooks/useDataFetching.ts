@@ -807,3 +807,53 @@ export function useLanguages() {
 
   return { languages, isLoading, error };
 }
+
+export function useGenders() {
+  const [genders, setGenders] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchGenders() {
+      const response = await axios.get(`${prodUrl}/Gender/Genders`);
+      setGenders(response.data);
+    }
+    fetchGenders();
+  }, []);
+
+  return { genders, isLoading, error };
+}
+
+export function useMaritalStatus() {
+  const [maritalStatuses, setMaritalStatuses] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchMaritalStatus() {
+      const response = await axios.get(`${prodUrl}/MaritalStatus/MaritalStatuses`);
+      setMaritalStatuses(response.data);
+    }
+    fetchMaritalStatus();
+  }, []);
+
+  return { maritalStatuses, isLoading, error };
+}
+
+export function useSourceInformation() {
+  const [sourceInformations, setSourceInformations] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchSourceInformation() {
+      const response = await axios.get(`${prodUrl}/SourceInformation/SourceInformations`);
+      setSourceInformations(response.data);
+    }
+    fetchSourceInformation();
+  }, []);
+
+  return { sourceInformations, isLoading, error };
+}
+
+export default useSubmitJobApplication

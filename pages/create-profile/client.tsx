@@ -1,25 +1,28 @@
-
-
 import { useGSAP } from '@gsap/react';
-import React from 'react';
+import Image from 'next/image';
+import React, { useCallback, useContext } from 'react';
 import gsap from 'gsap';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useEffect, useRef, useState } from 'react';
-import { ProgressSteps } from '../components/layout/FormProgress';
-import FileUploadButton from '../components/ui/FileUploadButton';
-import { DistrictSelector, ProvinceSelector, SubDistrictSelector } from '../components/ui/FormInput';
+import ProgressSteps from '../../components/layout/FormProgress';
+import FileUploadButton from '../../components/ui/FileUploadButton';
+import { DistrictSelector, ProvinceSelector, SubDistrictSelector } from '../../components/ui/FormInput';
 import Select, { StylesConfig } from 'react-select';
 import { districts, provinces, subDistricts } from '@/lib/data';
-import BuddhistDatePicker from '../components/ui/DatePicker';
-import { useEducations, useJobTitle } from '../hooks/useDataFetching';
+//import BuddhistDatePicker from '../../components/ui/DatePicker';
+import { useEducations, useJobTitle, useTitles, useGenders, useMaritalStatus, useSourceInformation } from '../../hooks/useDataFetching';
 import { useSearchParams } from 'next/navigation';
-import CustomDatePicker from '../components/ui/DatePicker';
-import CandidateLanguage from '../components/ui/CandidateLanguage';
+import CustomDatePicker from '../../components/ui/DatePicker';
+import CandidateLanguage from '../../components/ui/CandidateLanguage';
 import { CandidateLanguageProps } from '@/lib/types';
 import { DeleteIcon, X } from 'lucide-react';
 import { Alert, Chip, FormControl, FormHelperText, OutlinedInput, Snackbar, TextField } from '@mui/material';
 import { useFormControl } from '@mui/material/FormControl';
+import { Candidate } from '@/lib/form';
+import { AuthContext } from '../providers'
+import { prodUrl } from '@/lib/utils';
+import axios from 'axios';
 
 gsap.registerPlugin(useGSAP);
 
@@ -77,10 +80,82 @@ function Client() {
   const [jobTitle, setJobTitle] = useState<string>('');
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const { educations } = useEducations();
+  const { genders } = useGenders();
   const [education, setEducation] = useState<Education | null>(null);
   const [candidateLanguages, setCandidateLanguages] = useState<CandidateLanguageProps[]>([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('เกิดข้อผิดพลาด');
+  const [snackBarType, setSnackBarType] = useState<'success' | 'error'>('error');
+  const { jobTitle: position } = useJobTitle(params.get('id') || '');
+  const [birthDate, setBirthDate] = useState<Date | null>(null);
+  const { titles } = useTitles();
+  const [title, setTitle] = useState<number>(0);
+  const [gender, setGender] = useState<number>(0);
+  const { maritalStatuses } = useMaritalStatus();
+  const [maritalStatus, setMaritalStatus] = useState<number>(0);
+  const authContext = useContext(AuthContext);
+  const email = authContext?.email;
+  const { sourceInformations } = useSourceInformation();
+  const [sourceInformation, setSourceInformation] = useState<number>(0);
+
+  //@ts-ignore
+  const candidateData: Candidate = {
+    jobID: params.get('id') || '',
+    candidateID: '',
+    revision: 0,
+    email: '',
+    titleID: 0,
+    firstName: '',
+    lastName: '',
+    nickName: '',
+    tel: '',
+    updateDate: new Date().toISOString(),
+    dateOfBirth: birthDate?.toISOString() || '',
+    gender: {
+      genderID: 0,
+      description: ''
+    },
+    maritalStatus: {
+      maritalStatusID: 0,
+      description: ''
+    },
+    image: profileImage as File,
+    imageUrl: '',
+    cv: resumeFile as File,
+    cvUrl: '',
+    addressDetails: '',
+    province: {
+      provinceID: province,
+      nameTH: '',
+      nameEN: ''
+    },
+    district: {
+      districtID: district,
+      provinceID: province,
+      nameTH: '',
+      nameEN: ''
+    },
+    subdistrict: {
+      subDistrictID: subDistrict,
+      districtID: district,
+      postCode: parseInt(postcode),
+      nameTH: '',
+      nameEN: ''
+    },
+    postalCode: parseInt(postcode),
+    sourceInformation: {
+      sourceInformationID: 0,
+      description: ''
+    },
+    pdpAAccepted: false,
+    pdpAAcceptedDate: new Date().toISOString(),
+    candidateEducations: [{
+      candidateID: '',
+      revision: 0,
+      educationID: education?.educationID || 0,
+      major: ''
+    }]
+  };
 
   const languageLevelLabel = [{
     value: 1,
@@ -163,57 +238,75 @@ function Client() {
     }
   }
 
-  const checkInvalidFields = () => {
-    // Get all input fields from current active section
+  const checkInvalidFields = useCallback(() => {
     const currentStepRef = currentStep.ref.current;
-    let inValid = false;
+    let hasEmptyFields = false;
+    const newInvalidFields: string[] = [];
+
     if (currentStepRef) {
       const inputs = currentStepRef.querySelectorAll('input, select');
-      const currentStepData: { [key: string]: string } = {};
-
+      
       inputs.forEach((input: Element) => {
-        const inputElement = input as HTMLInputElement;
-        if (inputElement.name) {
-          // For select elements using react-select, get value from parent div
-          if (inputElement.tagName.toLowerCase() === 'select' && !inputElement.value) {
-            const selectParent = inputElement.closest('.custom-selector');
-            if (selectParent) {
-              const selectedOption = selectParent.querySelector('[class*="singleValue"]');
-              currentStepData[inputElement.name] = selectedOption?.textContent || '';
-              
-              // Add to invalidFields if no value
-              if (!selectedOption?.textContent || selectedOption?.textContent === '' || selectedOption?.textContent === '0' && !invalidFields.includes(inputElement.name)) {
-                setInvalidFields([...invalidFields, inputElement.name]);
-              }
-
-              inValid = true;
-            }
-          } else {
-            currentStepData[inputElement.name] = inputElement.value;
-            
-            // Add to invalidFields if no value
-            if (!inputElement.value || inputElement.value === '' || inputElement.value === '0' && !invalidFields.includes(inputElement.name)) {
-              setInvalidFields([...invalidFields, inputElement.name]); 
-              inValid = true;
-            }
-
-          }
+        const inputElement = input as HTMLInputElement | HTMLSelectElement;
+        const { name, value, required } = inputElement;
+        
+        // Only validate if the field is required or has the required attribute
+        if (required && (!value || value.trim() === '')) {
+          hasEmptyFields = true;
+          newInvalidFields.push(name);
         }
       });
-      console.log('Invalid fields:', invalidFields.length);
-      console.log('Current step data:', currentStepData);
-      return inValid;
+
+      // Additional validation for specific steps
+      if (currentStepIndex === 0) {
+        // Basic Info validation
+        if (!profileImage) {
+          hasEmptyFields = true;
+          newInvalidFields.push('profile-image');
+        }
+        if (!resumeFile) {
+          hasEmptyFields = true;
+          newInvalidFields.push('resume');
+        }
+      } else if (currentStepIndex === 1) {
+        // Personal Info validation
+        if (!birthDate) {
+          hasEmptyFields = true;
+          newInvalidFields.push('birthDate');
+        }
+        if (!gender) {
+          hasEmptyFields = true;
+          newInvalidFields.push('gender');
+        }
+      } else if (currentStepIndex === 2) {
+        // Address validation
+        if (!province || !district || !subDistrict) {
+          hasEmptyFields = true;
+          if (!province) newInvalidFields.push('province');
+          if (!district) newInvalidFields.push('district');
+          if (!subDistrict) newInvalidFields.push('subDistrict');
+        }
+      } else if (currentStepIndex === 3) {
+        // Other Info validation
+        if (!education) {
+          hasEmptyFields = true;
+          newInvalidFields.push('education');
+        }
+      }
+
+      setInvalidFields(newInvalidFields);
     }
-  }
 
+    return hasEmptyFields;
+  }, [currentStepIndex, profileImage, resumeFile, birthDate, gender, province, district, subDistrict, education]);
 
-  const handleNext = () => {
-    if (!checkInvalidFields()) {
-      handleSectionTransition('next');
-    } else {
+  const handleNext = () => {    
+    if (checkInvalidFields()) {
       setSnackbarMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
       setSnackbarOpen(true);
+      return;
     }
+    handleSectionTransition('next');
   };
 
   const handlePrevious = () => {
@@ -270,18 +363,43 @@ function Client() {
     setProfileImage(file);
   };
 
+  const handleBirthDateChange = (date: Date | null) => {
+    console.log(date);
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      setBirthDate(date);
+    }
+  };
+
+  const handleTitleChange = (title: any) => {
+    setTitle(title.value);
+  };
+
+  const handleGenderChange = (gender: any) => {
+    setGender(gender.value);
+  };
+
   const handleEducationChange = (education: any) => {
     setEducation(education.value);
+  };
+
+  const handleMaritalStatusChange = (maritalStatus: any) => {
+    setMaritalStatus(maritalStatus.value);
+  };
+
+  const handleSourceInformationChange = (sourceInformation: any) => {
+    setSourceInformation(sourceInformation.value);
   };
 
   const handleLanguageAdd = (language: CandidateLanguageProps) => {
     if (language.languageID === 0 || language.level === 0) {
       setSnackbarMessage('กรุณาเลือกภาษาและระดับภาษา');
+      setSnackBarType('error');
       setSnackbarOpen(true);
       return;
     }
     if (candidateLanguages.find(l => l.languageID === language.languageID)) {
       setSnackbarMessage('ภาษานี้มีอยู่ในรายการแล้ว');
+      setSnackBarType('error');
       setSnackbarOpen(true);
       return;
     }
@@ -305,56 +423,102 @@ function Client() {
     return <FormHelperText>{helperText}</FormHelperText>;
   }
 
-  const handleSubmitProfile = () => {
+  const handleSubmitProfile = async () => {
     const form = document.querySelector('form');
     const formData = new FormData(form as HTMLFormElement);
-    
-    const candidateData = {
-      // Basic Info
-      profileImage: profileImage,
-      firstName: formData.get('firstName') as string,
-      lastName: formData.get('lastName') as string,
-      email: formData.get('email') as string,
-      phone: formData.get('phone') as string,
-      resume: resumeFile,
 
-      // Personal Info 
-      birthDate: formData.get('birthDate') as string,
-      idCard: formData.get('idCard') as string,
-      gender: formData.get('gender') as string,
+    const formDataToSend = new FormData();
 
-      // Address Info
-      address: formData.get('address') as string,
-      province: province,
-      district: district,
-      subDistrict: subDistrict,
-      postcode: postcode,
+    // Basic Info
+    formDataToSend.append('Candidate.Image', profileImage as File);
+    formDataToSend.append('Candidate.FirstName', formData.get('firstname') as string);
+    formDataToSend.append('Candidate.LastName', formData.get('lastname') as string); 
+    formDataToSend.append('Candidate.Email', authContext?.email || '');
+    formDataToSend.append('Candidate.Tel', formData.get('phone') as string);
+    formDataToSend.append('Candidate.CV', resumeFile as File);
 
-      // Other Info
-      education: education,
-      major: formData.get('major') as string,
-      languages: candidateLanguages,
-    };
+    // Personal Info
+    formDataToSend.append('Candidate.TitleID', title.toString());
+    formDataToSend.append('Candidate.Nickname', formData.get('nickname') as string);
+    formDataToSend.append('Candidate.DateOfBirth', birthDate?.toISOString() || '');
+    formDataToSend.append('Candidate.Gender.GenderID', gender.toString());
+    formDataToSend.append('Candidate.MaritalStatus.MaritalStatusID', maritalStatus.toString());
 
-    // Validate required fields
-    const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'birthDate', 'idCard', 'address'];
-    let isValid = true;
-
-    requiredFields.forEach(field => {
-      if (!candidateData[field as keyof typeof candidateData]) {
-        setInvalidField(field);
-        isValid = false;
-      }
+    // Address Info
+    formDataToSend.append('Candidate.AddressDetails', formData.get('address') as string);
+    formDataToSend.append('Candidate.Province.ProvinceID', province.toString());
+    formDataToSend.append('Candidate.District.DistrictID', district.toString());
+    formDataToSend.append('Candidate.Subdistrict.SubDistrictID', subDistrict.toString());
+    formDataToSend.append('Candidate.PostalCode', postcode.toString());
+    formDataToSend.append('Candidate.SourceInformation.SourceInformationID', sourceInformation.toString());
+    // Other Info
+    formDataToSend.append('Candidate.CandidateEducations[0].educationID', education?.toString() || '0');
+    formDataToSend.append('Candidate.CandidateEducations[0].major', formData.get('major') as string);
+    formDataToSend.append("Candidate.PDPAAccepted", "true");
+    formDataToSend.append("Candidate.PDPAAcceptedDate", new Date().toISOString());
+    candidateLanguages.map((language, index) => {
+      formDataToSend.append(`Candidate.CandidateLanguages[${index}].languageID`, language.languageID.toString());
+      formDataToSend.append(`Candidate.CandidateLanguages[${index}].level`, language.level.toString());
     });
 
-    if (!isValid) {
-      setSnackbarMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
-      setSnackbarOpen(true);
-      return;
-    }
+    // Validate required fields
+    // const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'birthDate', 'resume', 'profileImage', 'address', 'education', 'major', 'languages'];
+    // let isValid = true;
 
-    console.log('Submitting profile data:', candidateData);
+    // requiredFields.forEach(field => {
+    //   if (!candidateData[field as keyof typeof candidateData]) {
+    //     setInvalidField(field);
+    //     isValid = false;
+    //   }
+    // });
+
+    // if (!isValid) {
+    //   console.log(invalidFields);
+      
+    //   setSnackbarMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
+    //   setSnackbarOpen(true);
+    //   return;
+    // }
+
+    // Log form data entries
+    // formDataToSend.forEach((value, key) => {
+    //   console.log(`${key}: `, value);
+    // });
     // TODO: Add API call to submit data
+    try {
+      const response = await axios.post(`${prodUrl}/secure/Candidate/Create`, formDataToSend, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+      });
+
+      if (response.status !== 200) {
+        throw new Error('Failed to submit form');
+      }
+
+      authContext?.handleUpdateToken(response.data);
+      setSnackbarMessage('บันทึกข้อมูลสำเร็จ');
+      setSnackBarType('success');
+      setSnackbarOpen(true);
+
+      // const result = response;
+      // if (typeof result === 'string') {
+      //   setSnackbarMessage('บันทึกข้อมูลสำเร็จ');
+      //   setSnackbarOpen(true);
+      // } else {
+      //   setSnackbarMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      //   setSnackbarOpen(true);
+      //   throw new Error('Failed to submit form');
+      // }
+      
+      // Reset form or redirect as needed
+      
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setSnackbarMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      setSnackbarOpen(true);
+      setSnackBarType('error');
+    }
   };
 
   useEffect(() => {
@@ -371,12 +535,10 @@ function Client() {
   }, [currentStep]);
 
   useEffect(() => {
-    const jobId = params.get('id');
-    if (jobId) {
-      const { jobTitle } = useJobTitle(jobId);
-      setJobTitle(jobTitle);
+    if (position) {
+      setJobTitle(position);
     }
-  }, [params]);
+  }, [position]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="th">
@@ -392,20 +554,27 @@ function Client() {
                   <div className="flex flex-col items-center">
                     <div className="w-48 h-52 bg-gray-100 rounded mb-4 flex items-center justify-center border border-gray-300">
                       { profileImage ? (
-                        <img src={URL.createObjectURL(profileImage)} alt="Profile Image" className="w-full h-full object-cover" />
+                        <Image src={URL.createObjectURL(profileImage)} width={350} height={480} alt="Profile Image" className="w-full h-full object-cover rounded-sm" />
                       ) : (
                         <span className="text-gray-400">รูปภาพประจำตัว</span>
                       )}
                     </div>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg, image/jpg, image/png"
                       className="hidden"
-                      id="profile-image"
+                      id="profile-image" 
                       name="profile-image"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
+                          if (file.size > 1024 * 1024) { // Check if file size > 1MB
+                            setSnackbarMessage('ขนาดไฟล์ไม่เกิน 1MB');
+                            setSnackBarType('error');
+                            setSnackbarOpen(true);
+                            e.target.value = ''; // Clear the input
+                            return;
+                          }
                           handleProfileImageChange(file);
                         }
                       }}
@@ -477,7 +646,7 @@ function Client() {
                     {invalidFields.includes('salary') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
                   </div>
                   <div>
-                    <label className="block mb-1">เอกสารประกอบการสมัคร (CV/Resume)</label>
+                    <label className="block mb-1">เอกสารประกอบการสมัคร (CV/Resume) <span className="text-red-500">*</span></label>
                     <div className="flex items-center gap-2">
                       <FileUploadButton onChange={handleResumeFileChange} file={resumeFile} />
                     </div>
@@ -489,30 +658,75 @@ function Client() {
 
             {/* Personal Information Section */}
             <section ref={personalInfoRef} className={`bg-white p-6 rounded-lg shadow relative`}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xl">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xl mb-4">
                 <div>
                   <label className="block mb-1">ชื่อ <span className="text-red-500">*</span></label>
-                  <input type="text" name="firstname" className="w-full border rounded p-2 border-gray-300" />
+                  <input type="text" required id="firstname" name="firstname" className="w-full border rounded p-2 border-gray-300" />
                 </div>
                 <div>
                   <label className="block mb-1">นามสกุล <span className="text-red-500">*</span></label>
-                  <input type="text" name="lastname" className="w-full border rounded p-2 border-gray-300" />
+                  <input type="text" required id="lastname" name="lastname" className="w-full border rounded p-2 border-gray-300" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xl">
+                <div>
+                  <label className='block mb-1'>คำนำหน้า</label>
+                  <Select<Option>
+                    instanceId="title-select"
+                    options={titles.map(title => ({
+                      value: title.titleID,
+                      label: title.nameTH
+                    }))}
+                    onChange={(selectedOption) => {
+                      handleTitleChange(selectedOption as Option);
+                    }}
+                    placeholder="เลือกคำนำหน้า"
+                    styles={districtSelectorStyle}
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1">เพศ <span className="text-red-500">*</span></label>
+                  <Select<Option>
+                    options={genders.map(gender => ({
+                      value: gender.genderID,
+                      label: gender.description
+                    }))}
+                    onChange={(selectedOption) => {
+                      handleGenderChange(selectedOption as Option);
+                    }}
+                    placeholder="เลือกเพศ"
+                    styles={districtSelectorStyle}
+                  />
                 </div>
                 <div>
                   <label className="block mb-1">ชื่อเล่น <span className="text-red-500">*</span></label>
-                  <input type="text" name="nickname" className="w-full border rounded p-2 border-gray-300" />
+                  <input type="text" required id="nickname" name="nickname" className="w-full border rounded p-2 border-gray-300" />
                 </div>
                 <div>
-                  <label className="block mb-1">วันเกิด <span className="text-red-500">*</span></label>
-                  <CustomDatePicker />
+                  <label className="block mb-1">วันเกิด(ปี ค.ศ.) <span className="text-red-500">*</span></label>
+                  <CustomDatePicker onBlur={handleBirthDateChange} />
+                </div>
+                <div>
+                  <label className="block mb-1">สถานะสมรส</label>
+                  <Select<Option>
+                    options={maritalStatuses.map(maritalStatus => ({
+                      value: maritalStatus.maritalStatusID,
+                      label: maritalStatus.description
+                    }))}
+                    onChange={(selectedOption) => {
+                      handleMaritalStatusChange(selectedOption as Option);
+                    }}
+                    placeholder="เลือกสถานะสมรส"
+                    styles={districtSelectorStyle}
+                  />
                 </div>
                 <div>
                   <label className="block mb-1">เบอร์โทรศัพท์ <span className="text-red-500">*</span></label>
-                  <input type="tel" name="phone" className="w-full border rounded p-2 border-gray-300" />
+                  <input type="tel" required id="phone" name="phone" className="w-full border rounded p-2 border-gray-300" />
                 </div>
                 <div>
                   <label className="block mb-1">อีเมล</label>
-                  <input type="email" name="email" className="w-full bg-neutral-100 text-neutral-500 border rounded p-2 border-gray-300" disabled value='test@gmail.com'/>
+                  <input type="email" required id="email" name="email" className="w-full bg-neutral-100 text-neutral-500 border rounded p-2 border-gray-300" disabled value={email}/>
                   <span className="text-gray-500 text-sm">อีเมลไม่สามารถแก้ไขได้</span>
                 </div>
               </div>
@@ -523,7 +737,7 @@ function Client() {
               <div className="space-y-4">
                 <div>
                   <label className="block mb-1">ที่อยู่</label>
-                  <input type="text" name="address" className="w-full h-[50px] border border-gray-300 rounded px-2 py-1 text-xl" />
+                  <input type="text" required id="address" name="address" className="w-full h-[50px] border border-gray-300 rounded px-2 py-1 text-xl" />
                 </div>
                 <div className="custom-selector grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
@@ -594,6 +808,20 @@ function Client() {
             {/* Other Information Section */}
             <section ref={otherInfoRef} className={`bg-white p-6 rounded-lg shadow relative`}>
               <div className="space-y-6">
+                <div>
+                  <label className='block mb-1'>ท่านทราบข่าวการสมัครงานจากช่องทางใด</label>
+                  <Select<Option>
+                    options={sourceInformations.map(sourceInformation => ({
+                      value: sourceInformation.sourceInformationID,
+                      label: sourceInformation.description
+                    }))}
+                    onChange={(selectedOption) => {
+                      handleSourceInformationChange(selectedOption as Option);
+                    }}
+                    placeholder="เลือกช่องทาง"
+                    styles={districtSelectorStyle}
+                  />
+                </div>
                 <div>
                   <h3 className="font-medium mb-2">ประวัติการศึกษา</h3>
                   <div className="space-y-4">
@@ -668,7 +896,7 @@ function Client() {
             )}
           </div>
           <Snackbar open={snackbarOpen} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} onClose={() => setSnackbarOpen(false)} autoHideDuration={4500}>
-            <Alert severity="error" onClose={() => setSnackbarOpen(false)} variant="filled">
+            <Alert severity={snackBarType} onClose={() => setSnackbarOpen(false)} variant="filled">
               {snackbarMessage}
             </Alert>
           </Snackbar>

@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import Image from 'next/image';
-import { MapPinned } from 'lucide-react';
+import { Link, MapPinned } from 'lucide-react';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -111,15 +111,14 @@ export default function HomeWorksLocation() {
                                 {location.title}
                             </h4>
                             <p className='text-neutral-600 leading-none'>{location.address}</p>
-                            <a
+                            <Link
                                 href={location.mapUrl}
                                 target="_blank"
-                                rel="noopener noreferrer"
                                 className="inline-flex w-fit items-center justify-center px-5 py-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors gap-2 leading-none"
                             >
                                 <MapPinned size={18} />
                                 ค้นหาเส้นทาง
-                            </a>
+                            </Link>
                             </div>
                         </SwiperSlide>
                         ))}

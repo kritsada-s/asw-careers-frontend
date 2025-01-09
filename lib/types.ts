@@ -304,4 +304,9 @@ export interface CandidateLanguageProps {
     languageID: number;
     languageName: string;
     level: number;
-} []
+}
+
+export interface LanguageLevelLabel {
+    value: number;
+    label: string;
+}
