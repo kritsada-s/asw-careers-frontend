@@ -4,6 +4,7 @@ import { Job, TokenProps } from "@/lib/types";
 import { MapPin, Building, CircleDollarSign, CircleDot, CalendarCheck } from 'lucide-react';
 import { fetchLocationByID } from "@/lib/api";
 import { AuthContext } from "@/pages/providers";
+import router from "next/router";
 
 interface JobBlockProps {
     className?: string;
@@ -68,7 +69,7 @@ function JobBlock({className = '', job, status, applyDate}: JobBlockProps) {
     }, [job.companyID, job.companyLocationID])
 
     function handleApplyJob() {
-        window.location.href = '/jobs/?id='+job.jobID;
+        router.push('/jobs?id='+job.jobID);
         return;
         // if (userData) {
         //     // Assuming you have an API endpoint to send the application data
