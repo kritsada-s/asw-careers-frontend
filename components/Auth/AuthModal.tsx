@@ -39,13 +39,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, onError }: AuthM
     console.log('decryptedToken', decryptedToken);
 
     if (typeof window !== 'undefined') {
-      const authToken = window.localStorage.getItem('authToken');
-      console.log('Existing authToken:', authToken);
-
-      // Set the new authToken
-      window.localStorage.setItem('authToken', token);
-      console.log('New authToken set:', token);
-
+      authContext?.handleUpdateToken(token);
       if (decryptedToken.CandidateID === '') {
         console.log('No candidate id in token... redirect to profile create page');
         const path = '/create-profile/';
