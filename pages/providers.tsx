@@ -98,7 +98,9 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     }}>
       {children}
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-      <CustomDialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} title={dialogTitle} children={<div>{dialogContent}</div>} />
+      <CustomDialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} title={dialogTitle}>
+        {children}
+      </CustomDialog>
     </AuthContext.Provider>
   );
 }
