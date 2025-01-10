@@ -191,50 +191,37 @@ export default function ProfilePage() {
   useEffect(() => {
     async function initializeProfile() {
       // Check authentication
-      console.log('initializeProfile 🚀');
-      if (authContext?.isAuth) {
-        console.log('User is authenticated');
-        authContext?.setIsDialogOpen(false);
-      } else {
-        console.log('User is not authenticated');
-        console.log('authContext', authContext);
-        
-        authContext?.setDialogTitle('การตรวจสอบสิทธิเข้าสู่ระบบ');
-        authContext?.setDialogContent('กรุณาตรวจสอบสิทธิเข้าสู่ระบบของคุณ');
-        authContext?.setIsDialogOpen(true);
-        return;
+      if (!authContext) {
+        return; // Wait for context to be available
       }
 
-      try {
-        // Fetch profile data
-        //const data = await fetchProfileData(authData.Email);
-        if (authContext?.isAuth) {
-          const data = await fetchProfileData(authContext?.email || '');
-          setTokenDate(authContext?.email || '');
-          setProfileData(data);
-        } else {
-          setError('ไม่สามารถโหลดข้อมูลโปรไฟล์ได้');
-          redirectToHome();
-        }
-      } catch (err: any) {
-        console.log(err);
+      if (authContext.isAuth) {
+        // Explicitly close any open dialogs
+        authContext.setIsDialogOpen(false);
         
-        if (err.response.status === 404) {
-          console.log('404');
-          
-          authContext?.refreshAuth();
-          return;
-          //window.location.href = '/create-profile/';
-        } else {
-          setError('ไม่สามารถโหลดข้อมูลโปรไฟล์ได้');
+        try {
+          const data = await fetchProfileData(authContext.email);
+          setTokenDate(authContext.email);
+          setProfileData(data);
+        } catch (err: any) {
+          if (err.response.status === 404) {
+            logOut();
+          } else {
+            console.log('error', err.response.data);
+          }
         }
-        //console.error('Profile loading error:', err.response.status);
-      } finally {
-        setLoading(false);
+      } else {
+        // Only show the dialog if we're sure the user is not authenticated
+        authContext.setDialogTitle('การตรวจสอบสิทธิเข้าสู่ระบบ');
+        authContext.setDialogContent('กรุณาตรวจสอบสิทธิเข้าสู่ระบบของคุณ');
+        authContext.setIsDialogOpen(true);
       }
+      
+      setLoading(false);
     }
+
     initializeProfile();
-  }, [authContext]);
+  }, [authContext?.isAuth]); // Only re-run when auth state changes
 
   useEffect(() => {
     setAppliedJobs(appliedJobsData);

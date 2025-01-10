@@ -11,18 +11,19 @@ import { DistrictSelector, ProvinceSelector, SubDistrictSelector } from '../../c
 import Select, { StylesConfig } from 'react-select';
 import { districts, provinces, subDistricts } from '@/lib/data';
 //import BuddhistDatePicker from '../../components/ui/DatePicker';
-import { useEducations, useJobTitle, useTitles, useGenders, useMaritalStatus, useSourceInformation } from '../../hooks/useDataFetching';
+import useSubmitJobApplication, { useEducations, useJobTitle, useTitles, useGenders, useMaritalStatus, useSourceInformation } from '../../hooks/useDataFetching';
 import { useSearchParams } from 'next/navigation';
 import CustomDatePicker from '../../components/ui/DatePicker';
 import CandidateLanguage from '../../components/ui/CandidateLanguage';
 import { CandidateLanguageProps } from '@/lib/types';
-import { DeleteIcon, X } from 'lucide-react';
+import { DeleteIcon, Loader2, X } from 'lucide-react';
 import { Alert, Chip, FormControl, FormHelperText, OutlinedInput, Snackbar, TextField } from '@mui/material';
 import { useFormControl } from '@mui/material/FormControl';
 import { Candidate } from '@/lib/form';
 import { AuthContext } from '../providers'
-import { prodUrl } from '@/lib/utils';
+import { decrypt, prodUrl } from '@/lib/utils';
 import axios from 'axios';
+import router from 'next/router';
 
 gsap.registerPlugin(useGSAP);
 
@@ -97,6 +98,9 @@ function Client() {
   const email = authContext?.email;
   const { sourceInformations } = useSourceInformation();
   const [sourceInformation, setSourceInformation] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [candidateID, setCandidateID] = useState<string>('');
+  const { submitApplication } = useSubmitJobApplication(sessionStorage.getItem('jobId') as string, candidateID as string);
 
   const languageLevelLabel = [{
     value: 1,
@@ -365,6 +369,7 @@ function Client() {
   }
 
   const handleSubmitProfile = async () => {
+    setIsSubmitting(true);
     const form = document.querySelector('form');
     const formData = new FormData(form as HTMLFormElement);
 
@@ -402,29 +407,6 @@ function Client() {
       formDataToSend.append(`Candidate.CandidateLanguages[${index}].level`, language.level.toString());
     });
 
-    // Validate required fields
-    // const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'birthDate', 'resume', 'profileImage', 'address', 'education', 'major', 'languages'];
-    // let isValid = true;
-
-    // requiredFields.forEach(field => {
-    //   if (!candidateData[field as keyof typeof candidateData]) {
-    //     setInvalidField(field);
-    //     isValid = false;
-    //   }
-    // });
-
-    // if (!isValid) {
-    //   console.log(invalidFields);
-      
-    //   setSnackbarMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
-    //   setSnackbarOpen(true);
-    //   return;
-    // }
-
-    // Log form data entries
-    // formDataToSend.forEach((value, key) => {
-    //   console.log(`${key}: `, value);
-    // });
     // TODO: Add API call to submit data
     try {
       const response = await axios.post(`${prodUrl}/secure/Candidate/Create`, formDataToSend, {
@@ -437,28 +419,28 @@ function Client() {
         throw new Error('Failed to submit form');
       }
 
-      authContext?.handleUpdateToken(response.data);
-      setSnackbarMessage('บันทึกข้อมูลสำเร็จ');
-      setSnackBarType('success');
-      setSnackbarOpen(true);
+      setIsSubmitting(false);
 
-      // const result = response;
-      // if (typeof result === 'string') {
-      //   setSnackbarMessage('บันทึกข้อมูลสำเร็จ');
-      //   setSnackbarOpen(true);
-      // } else {
-      //   setSnackbarMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
-      //   setSnackbarOpen(true);
-      //   throw new Error('Failed to submit form');
-      // }
-      
-      // Reset form or redirect as needed
+      if (response.data) {
+        authContext?.handleUpdateToken(response.data);
+
+        setSnackbarMessage('บันทึกข้อมูลสำเร็จ');
+        setSnackBarType('success');
+        setSnackbarOpen(true);
+
+        if (sessionStorage.getItem('jobId')) {
+          router.push(`/jobs?jobId=${sessionStorage.getItem('jobId')}`);
+        } else {
+          router.push('/profile');
+        }
+      }
       
     } catch (error) {
       console.error('Error submitting form:', error);
       setSnackbarMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
       setSnackbarOpen(true);
       setSnackBarType('error');
+      setIsSubmitting(false);
     }
   };
 
@@ -824,7 +806,7 @@ function Client() {
                 className="px-6 py-2 bg-blue-500 text-white rounded"
                 onClick={handleSubmitProfile}
               >
-                ส่งข้อมูล
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin " /> : 'ส่งข้อมูล'}
               </button>
             ) : (
               <button

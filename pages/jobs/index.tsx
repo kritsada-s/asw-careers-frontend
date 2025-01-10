@@ -186,8 +186,6 @@ const JobsPage = () => {
     }
   }, [isSummaryModalOpen]);
 
-  const token = useToken();
-
   const handleCloseSelectedJob = () => {
     setIsSelectedJobOpen(false);
   }
@@ -220,19 +218,31 @@ const JobsPage = () => {
     }
   };
 
-  const handleJobSubmit = () => {
-    if (token) {
-      if (authContext?.CandidateID) {
-        setIsSummaryModalOpen(true);
+  const handleJobSubmit = async () => {
+    try {
+      // Wait for auth refresh to complete
+      await authContext?.refreshAuth();
+      
+      // Get fresh auth state after refresh
+      const isAuthenticated = authContext?.isAuth;
+      const candidateId = authContext?.CandidateID;
+
+      if (isAuthenticated) {
+        if (candidateId) {
+          setIsSummaryModalOpen(true);
+        } else {
+          console.log('redirect to apply job...');
+          sessionStorage.setItem('jobId', selectedJob?.jobID || '');
+          window.location.href = '/apply-job/'+selectedJob?.jobID;
+        }
       } else {
-        console.log('redirect to apply job...');
         sessionStorage.setItem('jobId', selectedJob?.jobID || '');
-        window.location.href = '/apply-job/'+selectedJob?.jobID;
+        console.log(sessionStorage.getItem('jobId'));
+        authContext?.setIsAuthModalOpen(true);
       }
-    } else {
-      sessionStorage.setItem('jobId', selectedJob?.jobID || '');
-      console.log(sessionStorage.getItem('jobId'));
-      authContext?.setIsAuthModalOpen(true);
+    } catch (error) {
+      console.error('Error refreshing auth:', error);
+      // Handle error appropriately
     }
   };
 

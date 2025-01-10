@@ -31,6 +31,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogContent, setDialogContent] = useState('');
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -40,18 +41,27 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       setEmail(decodedToken.Email);
       setIsAuth(true);
     }
+    setIsInitialized(true);
   }, []);
 
-  const refreshAuth = (token?: string) => {
-    console.log('refreshAuth token', token);
+  const refreshAuth = async () => {
+    const token = localStorage.getItem('authToken');
     
-    if (token) {
-      localStorage.setItem('authToken', token);
-      setIsAuth(true);
-    } else {
-      localStorage.removeItem('authToken');
-      setIsAuth(false);
-    }
+    return new Promise<void>((resolve) => {
+      if (token) {
+        localStorage.setItem('authToken', token);
+        const decodedToken = JSON.parse(decrypt(token));
+        setCandidateID(decodedToken.CandidateID);
+        setEmail(decodedToken.Email);
+        setIsAuth(true);
+      } else {
+        localStorage.removeItem('authToken');
+        setCandidateID('');
+        setEmail('');
+        setIsAuth(false);
+      }
+      resolve();
+    });
   }
 
   const handleUpdateToken = (token: string) => {
@@ -63,6 +73,10 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       setEmail(decodedToken.Email);
       setIsAuth(true);
     }
+  }
+
+  if (!isInitialized) {
+    return null;
   }
 
   return (
