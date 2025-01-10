@@ -98,65 +98,6 @@ function Client() {
   const { sourceInformations } = useSourceInformation();
   const [sourceInformation, setSourceInformation] = useState<number>(0);
 
-  //@ts-ignore
-  const candidateData: Candidate = {
-    jobID: params.get('id') || '',
-    candidateID: '',
-    revision: 0,
-    email: '',
-    titleID: 0,
-    firstName: '',
-    lastName: '',
-    nickName: '',
-    tel: '',
-    updateDate: new Date().toISOString(),
-    dateOfBirth: birthDate?.toISOString() || '',
-    gender: {
-      genderID: 0,
-      description: ''
-    },
-    maritalStatus: {
-      maritalStatusID: 0,
-      description: ''
-    },
-    image: profileImage as File,
-    imageUrl: '',
-    cv: resumeFile as File,
-    cvUrl: '',
-    addressDetails: '',
-    province: {
-      provinceID: province,
-      nameTH: '',
-      nameEN: ''
-    },
-    district: {
-      districtID: district,
-      provinceID: province,
-      nameTH: '',
-      nameEN: ''
-    },
-    subdistrict: {
-      subDistrictID: subDistrict,
-      districtID: district,
-      postCode: parseInt(postcode),
-      nameTH: '',
-      nameEN: ''
-    },
-    postalCode: parseInt(postcode),
-    sourceInformation: {
-      sourceInformationID: 0,
-      description: ''
-    },
-    pdpAAccepted: false,
-    pdpAAcceptedDate: new Date().toISOString(),
-    candidateEducations: [{
-      candidateID: '',
-      revision: 0,
-      educationID: education?.educationID || 0,
-      major: ''
-    }]
-  };
-
   const languageLevelLabel = [{
     value: 1,
     label: 'พอใช้'
@@ -610,7 +551,7 @@ function Client() {
                         }
                       }}
                       onChange={(e) => {
-                        handleValidateField;
+                        handleValidateField(e as React.ChangeEvent<HTMLInputElement>);
                         const value = e.target.value;
                         if (parseInt(value) > 100) {
                           alert('this field allow only 0-100');
@@ -636,7 +577,7 @@ function Client() {
                       }}
                       required
                       onChange={(e) => {
-                        handleValidateField;
+                        handleValidateField(e as React.ChangeEvent<HTMLInputElement>);
                         const value = e.target.value.replace(/[^0-9,]/g, '').replace(/,/g, '');
                         if (value) {
                           e.target.value = Number(value).toLocaleString();
