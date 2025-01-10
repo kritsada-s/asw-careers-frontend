@@ -6,7 +6,8 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import Image from 'next/image';
-import { Link, MapPinned } from 'lucide-react';
+import Link from 'next/link';
+import { MapPinned } from 'lucide-react';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -106,20 +107,19 @@ export default function HomeWorksLocation() {
                     >
                         {locationData.map((location) => (
                         <SwiperSlide key={location.id}>
-                            <div className="h-full flex flex-col gap-2">
+                          <div className="h-full flex flex-col gap-2">
                             <h4 className='text-primary-700 font-semibold text-2xl'>
-                                {location.title}
+                              {location.title}
                             </h4>
                             <p className='text-neutral-600 leading-none'>{location.address}</p>
                             <Link
                                 href={location.mapUrl}
                                 target="_blank"
-                                className="inline-flex w-fit items-center justify-center px-5 py-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors gap-2 leading-none"
-                            >
+                                className="inline-flex w-fit items-center justify-center px-5 py-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors gap-2 leading-none">
                                 <MapPinned size={18} />
-                                ค้นหาเส้นทาง
+                                <span>ค้นหาเส้นทาง</span>
                             </Link>
-                            </div>
+                          </div>
                         </SwiperSlide>
                         ))}
                         <div className="custom-pagination pt-3"></div>
