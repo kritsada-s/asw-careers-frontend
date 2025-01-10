@@ -245,3 +245,24 @@ export async function fetchProfileData(email: string): Promise<Candidate> {
     throw error;
   }
 }
+
+export async function validateToken(token: string) {
+  const data = new FormData();
+  data.append('token', token);
+  const config = {
+    method: 'post',
+    url: prodUrl+'/Authorization/TokenValidation',
+    headers: { 
+      'Content-Type': 'application/form-data'
+    },
+    data: data
+  };
+
+  try {
+    const response = await axios.request(config);
+    return response.data;
+  } catch (error) {
+    console.error('Error validating token:', error);
+    throw error;
+  }
+}

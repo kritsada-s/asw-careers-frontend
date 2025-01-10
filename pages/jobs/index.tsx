@@ -227,22 +227,12 @@ const JobsPage = () => {
       } else {
         console.log('redirect to apply job...');
         sessionStorage.setItem('jobId', selectedJob?.jobID || '');
-        authContext?.refreshAuth();
         window.location.href = '/apply-job/'+selectedJob?.jobID;
       }
     } else {
       sessionStorage.setItem('jobId', selectedJob?.jobID || '');
       console.log(sessionStorage.getItem('jobId'));
       authContext?.setIsAuthModalOpen(true);
-      // openModal({
-      //   type: 'auth', 
-      //   props: {
-      //     initialStep: 'email',
-      //     onAuthSuccess: () => {
-      //       authContext?.refreshAuth();
-      //     }
-      //   }
-      // });
     }
   };
 

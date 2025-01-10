@@ -2,7 +2,7 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 import { checkAuth, redirectToHome } from '@/lib/auth';
-import { fetchProfileData, type ProfileData } from '@/lib/api';
+import { fetchProfileData, validateToken, type ProfileData } from '@/lib/api';
 import LoaderHorizontal from '../../components/ui/loader';
 import { Candidate } from '@/lib/form';
 import Image from 'next/image';
@@ -191,23 +191,40 @@ export default function ProfilePage() {
   useEffect(() => {
     async function initializeProfile() {
       // Check authentication
-      const authData = checkAuth();
-      console.log('authData', authData);
-
-      if (!authData) {
-        alert('Please log in to view your profile');
-        redirectToHome();
+      console.log('initializeProfile 🚀');
+      if (authContext?.isAuth) {
+        console.log('User is authenticated');
+        authContext?.setIsDialogOpen(false);
+      } else {
+        console.log('User is not authenticated');
+        console.log('authContext', authContext);
+        
+        authContext?.setDialogTitle('การตรวจสอบสิทธิเข้าสู่ระบบ');
+        authContext?.setDialogContent('กรุณาตรวจสอบสิทธิเข้าสู่ระบบของคุณ');
+        authContext?.setIsDialogOpen(true);
         return;
       }
 
       try {
         // Fetch profile data
-        const data = await fetchProfileData(authData.Email);
-        setTokenDate(authData.ExpiredDate)
-        setProfileData(data);
+        //const data = await fetchProfileData(authData.Email);
+        if (authContext?.isAuth) {
+          const data = await fetchProfileData(authContext?.email || '');
+          setTokenDate(authContext?.email || '');
+          setProfileData(data);
+        } else {
+          setError('ไม่สามารถโหลดข้อมูลโปรไฟล์ได้');
+          redirectToHome();
+        }
       } catch (err: any) {
+        console.log(err);
+        
         if (err.response.status === 404) {
-          window.location.href = '/apply-job/';
+          console.log('404');
+          
+          authContext?.refreshAuth();
+          return;
+          //window.location.href = '/create-profile/';
         } else {
           setError('ไม่สามารถโหลดข้อมูลโปรไฟล์ได้');
         }
@@ -217,7 +234,7 @@ export default function ProfilePage() {
       }
     }
     initializeProfile();
-  }, []);
+  }, [authContext]);
 
   useEffect(() => {
     setAppliedJobs(appliedJobsData);
@@ -227,9 +244,9 @@ export default function ProfilePage() {
     setEditableProfileData(profileData || {} as Candidate);
   }, [profileData]);
 
-  useEffect(() => {
-    console.log('editableProfileData', editableProfileData);
-  }, [editableProfileData]);
+  // useEffect(() => {
+  //   console.log('editableProfileData', editableProfileData);
+  // }, [editableProfileData]);
 
   useEffect(() => {
     const updateProfileData = async () => {
