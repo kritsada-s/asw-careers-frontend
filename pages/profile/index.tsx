@@ -630,7 +630,7 @@ export default function ProfilePage() {
                       ))}
                     </ul>
                   ) : (
-                    <small className='text-gray-500'>ไม่พบข้อมูลภาษา กด "แก้ไขข้อมูล" เพื่อเพิ่ม</small>
+                    <small className='text-gray-500'>ไม่พบข้อมูลภาษา กด &quot;แก้ไขข้อมูล&quot; เพื่อเพิ่ม</small>
                   )}
                 </div>
               {profileData.cvUrl && (
