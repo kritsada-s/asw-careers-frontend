@@ -7,15 +7,16 @@ import LoaderHorizontal from '../../components/ui/loader';
 import { Candidate } from '@/lib/form';
 import Image from 'next/image';
 import { useEducations, useFetchAppliedJobs, useFetchBase64Image, useFetchBase64PDF, useProfileUpdate, useLanguages } from '../../hooks/useDataFetching';
-import { AppliedJob } from '@/lib/types';
+import { AppliedJob, CandidateLanguageProps } from '@/lib/types';
 import JobBlock from '../../components/ui/JobBlock';
 import { Table } from 'flowbite-react';
 import { CustomFlowbiteTheme } from 'flowbite-react';
 import FormSelect from '../../components/ui/FormAddress';
 import { DistrictSelector, GenderSelect, MaritalStatusSelector, ProvinceSelector, SubDistrictSelector, TitleSelector } from '../../components/ui/FormInput';
 import { TitleName } from '../../components/ui/FormInput';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Alert, Slide, Link } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Alert, Slide, Link, Chip } from '@mui/material';
 import { AuthContext } from '../providers';
+import CandidateLanguage from '@/components/ui/CandidateLanguage';
 
 interface EducationDialogProps {
   open: boolean;
@@ -42,6 +43,9 @@ export default function ProfilePage() {
   const [confirmUpdate, setConfirmUpdate] = useState(false);
   const [updateStatusOpen, setUpdateStatusOpen] = useState(false);
   const { languages, isLoading: languagesLoading, error: languagesError } = useLanguages();
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('เกิดข้อผิดพลาด');
+  const [snackBarType, setSnackBarType] = useState<'success' | 'error'>('error');
 
   const languageLevelLabel = [{
     value: 1,
@@ -276,11 +280,32 @@ export default function ProfilePage() {
   }
 
   const handleEdit = (field: keyof Candidate, value: string | number) => {
-    //console.log('field', field, 'value', value);
+    console.log('field', field, 'value', value);
     setEditableProfileData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleLanguageAdd = (language: CandidateLanguageProps) => {
+    if (!profileData?.candidateID) return;
+    
+    const newLanguage = {
+      candidateID: profileData.candidateID,
+      revision: 0,
+      languageID: language.languageID,
+      level: language.level
+    };
+    
+    setEditableProfileData((prev) => ({ ...prev, candidateLanguages: [...prev.candidateLanguages, newLanguage] }));
+  };
+
+  const handleLanguageDelete = (languageID: number) => {
+    setEditableProfileData((prev) => ({
+      ...prev,
+      candidateLanguages: prev.candidateLanguages.filter(l => l.languageID !== languageID)
+    }));
+  };
+
   const handlePromptSave = () => {
+    console.log('editableProfileData', editableProfileData);
     setIsConfirmUpdateOpen(true);
   }
 
@@ -467,7 +492,7 @@ export default function ProfilePage() {
               </div>
 
               <div className='flex flex-col md:flex-row gap-2 md:gap-4 items-baseline'>
-                <div className='w-full md:w-1/2'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>ที่อยู่</p>
                   <input type="text" value={editableProfileData.addressDetails} onChange={(e) => handleEdit('addressDetails', e.target.value)} className="border rounded p-1 w-full" />
                 </div>
@@ -493,6 +518,18 @@ export default function ProfilePage() {
                   <p className='text-neutral-900'>รหัสไปรษณีย์</p>
                   <input type="text" value={editableProfileData.postalCode} onChange={(e) => handleEdit('postalCode', e.target.value)} className="border rounded p-1 bg-gray-100 text-gray-500" disabled />
                 </div>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <p className='text-neutral-900'>ภาษา</p>
+                <div className="language-list">
+                  <div className="flex flex-wrap gap-2">
+                    {profileData.candidateLanguages.map((language) => (
+                      <Chip key={language.languageID} label={`${languages.find((l) => l.languageID === language.languageID)?.description || '-'} - ${languageLevelLabel[language.level - 1].label}`} onDelete={() => handleLanguageDelete(language.languageID)} />
+                    ))}
+                  </div>
+                </div>
+                <CandidateLanguage handleLanguageAdd={handleLanguageAdd} />
               </div>
 
               {/* <div className="flex flex-col md:flex-row gap-2 md:gap-4">
@@ -583,16 +620,19 @@ export default function ProfilePage() {
                   </Table.Body>
                 </Table>
               </div>
-              {profileData.candidateLanguages.length > 0 && (
+              
                 <div className='flex flex-col'>
-                  <h3 className='text-md font-medium leading-none'>ภาษา</h3>
-                  <ul className='list-none list-inside'>
-                    {profileData.candidateLanguages.map((language) => (
-                      <li key={language.languageID}>{languages.find((l) => l.languageID === language.languageID)?.description || '-'} ({languageLevelLabel.find((l) => l.value === language.level)?.label || '-'})</li>
-                    ))}
-                  </ul>
+                  <h3 className='text-md font-medium leading-none mb-2'>ภาษา</h3>
+                  {profileData.candidateLanguages.length > 0 ? (
+                    <ul className='list-none list-inside'>
+                      {profileData.candidateLanguages.map((language) => (
+                        <li key={language.languageID}>{languages.find((l) => l.languageID === language.languageID)?.description || '-'} ({languageLevelLabel.find((l) => l.value === language.level)?.label || '-'})</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <small className='text-gray-500'>ไม่พบข้อมูลภาษา กด "แก้ไขข้อมูล" เพื่อเพิ่ม</small>
+                  )}
                 </div>
-              )}
               {profileData.cvUrl && (
                 <div className='flex gap-2 items-baseline'>
                   <label className="font-medium block">เรซูเม่ : </label>

@@ -598,7 +598,7 @@ export function useProfileUpdate() {
       }
   
       try {        
-        //console.log('image', profileData.image);
+        console.log('image', profileData.maritalStatus.maritalStatusID);
         const formData = new FormData();
         formData.append('Candidate.CandidateID', profileData.candidateID);
         formData.append('Candidate.Revision', profileData.revision ? Number(profileData.revision) : 1);
@@ -609,15 +609,15 @@ export function useProfileUpdate() {
         formData.append('Candidate.NickName', profileData.nickName);
         formData.append('Candidate.Tel', profileData.tel);
         formData.append('Candidate.DateOfBirth', profileData.dateOfBirth ? new Date(profileData.dateOfBirth).toISOString() : null);
-        formData.append('Candidate.Gender.GenderID', 1);
-        formData.append('Candidate.MaritalStatus.MaritalStatusID', 1);
+        formData.append('Candidate.Gender.GenderID', profileData.gender ? profileData.gender.genderID : 1);
+        formData.append('Candidate.MaritalStatus.MaritalStatusID', profileData.maritalStatus ? profileData.maritalStatus.maritalStatusID : 1);
         formData.append('Candidate.Image', profileData.image);
         formData.append('Candidate.CV', profileData.cv);
         formData.append('Candidate.AddressDetails', profileData.addressDetails);
-        formData.append('Candidate.Province.ProvinceID', profileData.province ? profileData.province.provinceID : 1);
-        formData.append('Candidate.District.DistrictID', profileData.district ? profileData.district.districtID : 1001);
-        formData.append('Candidate.Subdistrict.SubdistrictID', profileData.subdistrict ? profileData.subdistrict.subDistrictID : 100101);
-        formData.append('Candidate.PostalCode', profileData.postalCode ? Number(profileData.postalCode) : 10200);
+        formData.append('Candidate.Province.ProvinceID', profileData.province ? profileData.province.provinceID : 0);
+        formData.append('Candidate.District.DistrictID', profileData.district ? profileData.district.districtID : 0);
+        formData.append('Candidate.Subdistrict.SubdistrictID', profileData.subdistrict ? profileData.subdistrict.subDistrictID : 0);
+        formData.append('Candidate.PostalCode', profileData.postalCode ? Number(profileData.postalCode) : 0);
         formData.append('Candidate.SourceInformation.SourceInformationID', 1);
         formData.append('Candidate.PDPAAccepted', true);
         formData.append('Candidate.PDPAAcceptedDate', new Date().toISOString());
