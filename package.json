@@ -17,6 +17,7 @@
     "@mantine/modals": "^7.14.1",
     "@mui/material": "^6.2.0",
     "@mui/x-date-pickers": "^7.23.1",
+    "@vercel/analytics": "^1.4.1",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
