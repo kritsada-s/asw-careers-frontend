@@ -37,7 +37,7 @@ export default function App(props: AppProps) {
       <Head>
         <title>{ APP_NAME }</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="AssetWise Careers" />
+        <meta name="description" content="ค้นพบโอกาสงานที่แอสเซทไวส์ ! เว็บไซต์รวมตำแหน่งงานว่างในเครือผู้พัฒนาอสังหาริมทรัพย์ชั้นนำ ทั้งด้านพัฒนาโครงการและขาย  ร่วมเป็นส่วนหนึ่งของทีมงานมืออาชีพกับเรา" />
         <link rel="icon" href="favicon.ico" />
       </Head>
       <AuthProvider>
