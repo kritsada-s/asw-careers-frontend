@@ -1,6 +1,7 @@
 "use client";
 
 import React, { Suspense, useEffect, useState, useRef, useCallback, useContext } from 'react';
+import { useRouter } from 'next/router';
 import { fetchCompanyLocations, fetchedJobs, fetchLocationByID } from '@/lib/api';
 import { Job } from '@/lib/types';
 import WorkLocation from '../../components/ui/WorkLocation';
@@ -15,7 +16,7 @@ import { Button, CustomFlowbiteTheme, Modal } from 'flowbite-react';
 import { useBenefits, useFetchBase64Image, useFetchBase64PDF, useSubmitJobApplication, useUserProfile } from '../../hooks/useDataFetching';
 import Link from 'next/link';
 import { HiExternalLink, HiOutlineCheckCircle, HiOutlineExclamationCircle, HiX } from 'react-icons/hi';
-import { FaFacebook, FaLine, FaXTwitter } from "react-icons/fa6";
+import { FaFacebook, FaLine, FaXTwitter, FaRegCopy } from "react-icons/fa6";
 import Swal from 'sweetalert2';
 import Image from 'next/image';
 import { EducationLevel } from '../../components/ui/FormInput';
@@ -24,16 +25,27 @@ import { AuthContext } from '../providers';
 import LoaderHorizontal from '../../components/ui/loader';
 import { Benefit } from '@/lib/types';
 import { NextSeo } from 'next-seo';
+import { Snackbar } from '@mui/material';
 
 interface fetchedJobs {
   jobs: Job
 } 
 
 const ShareJob = ({id, position}: {id: string, position: string}) => {
+  const share = useRouter();
+  const base = 'https://careers.assetwise.co.th';
+  const link = `${base}/jobs?id=${id}`;
+  const [isCopied, setIsCopied] = useState(false);
+  const copyLink = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    navigator.clipboard.writeText(link);
+    setIsCopied(true);
+  }
+
   return (
     <div className='flex gap-2 items-center justify-end bg-gray-100 px-4 py-2 mt-4 rounded'>
       <span className='text-sm text-gray-500'>แชร์ตำแหน่งงานนี้</span>
-      <div className='flex gap-1'>
+      <div className='flex gap-2'>
         <FacebookShareButton url={`https://careers.assetwise.co.th/jobs?id=${id}`} title={`ลองดูตำแหน่งงานนี้ที่ Assetwise: ${position}`}>
           <FaFacebook size={18}/>
         </FacebookShareButton>
@@ -43,7 +55,12 @@ const ShareJob = ({id, position}: {id: string, position: string}) => {
         <TwitterShareButton url={`https://careers.assetwise.co.th/jobs?id=${id}`} title={`ลองดูตำแหน่งงานนี้ที่ Assetwise: ${position}`}>
           <FaXTwitter size={18}/>
         </TwitterShareButton>
+        <button onClick={copyLink} className='text-sm'>
+          <FaRegCopy size={18} />
+        </button>
       </div>
+
+      <Snackbar open={isCopied} autoHideDuration={1800} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} message="คัดลอกลิงค์เรียบร้อย" onClose={() => setIsCopied(false)} ContentProps={{ sx: { display: 'flex', justifyContent: 'center', color: 'white', backgroundColor: '#4caf50', borderRadius: '4px', minWidth: 'auto !important', '.MuiSnackbarContent-message': {color: 'white', fontSize: '22px', padding: 0} } }} />
     </div>
   )
 }
