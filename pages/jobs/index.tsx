@@ -23,6 +23,7 @@ import { FacebookShareButton, LineShareButton, TwitterShareButton } from 'react-
 import { AuthContext } from '../providers';
 import LoaderHorizontal from '../../components/ui/loader';
 import { Benefit } from '@/lib/types';
+import { NextSeo } from 'next-seo';
 
 interface fetchedJobs {
   jobs: Job
@@ -286,6 +287,9 @@ const JobsPage = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100 flex-col md:flex-row relative">
+
+    <NextSeo title={selectedJob ? `ตำแหน่งงาน ${selectedJob?.jobPosition}` : 'ตำแหน่งงานทั้งหมด'} description="ค้นพบโอกาสงานที่แอสเซทไวส์ ! เว็บไซต์รวมตำแหน่งงานว่างในเครือผู้พัฒนาอสังหาริมทรัพย์ชั้นนำ ทั้งด้านพัฒนาโครงการและขาย ร่วมเป็นส่วนหนึ่งของทีมงานมืออาชีพกับเรา" />
+
       {/* Left Sidebar */}
       <div className="w-full md:w-1/3 border-r border-gray-200 bg-white">
         <div className="p-4 border-b border-gray-200">
@@ -374,7 +378,7 @@ const JobsPage = () => {
           </div>
         ) : (
           <div className="flex items-center justify-center h-full text-gray-500">
-            Select a job to view details
+            เลือกตำแหน่งงานเพื่อดูรายละเอียด
           </div>
         )}
       </div>
