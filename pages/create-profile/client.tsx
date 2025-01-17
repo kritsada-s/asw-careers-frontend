@@ -506,7 +506,7 @@ function Client() {
                       htmlFor="profile-image"
                       className="bg-primary-700 !text-base text-white px-4 py-1 rounded cursor-pointer"
                     >
-                      อัพโหลดรูปภาพ
+                      อัพโหลดรูปภาพ <span className="text-red-500">*</span>
                     </label>
                   </div>
                 </div>
@@ -593,7 +593,7 @@ function Client() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xl">
                 <div>
-                  <label className='block mb-1'>คำนำหน้า</label>
+                  <label className='block mb-1'>คำนำหน้า <span className="text-red-500">*</span></label>
                   <Select<Option>
                     instanceId="title-select"
                     options={titles.map(title => ({
@@ -630,7 +630,7 @@ function Client() {
                   <CustomDatePicker onBlur={handleBirthDateChange} />
                 </div>
                 <div>
-                  <label className="block mb-1">สถานะสมรส</label>
+                  <label className="block mb-1">สถานะสมรส <span className="text-red-500">*</span></label>
                   <Select<Option>
                     options={maritalStatuses.map(maritalStatus => ({
                       value: maritalStatus.maritalStatusID,
@@ -648,7 +648,7 @@ function Client() {
                   <input type="tel" required id="phone" name="phone" className="w-full border rounded p-2 border-gray-300" />
                 </div>
                 <div>
-                  <label className="block mb-1">อีเมล</label>
+                  <label className="block mb-1">อีเมล <span className="text-red-500">*</span></label>
                   <input type="email" required id="email" name="email" className="w-full bg-neutral-100 text-neutral-500 border rounded p-2 border-gray-300" disabled value={email}/>
                   <span className="text-gray-500 text-sm">อีเมลไม่สามารถแก้ไขได้</span>
                 </div>
@@ -659,12 +659,12 @@ function Client() {
             <section ref={addressInfoRef} className={`bg-white p-6 rounded-lg shadow relative`} >
               <div className="space-y-4">
                 <div>
-                  <label className="block mb-1">ที่อยู่</label>
+                  <label className="block mb-1">ที่อยู่ <span className="text-red-500">*</span></label>
                   <input type="text" required id="address" name="address" className="w-full h-[50px] border border-gray-300 rounded px-2 py-1 text-xl" />
                 </div>
                 <div className="custom-selector grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block mb-1">จังหวัด</label>
+                    <label className="block mb-1">จังหวัด <span className="text-red-500">*</span></label>
                     <Select<Option>
                       instanceId="province-select"
                       options={provinces.map(province => ({
@@ -679,7 +679,7 @@ function Client() {
                     />
                   </div>
                   <div>
-                    <label className="block mb-1">อำเภอ</label>
+                    <label className="block mb-1">อำเภอ <span className="text-red-500">*</span></label>
                     <Select<Option>
                       ref={districtSelect}
                       instanceId="district-select"
@@ -699,7 +699,7 @@ function Client() {
                     />
                   </div>
                   <div>
-                    <label className="block mb-1">ตำบล</label>
+                    <label className="block mb-1">ตำบล <span className="text-red-500">*</span></label>
                     <Select<Option>
                       ref={subDistrictSelect}
                       instanceId="sub-district-select"
@@ -732,7 +732,7 @@ function Client() {
             <section ref={otherInfoRef} className={`bg-white p-6 rounded-lg shadow relative`}>
               <div className="space-y-6">
                 <div>
-                  <label className='block mb-1'>ท่านทราบข่าวการสมัครงานจากช่องทางใด</label>
+                  <label className='block mb-1'>ท่านทราบข่าวการสมัครงานจากช่องทางใด <span className="text-red-500">*</span></label>
                   <Select<Option>
                     options={sourceInformations.map(sourceInformation => ({
                       value: sourceInformation.sourceInformationID,
@@ -746,7 +746,7 @@ function Client() {
                   />
                 </div>
                 <div>
-                  <h3 className="font-medium mb-2">ประวัติการศึกษา</h3>
+                  <h3 className="font-medium mb-2">ประวัติการศึกษา <span className="text-red-500">*</span></h3>
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="custom-selector">
@@ -773,7 +773,7 @@ function Client() {
                 </div>
 
                 <div>
-                  <h3 className="font-medium mb-2">ภาษา</h3>
+                  <h3 className="font-medium mb-2">ภาษา <span className="text-red-500">*</span></h3>
                   <div className="flex flex-col gap-4">
                     <div className="language-list">
                       <div className="flex flex-wrap gap-2">

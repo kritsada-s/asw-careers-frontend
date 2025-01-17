@@ -239,20 +239,14 @@ const JobsPage = () => {
   const handleJobSubmit = async () => {
     try {
       // Wait for auth refresh to complete
-      await authContext?.refreshAuth();
+      authContext?.refreshAuth();
       
       // Get fresh auth state after refresh
       const isAuthenticated = authContext?.isAuth;
       const candidateId = authContext?.CandidateID;
 
       if (isAuthenticated) {
-        if (candidateId) {
-          setIsSummaryModalOpen(true);
-        } else {
-          console.log('redirect to apply job...');
-          sessionStorage.setItem('jobId', selectedJob?.jobID || '');
-          window.location.href = '/apply-job/'+selectedJob?.jobID;
-        }
+        setIsSummaryModalOpen(true);
       } else {
         sessionStorage.setItem('jobId', selectedJob?.jobID || '');
         console.log(sessionStorage.getItem('jobId'));
