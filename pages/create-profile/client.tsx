@@ -508,6 +508,7 @@ function Client() {
                     >
                       อัพโหลดรูปภาพ <span className="text-red-500">*</span>
                     </label>
+                    <FormHelperText>ขนาดไฟล์ไม่เกิน 1MB</FormHelperText>
                   </div>
                 </div>
                 <div className="space-y-4 flex-1">
@@ -569,7 +570,7 @@ function Client() {
                     {invalidFields.includes('salary') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
                   </div>
                   <div>
-                    <label className="block mb-1">เอกสารประกอบการสมัคร (CV/Resume) <span className="text-red-500">*</span></label>
+                    <label className="block mb-1">เอกสารประกอบการสมัคร (CV/Resume) <span className="text-red-500">*</span> <span className="text-xs font-normal text-gray-500">ขนาดไฟล์ไม่เกิน 5 MB</span></label>
                     <div className="flex items-center gap-2">
                       <FileUploadButton onChange={handleResumeFileChange} file={resumeFile} />
                     </div>
