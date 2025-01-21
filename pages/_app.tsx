@@ -10,6 +10,7 @@ import AuthProvider from './providers'
 import AuthModal from '../components/Auth/AuthModal'
 import MUIProvider from '../components/MUIProvider'
 import { Dialog, DialogContent, DialogTitle } from '@mui/material'
+import Script from 'next/script'
 
 const APP_NAME = 'AssetWise Careers'
 
@@ -42,6 +43,8 @@ export default function App(props: AppProps) {
       </Head>
       <AuthProvider>
         <AppContent {...props} />
+        <Script src="https://cookiecdn.com/cwc.js" />
+        <Script id="cookieWow" type="text/javascript" src="https://cookiecdn.com/configs/y8wWLFhwe78ceFYuZNs2Nb7p" data-cwcid="y8wWLFhwe78ceFYuZNs2Nb7p" />
       </AuthProvider>
       <Footer />
     </MUIProvider>
