@@ -14,9 +14,10 @@ import { CustomFlowbiteTheme } from 'flowbite-react';
 import FormSelect from '../../components/ui/FormAddress';
 import { DistrictSelector, GenderSelect, MaritalStatusSelector, ProvinceSelector, SubDistrictSelector, TitleSelector } from '../../components/ui/FormInput';
 import { TitleName } from '../../components/ui/FormInput';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Alert, Slide, Link, Chip } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Alert, Slide, Link, Chip, IconButton } from '@mui/material';
 import { AuthContext } from '../providers';
 import CandidateLanguage from '@/components/ui/CandidateLanguage';
+import { DownloadIcon, EditIcon } from 'lucide-react';
 
 interface EducationDialogProps {
   open: boolean;
@@ -288,17 +289,10 @@ export default function ProfilePage() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     }
-    // if (typeof window !== 'undefined') {
-    //   if (pdfData) {
-    //     const newTab = window.open();
-    //     if (newTab) {
-    //       newTab.document.write(`<embed src="${pdfData}" width="100%" height="100%" />`);
-    //       newTab.document.body.style.margin = '0';
-    //     } else {
-    //       console.error('No PDF data available to open.');
-    //     }
-    //   }
-    // }
+  }
+
+  const handleUpdateCV = () => {
+    console.log('update CV');
   }
 
   const handleUploadCV = () => {
@@ -383,7 +377,7 @@ export default function ProfilePage() {
         <h2 className="text-2xl font-bold leading-none">ข้อมูลผู้สมัคร</h2>
         <small className='text-neutral-500 mb-4'>อัพเดตล่าสุด : {new Date(profileData.updateDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</small>
       </div>
-      <div className="flex flex-col md:flex-row gap-6 text-[26px] justify-between">
+      <div className="flex flex-col md:flex-row gap-4 lg:gap-6 text-[26px] justify-between">
         <div className="w-full md:w-2/6">
           {editableProfileData.image ? (
             <div className="flex flex-col items-center">
@@ -445,17 +439,17 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="w-full md:min-w-[750px] flex flex-col">
+        <div className="w-full md:w-4/6 lg:min-w-[750px] flex flex-col">
           <h3 className='text-2xl font-medium mb-3'><span className='font-medium'>รหัสประจำตัวผู้สมัคร :</span> {profileData.candidateID}</h3>
           {isEditing ? (
             // Edit Form
             <div className='flex flex-col gap-3 text-[20px]'>
-              <div className='flex flex-col md:flex-row gap-2 md:gap-4 items-baseline justify-between'>
-                <div className='w-full md:w-1/5'>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-2 lg:gap-4 items-baseline justify-between'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>คำนำหน้าชื่อ</p>
                   <TitleSelector id={editableProfileData.titleID} onTitleChange={(title) => handleEdit('titleID', title ? title.titleID : 1)} />
                 </div>
-                <div className='w-full md:w-1/2'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>ชื่อ</p>
                   <input
                     type="text"
@@ -464,7 +458,7 @@ export default function ProfilePage() {
                     className="border rounded p-1 w-full"
                   />
                 </div>
-                <div className='w-full md:w-1/2'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>นามสกุล</p>
                   <input
                     type="text"
@@ -474,8 +468,8 @@ export default function ProfilePage() {
                   />
                 </div>
               </div>
-              <div className='flex flex-col md:flex-row gap-2 md:gap-4 items-baseline justify-between'>
-                <div className='w-full md:w-1/2'>
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4 items-baseline justify-between'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>ชื่อเล่น</p>
                   <input
                     type="text"
@@ -484,31 +478,31 @@ export default function ProfilePage() {
                     className="border rounded p-1 w-full"
                   />
                 </div>
-                <div className='w-full md:w-1/2'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>อีเมล</p>
                   <input
                     type="email"
                     value={editableProfileData.email}
                     onChange={(e) => handleEdit('email', e.target.value)}
-                    className="border rounded p-1  min-w-[240px] bg-gray-100 text-gray-500" disabled
+                    className="border rounded p-1  min-w-[240px] bg-gray-100 text-gray-500 w-full" disabled
                   />
                 </div>
-                <div className='w-full md:w-1/2'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>วันเกิด</p>
                   <input type="date" value={new Date(editableProfileData.dateOfBirth).toISOString().split('T')[0]} onChange={(e) => handleEdit('dateOfBirth', e.target.value)} className="border rounded p-1 w-full" />
                 </div>
               </div>
 
-              <div className='flex flex-col md:flex-row gap-2 md:gap-4 items-baseline'>
-                <div className='w-full md:w-1/2'>
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4 items-baseline'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>เบอร์โทรศัพท์</p>
                   <input type="tel" value={editableProfileData.tel} onChange={(e) => handleEdit('tel', e.target.value)} className="border rounded p-1 w-full" />
                 </div>
-                <div className='w-full md:w-1/2'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>เพศ</p>
                   <GenderSelect id={profileData.gender.genderID} setGender={(gender) => handleEdit('gender', gender ? String(gender.genderID) : '')} />
                 </div>
-                <div className='w-full md:w-1/2'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>สถานะสมรส</p>
                   <MaritalStatusSelector 
                     id={profileData.maritalStatus.maritalStatusID} 
@@ -517,14 +511,16 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className='flex flex-col md:flex-row gap-2 md:gap-4 items-baseline'>
+              <hr className='mt-4 mb-3 border-neutral-300' />
+
+              <div className='flex flex-col md:flex-row gap-2 lg:gap-4 items-baseline'>
                 <div className='w-full'>
                   <p className='text-neutral-900'>ที่อยู่</p>
                   <input type="text" value={editableProfileData.addressDetails} onChange={(e) => handleEdit('addressDetails', e.target.value)} className="border rounded p-1 w-full" />
                 </div>
               </div>
               
-              <div className='flex flex-col md:flex-row gap-2 md:gap-4'>
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4'>
                 <div className=''>
                   <p className='text-neutral-900'>จังหวัด</p>
                   <ProvinceSelector id={editableProfileData.province.provinceID} onProvinceChange={handleProvinceChange} />
@@ -542,7 +538,24 @@ export default function ProfilePage() {
                 </div>
                 <div className=''>
                   <p className='text-neutral-900'>รหัสไปรษณีย์</p>
-                  <input type="text" value={editableProfileData.postalCode} onChange={(e) => handleEdit('postalCode', e.target.value)} className="border rounded p-1 bg-gray-100 text-gray-500" disabled />
+                  <input type="text" value={editableProfileData.postalCode} onChange={(e) => handleEdit('postalCode', e.target.value)} className="border rounded p-1 bg-gray-100 text-gray-500 w-full" disabled />
+                </div>
+              </div>
+
+              <hr className='mt-4 mb-3 border-neutral-300' />
+
+              <div className='flex flex-col gap-2'>
+                <p className='text-neutral-900'>เรซูเม่</p>
+                <div className='resume-box flex gap-5 md:gap-7 border-[3px] text-primary-700 border-primary-700 rounded-xl px-2 py-1 md:px-4 md:py-2 w-full md:w-fit items-center max-w-full transition-all cursor-pointer group justify-between'>
+                  <p className='text-sm md:text-lg'>{profileData.cvUrl.split('\\').pop()}</p>
+                  <div className='flex gap-1 md:gap-2'>
+                    <IconButton onClick={handleUpdateCV}>
+                      <EditIcon className='text-primary-700' size={18} />
+                    </IconButton>
+                    <IconButton onClick={handleOpenCV}>
+                      <DownloadIcon className='text-primary-700' size={18} />
+                    </IconButton>
+                  </div>
                 </div>
               </div>
 
@@ -662,13 +675,7 @@ export default function ProfilePage() {
               {profileData.cvUrl && (
                 <div className='flex gap-2 items-baseline'>
                   <label className="font-medium block">เรซูเม่ : </label>
-                  <div>
-                    {isEditing ? (
-                      <input type="file" accept=".pdf" onChange={handleUploadCV} className='text-primary-700 underline' />
-                    ) : (
-                      <button onClick={() => handleOpenCV()} className='text-primary-700 underline'>ดาวน์โหลดเรซูเม่</button>
-                    )}
-                  </div>
+                  <button onClick={() => handleOpenCV()} className='text-primary-700 underline'>ดาวน์โหลดเรซูเม่</button>
                 </div>
               )}
               <hr className='mt-4 mb-3 border-neutral-300' />
@@ -684,7 +691,7 @@ export default function ProfilePage() {
       {appliedJobs.length > 0 && (
         <div className="flex flex-col pt-4">
           <h3 className="text-2xl font-bold mb-4">ประวัติการสมัครงาน</h3>
-          <div className="grid lg:grid-cols-3 gap-4 mb-7">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-7">
             {appliedJobs.map((job) => (
               <JobBlock key={job.appliedJobID} job={job.job} status={job.status.statusID} applyDate={job.appliedDate} />
             ))}
