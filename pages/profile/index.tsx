@@ -262,17 +262,43 @@ export default function ProfilePage() {
   }, [confirmUpdate]);
 
   const handleOpenCV = () => {
-    if (typeof window !== 'undefined') {
-      if (pdfData) {
-        const newTab = window.open();
-        if (newTab) {
-          newTab.document.write(`<embed src="${pdfData}" width="100%" height="100%" />`);
-          newTab.document.body.style.margin = '0';
-        } else {
-          console.error('No PDF data available to open.');
-        }
+    if (pdfData) {
+      const splitedContent = pdfData.split(";base64,");
+      const base64Image = splitedContent[1];
+      const mimeType = splitedContent[0].split(':')[1];
+      const pdfUrl = `data:${mimeType};base64,${base64Image}`;
+      
+      // Convert base64 to binary array
+      const binaryString = atob(base64Image);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
       }
+      
+      // Create blob from binary array
+      const blob = new Blob([bytes], { type: mimeType });
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create and trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${profileData?.firstName}_${profileData?.lastName}_resume.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     }
+    // if (typeof window !== 'undefined') {
+    //   if (pdfData) {
+    //     const newTab = window.open();
+    //     if (newTab) {
+    //       newTab.document.write(`<embed src="${pdfData}" width="100%" height="100%" />`);
+    //       newTab.document.body.style.margin = '0';
+    //     } else {
+    //       console.error('No PDF data available to open.');
+    //     }
+    //   }
+    // }
   }
 
   const handleUploadCV = () => {
