@@ -598,7 +598,7 @@ export function useProfileUpdate() {
       }
   
       try {        
-        console.log('image', profileData.maritalStatus.maritalStatusID);
+        //console.log(profileData);
         const formData = new FormData();
         formData.append('Candidate.CandidateID', profileData.candidateID);
         formData.append('Candidate.Revision', profileData.revision ? Number(profileData.revision) : 1);
@@ -637,7 +637,7 @@ export function useProfileUpdate() {
             'Authorization': `Bearer ${authToken}`,
           },
         });
-        console.log('res', res.data);
+        //console.log('res', res.data);
         setResponse(res.data);
       } catch (err: any) {
         console.error('Error updating profile:', err);

@@ -88,8 +88,6 @@ export interface Candidate {
     major: string;
   }[];
   candidateLanguages: {
-    candidateID: string;
-    revision: number;
     languageID: number;
     level: number;
   }[];
