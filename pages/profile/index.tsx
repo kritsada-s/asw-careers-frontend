@@ -6,7 +6,7 @@ import { fetchProfileData, validateToken, type ProfileData } from '@/lib/api';
 import LoaderHorizontal from '../../components/ui/loader';
 import { Candidate } from '@/lib/form';
 import Image from 'next/image';
-import { useEducations, useFetchAppliedJobs, useFetchBase64Image, useFetchBase64PDF, useProfileUpdate, useLanguages } from '../../hooks/useDataFetching';
+import { useEducations, useFetchAppliedJobs, useFetchBase64Image, useFetchBase64PDF, useProfileUpdate, useLanguages, useGenders, useMaritalStatus } from '../../hooks/useDataFetching';
 import { AppliedJob, CandidateLanguageProps } from '@/lib/types';
 import JobBlock from '../../components/ui/JobBlock';
 import { Table } from 'flowbite-react';
@@ -17,7 +17,7 @@ import { TitleName } from '../../components/ui/FormInput';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Alert, Slide, Link, Chip, IconButton } from '@mui/material';
 import { AuthContext } from '../providers';
 import CandidateLanguage from '@/components/ui/CandidateLanguage';
-import { DownloadIcon, EditIcon } from 'lucide-react';
+import { DownloadIcon, EditIcon, Pencil, UploadIcon } from 'lucide-react';
 
 interface EducationDialogProps {
   open: boolean;
@@ -47,6 +47,8 @@ export default function ProfilePage() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('เกิดข้อผิดพลาด');
   const [snackBarType, setSnackBarType] = useState<'success' | 'error'>('error');
+  const { genders, isLoading: gendersLoading, error: gendersError } = useGenders();
+  const { maritalStatuses, isLoading: maritalStatusesLoading, error: maritalStatusesError } = useMaritalStatus();
 
   const languageLevelLabel = [{
     value: 1,
@@ -207,6 +209,7 @@ export default function ProfilePage() {
         try {
           const data = await fetchProfileData(authContext.email);
           setTokenDate(authContext.email);
+          //console.log('init data', data);
           setProfileData(data);
         } catch (err: any) {
           if (err.response.status === 404) {
@@ -235,10 +238,6 @@ export default function ProfilePage() {
   useEffect(() => {
     setEditableProfileData(profileData || {} as Candidate);
   }, [profileData]);
-
-  // useEffect(() => {
-  //   console.log('editableProfileData', editableProfileData);
-  // }, [editableProfileData]);
 
   useEffect(() => {
     const updateProfileData = async () => {
@@ -291,31 +290,55 @@ export default function ProfilePage() {
     }
   }
 
-  const handleUpdateCV = () => {
-    console.log('update CV');
-  }
-
-  const handleUploadCV = () => {
-    console.log('uploading CV');
+  const handleUpdateCV = (file: File) => {
+    setEditableProfileData((prev) => ({ ...prev, cv: file }));
   }
 
   const handleEdit = (field: keyof Candidate, value: string | number) => {
-    console.log('field', field, 'value', value);
-    setEditableProfileData((prev) => ({ ...prev, [field]: value }));
+    //console.log('field', field, 'value', value);
+    if (field === 'gender') {
+      setEditableProfileData((prev) => ({ ...prev, gender: { genderID: Number(value), description: genders.find((g) => g.genderID === Number(value))?.description || '' } }));
+    } else if (field === 'maritalStatus') {
+      setEditableProfileData((prev) => ({ ...prev, maritalStatus: { maritalStatusID: Number(value), description: maritalStatuses.find((m) => m.maritalStatusID === Number(value))?.description || '' } }));
+    } else {
+      setEditableProfileData((prev) => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleLanguageAdd = (language: CandidateLanguageProps) => {
     if (!profileData?.candidateID) return;
     
     const newLanguage = {
-      candidateID: profileData.candidateID,
-      revision: 0,
       languageID: language.languageID,
       level: language.level
     };
-    
-    setEditableProfileData((prev) => ({ ...prev, candidateLanguages: [...prev.candidateLanguages, newLanguage] }));
-  };
+
+    // Check if language already exists
+    const existingLanguageIndex = editableProfileData.candidateLanguages.findIndex(
+      l => l.languageID === language.languageID
+    );
+
+    if (existingLanguageIndex !== -1) {
+      // Update existing language level
+      const updatedLanguages = [...editableProfileData.candidateLanguages];
+      updatedLanguages[existingLanguageIndex] = {
+        ...updatedLanguages[existingLanguageIndex],
+        level: language.level
+      };
+      
+      setEditableProfileData(prev => ({
+        ...prev,
+        candidateLanguages: updatedLanguages
+      }));
+    } else {
+      // Add new language
+      setEditableProfileData(prev => ({
+        ...prev,
+        candidateLanguages: [...prev.candidateLanguages, newLanguage]
+      }));
+    }
+
+  }
 
   const handleLanguageDelete = (languageID: number) => {
     setEditableProfileData((prev) => ({
@@ -325,7 +348,7 @@ export default function ProfilePage() {
   };
 
   const handlePromptSave = () => {
-    console.log('editableProfileData', editableProfileData);
+    //console.log('editableProfileData', editableProfileData);
     setIsConfirmUpdateOpen(true);
   }
 
@@ -339,6 +362,16 @@ export default function ProfilePage() {
 
   const handleDistrictChange = (district: any) => {
     handleEdit('district', district);
+  };
+
+  // useEffect(() => {
+  //   console.log('editableProfileData', editableProfileData);
+  // }, [editableProfileData]);
+
+  const formatDateForInput = (dateString: string) => {
+    const date = new Date(dateString);
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+    return date.toISOString().split('T')[0];
   };
 
   if (loading) {
@@ -407,7 +440,7 @@ export default function ProfilePage() {
           <div className="flex flex-col items-center">
             {isEditing && (
               <button
-                className="mt-3 px-4 py-2 rounded-full bg-primary-700 text-white text-base hover:bg-primary-600 leading-none"
+                className="mt-3 px-4 py-2 rounded-full bg-primary-700 text-white text-base hover:bg-primary-600 leading-none flex items-center gap-2"
                 onClick={() => {
                   const fileInput = document.createElement('input');
                   fileInput.type = 'file';
@@ -433,7 +466,7 @@ export default function ProfilePage() {
                   fileInput.click();
                 }}
               >
-                อัพโหลดภาพ
+                แก้ไขภาพ <Pencil size={18} />
               </button>
             )}
           </div>
@@ -489,7 +522,12 @@ export default function ProfilePage() {
                 </div>
                 <div className='w-full'>
                   <p className='text-neutral-900'>วันเกิด</p>
-                  <input type="date" value={new Date(editableProfileData.dateOfBirth).toISOString().split('T')[0]} onChange={(e) => handleEdit('dateOfBirth', e.target.value)} className="border rounded p-1 w-full" />
+                  <input 
+                    type="date" 
+                    value={formatDateForInput(editableProfileData.dateOfBirth)}
+                    onChange={(e) => handleEdit('dateOfBirth', e.target.value)} 
+                    className="border rounded p-1 w-full" 
+                  />
                 </div>
               </div>
 
@@ -547,9 +585,20 @@ export default function ProfilePage() {
               <div className='flex flex-col gap-2'>
                 <p className='text-neutral-900'>เรซูเม่</p>
                 <div className='resume-box flex gap-5 md:gap-7 border-[3px] text-primary-700 border-primary-700 rounded-xl px-2 py-1 md:px-4 md:py-2 w-full md:w-fit items-center max-w-full transition-all cursor-pointer group justify-between'>
-                  <p className='text-sm md:text-lg'>{profileData.cvUrl.split('\\').pop()}</p>
+                  <p className='text-sm md:text-lg'>{editableProfileData.cvUrl.split('\\').pop()}</p>
                   <div className='flex gap-1 md:gap-2'>
-                    <IconButton onClick={handleUpdateCV}>
+                    <IconButton onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = '.pdf,.doc,.docx';
+                      input.onchange = (e) => {
+                        const file = (e.target as HTMLInputElement).files?.[0];
+                        if (file) {
+                          handleUpdateCV(file);
+                        }
+                      };
+                      input.click();
+                    }}>
                       <EditIcon className='text-primary-700' size={18} />
                     </IconButton>
                     <IconButton onClick={handleOpenCV}>
@@ -562,8 +611,8 @@ export default function ProfilePage() {
               <div className="flex flex-col gap-1">
                 <p className='text-neutral-900'>ภาษา</p>
                 <div className="language-list">
-                  <div className="flex flex-wrap gap-2">
-                    {profileData.candidateLanguages.map((language) => (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {editableProfileData.candidateLanguages.map((language) => (
                       <Chip key={language.languageID} label={`${languages.find((l) => l.languageID === language.languageID)?.description || '-'} - ${languageLevelLabel[language.level - 1].label}`} onDelete={() => handleLanguageDelete(language.languageID)} />
                     ))}
                   </div>
@@ -616,11 +665,11 @@ export default function ProfilePage() {
               </div>
               <div className='flex gap-2 items-baseline'>
                 <label className="font-medium">เพศ :</label>
-                <div>{profileData.gender.description}</div>
+                <div>{genders.find((g) => g.genderID === Number(profileData.gender.genderID))?.description || '-'}</div>
               </div>
               <div className='flex gap-2 items-baseline'>
                 <label className="font-medium">สถานะสมรส :</label>
-                <div>{profileData.maritalStatus.description}</div>
+                <div>{maritalStatuses.find((m) => m.maritalStatusID === Number(profileData.maritalStatus.maritalStatusID))?.description || '-'}</div>
               </div>
               <div className='flex flex-col md:flex-row gap-2 items-baseline'>
                 <label className="font-medium flex-none">ที่อยู่ :</label>
