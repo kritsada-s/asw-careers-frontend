@@ -423,7 +423,7 @@ export default function ProfilePage() {
               />
             </div>
           ) : imageData ? (
-            <div className="flex flex-col items-center xx">
+            <div className="flex flex-col items-center">
               <Image
                 src={imageData}
                 alt="Profile Image"

@@ -598,7 +598,7 @@ export function useProfileUpdate() {
       }
   
       try {        
-        //console.log(profileData);
+        console.log(profileData);
         const formData = new FormData();
         formData.append('Candidate.CandidateID', profileData.candidateID);
         formData.append('Candidate.Revision', profileData.revision ? Number(profileData.revision) : 1);
@@ -623,11 +623,18 @@ export function useProfileUpdate() {
         formData.append('Candidate.PDPAAcceptedDate', new Date().toISOString());
         formData.append('Candidate.CandidateEducations[0].EducationID', profileData.candidateEducations[0].educationID ? Number(profileData.candidateEducations[0].educationID) : 1);
         formData.append('Candidate.CandidateEducations[0].Major', profileData.candidateEducations[0].major);
+        profileData.candidateLanguages.forEach((language: any, index: number) => {
+          formData.append(`Candidate.CandidateLanguages[${index}].candidateID`, profileData.candidateID);
+          formData.append(`Candidate.CandidateLanguages[${index}].languageID`, language.languageID);
+          formData.append(`Candidate.CandidateLanguages[${index}].level`, language.level);
+        });
         formData.append("Content-Type", "multipart/form-data");
   
         // for (const [key, value] of (formData as any).entries()) {
         //   console.log(`${key}:`, value);
         // }
+
+        // return;
   
         const res = await axios.post(`${prodUrl}/secure/Candidate/Update`, formData, {
           headers: {
