@@ -633,7 +633,6 @@ export function useProfileUpdate() {
         // for (const [key, value] of (formData as any).entries()) {
         //   console.log(`${key}:`, value);
         // }
-
         // return;
   
         const res = await axios.post(`${prodUrl}/secure/Candidate/Update`, formData, {
