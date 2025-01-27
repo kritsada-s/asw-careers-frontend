@@ -6,7 +6,7 @@ import { fetchProfileData, validateToken, type ProfileData } from '@/lib/api';
 import LoaderHorizontal from '../../components/ui/loader';
 import { Candidate } from '@/lib/form';
 import Image from 'next/image';
-import { useEducations, useFetchAppliedJobs, useFetchBase64Image, useFetchBase64PDF, useProfileUpdate, useLanguages } from '../../hooks/useDataFetching';
+import { useEducations, useFetchAppliedJobs, useFetchBase64Image, useFetchBase64PDF, useProfileUpdate, useLanguages, useGenders, useMaritalStatus } from '../../hooks/useDataFetching';
 import { AppliedJob, CandidateLanguageProps } from '@/lib/types';
 import JobBlock from '../../components/ui/JobBlock';
 import { Table } from 'flowbite-react';
@@ -14,9 +14,10 @@ import { CustomFlowbiteTheme } from 'flowbite-react';
 import FormSelect from '../../components/ui/FormAddress';
 import { DistrictSelector, GenderSelect, MaritalStatusSelector, ProvinceSelector, SubDistrictSelector, TitleSelector } from '../../components/ui/FormInput';
 import { TitleName } from '../../components/ui/FormInput';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Alert, Slide, Link, Chip } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Alert, Slide, Link, Chip, IconButton } from '@mui/material';
 import { AuthContext } from '../providers';
 import CandidateLanguage from '@/components/ui/CandidateLanguage';
+import { DownloadIcon, EditIcon, Pencil, UploadIcon } from 'lucide-react';
 
 interface EducationDialogProps {
   open: boolean;
@@ -46,6 +47,8 @@ export default function ProfilePage() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('เกิดข้อผิดพลาด');
   const [snackBarType, setSnackBarType] = useState<'success' | 'error'>('error');
+  const { genders, isLoading: gendersLoading, error: gendersError } = useGenders();
+  const { maritalStatuses, isLoading: maritalStatusesLoading, error: maritalStatusesError } = useMaritalStatus();
 
   const languageLevelLabel = [{
     value: 1,
@@ -206,6 +209,7 @@ export default function ProfilePage() {
         try {
           const data = await fetchProfileData(authContext.email);
           setTokenDate(authContext.email);
+          //console.log('init data', data);
           setProfileData(data);
         } catch (err: any) {
           if (err.response.status === 404) {
@@ -235,10 +239,6 @@ export default function ProfilePage() {
     setEditableProfileData(profileData || {} as Candidate);
   }, [profileData]);
 
-  // useEffect(() => {
-  //   console.log('editableProfileData', editableProfileData);
-  // }, [editableProfileData]);
-
   useEffect(() => {
     const updateProfileData = async () => {
       if (confirmUpdate) {
@@ -262,40 +262,83 @@ export default function ProfilePage() {
   }, [confirmUpdate]);
 
   const handleOpenCV = () => {
-    if (typeof window !== 'undefined') {
-      if (pdfData) {
-        const newTab = window.open();
-        if (newTab) {
-          newTab.document.write(`<embed src="${pdfData}" width="100%" height="100%" />`);
-          newTab.document.body.style.margin = '0';
-        } else {
-          console.error('No PDF data available to open.');
-        }
+    if (pdfData) {
+      const splitedContent = pdfData.split(";base64,");
+      const base64Image = splitedContent[1];
+      const mimeType = splitedContent[0].split(':')[1];
+      const pdfUrl = `data:${mimeType};base64,${base64Image}`;
+      
+      // Convert base64 to binary array
+      const binaryString = atob(base64Image);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
       }
+      
+      // Create blob from binary array
+      const blob = new Blob([bytes], { type: mimeType });
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create and trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${profileData?.firstName}_${profileData?.lastName}_resume.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     }
   }
 
-  const handleUploadCV = () => {
-    console.log('uploading CV');
+  const handleUpdateCV = (file: File) => {
+    setEditableProfileData((prev) => ({ ...prev, cv: file }));
   }
 
   const handleEdit = (field: keyof Candidate, value: string | number) => {
-    console.log('field', field, 'value', value);
-    setEditableProfileData((prev) => ({ ...prev, [field]: value }));
+    //console.log('field', field, 'value', value);
+    if (field === 'gender') {
+      setEditableProfileData((prev) => ({ ...prev, gender: { genderID: Number(value), description: genders.find((g) => g.genderID === Number(value))?.description || '' } }));
+    } else if (field === 'maritalStatus') {
+      setEditableProfileData((prev) => ({ ...prev, maritalStatus: { maritalStatusID: Number(value), description: maritalStatuses.find((m) => m.maritalStatusID === Number(value))?.description || '' } }));
+    } else {
+      setEditableProfileData((prev) => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleLanguageAdd = (language: CandidateLanguageProps) => {
     if (!profileData?.candidateID) return;
     
     const newLanguage = {
-      candidateID: profileData.candidateID,
-      revision: 0,
       languageID: language.languageID,
       level: language.level
     };
-    
-    setEditableProfileData((prev) => ({ ...prev, candidateLanguages: [...prev.candidateLanguages, newLanguage] }));
-  };
+
+    // Check if language already exists
+    const existingLanguageIndex = editableProfileData.candidateLanguages.findIndex(
+      l => l.languageID === language.languageID
+    );
+
+    if (existingLanguageIndex !== -1) {
+      // Update existing language level
+      const updatedLanguages = [...editableProfileData.candidateLanguages];
+      updatedLanguages[existingLanguageIndex] = {
+        ...updatedLanguages[existingLanguageIndex],
+        level: language.level
+      };
+      
+      setEditableProfileData(prev => ({
+        ...prev,
+        candidateLanguages: updatedLanguages
+      }));
+    } else {
+      // Add new language
+      setEditableProfileData(prev => ({
+        ...prev,
+        candidateLanguages: [...prev.candidateLanguages, newLanguage]
+      }));
+    }
+
+  }
 
   const handleLanguageDelete = (languageID: number) => {
     setEditableProfileData((prev) => ({
@@ -305,7 +348,7 @@ export default function ProfilePage() {
   };
 
   const handlePromptSave = () => {
-    console.log('editableProfileData', editableProfileData);
+    //console.log('editableProfileData', editableProfileData);
     setIsConfirmUpdateOpen(true);
   }
 
@@ -319,6 +362,16 @@ export default function ProfilePage() {
 
   const handleDistrictChange = (district: any) => {
     handleEdit('district', district);
+  };
+
+  // useEffect(() => {
+  //   console.log('editableProfileData', editableProfileData);
+  // }, [editableProfileData]);
+
+  const formatDateForInput = (dateString: string) => {
+    const date = new Date(dateString);
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+    return date.toISOString().split('T')[0];
   };
 
   if (loading) {
@@ -357,7 +410,7 @@ export default function ProfilePage() {
         <h2 className="text-2xl font-bold leading-none">ข้อมูลผู้สมัคร</h2>
         <small className='text-neutral-500 mb-4'>อัพเดตล่าสุด : {new Date(profileData.updateDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</small>
       </div>
-      <div className="flex flex-col md:flex-row gap-6 text-[26px] justify-between">
+      <div className="flex flex-col md:flex-row gap-4 lg:gap-6 text-[26px] justify-between">
         <div className="w-full md:w-2/6">
           {editableProfileData.image ? (
             <div className="flex flex-col items-center">
@@ -387,7 +440,7 @@ export default function ProfilePage() {
           <div className="flex flex-col items-center">
             {isEditing && (
               <button
-                className="mt-3 px-4 py-2 rounded-full bg-primary-700 text-white text-base hover:bg-primary-600 leading-none"
+                className="mt-3 px-4 py-2 rounded-full bg-primary-700 text-white text-base hover:bg-primary-600 leading-none flex items-center gap-2"
                 onClick={() => {
                   const fileInput = document.createElement('input');
                   fileInput.type = 'file';
@@ -413,23 +466,23 @@ export default function ProfilePage() {
                   fileInput.click();
                 }}
               >
-                อัพโหลดภาพ
+                แก้ไขภาพ <Pencil size={18} />
               </button>
             )}
           </div>
         </div>
 
-        <div className="w-full md:min-w-[750px] flex flex-col">
+        <div className="w-full md:w-4/6 lg:min-w-[750px] flex flex-col">
           <h3 className='text-2xl font-medium mb-3'><span className='font-medium'>รหัสประจำตัวผู้สมัคร :</span> {profileData.candidateID}</h3>
           {isEditing ? (
             // Edit Form
             <div className='flex flex-col gap-3 text-[20px]'>
-              <div className='flex flex-col md:flex-row gap-2 md:gap-4 items-baseline justify-between'>
-                <div className='w-full md:w-1/5'>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-2 lg:gap-4 items-baseline justify-between'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>คำนำหน้าชื่อ</p>
                   <TitleSelector id={editableProfileData.titleID} onTitleChange={(title) => handleEdit('titleID', title ? title.titleID : 1)} />
                 </div>
-                <div className='w-full md:w-1/2'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>ชื่อ</p>
                   <input
                     type="text"
@@ -438,7 +491,7 @@ export default function ProfilePage() {
                     className="border rounded p-1 w-full"
                   />
                 </div>
-                <div className='w-full md:w-1/2'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>นามสกุล</p>
                   <input
                     type="text"
@@ -448,8 +501,8 @@ export default function ProfilePage() {
                   />
                 </div>
               </div>
-              <div className='flex flex-col md:flex-row gap-2 md:gap-4 items-baseline justify-between'>
-                <div className='w-full md:w-1/2'>
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4 items-baseline justify-between'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>ชื่อเล่น</p>
                   <input
                     type="text"
@@ -458,31 +511,36 @@ export default function ProfilePage() {
                     className="border rounded p-1 w-full"
                   />
                 </div>
-                <div className='w-full md:w-1/2'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>อีเมล</p>
                   <input
                     type="email"
                     value={editableProfileData.email}
                     onChange={(e) => handleEdit('email', e.target.value)}
-                    className="border rounded p-1  min-w-[240px] bg-gray-100 text-gray-500" disabled
+                    className="border rounded p-1  min-w-[240px] bg-gray-100 text-gray-500 w-full" disabled
                   />
                 </div>
-                <div className='w-full md:w-1/2'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>วันเกิด</p>
-                  <input type="date" value={new Date(editableProfileData.dateOfBirth).toISOString().split('T')[0]} onChange={(e) => handleEdit('dateOfBirth', e.target.value)} className="border rounded p-1 w-full" />
+                  <input 
+                    type="date" 
+                    value={formatDateForInput(editableProfileData.dateOfBirth)}
+                    onChange={(e) => handleEdit('dateOfBirth', e.target.value)} 
+                    className="border rounded p-1 w-full" 
+                  />
                 </div>
               </div>
 
-              <div className='flex flex-col md:flex-row gap-2 md:gap-4 items-baseline'>
-                <div className='w-full md:w-1/2'>
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4 items-baseline'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>เบอร์โทรศัพท์</p>
                   <input type="tel" value={editableProfileData.tel} onChange={(e) => handleEdit('tel', e.target.value)} className="border rounded p-1 w-full" />
                 </div>
-                <div className='w-full md:w-1/2'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>เพศ</p>
                   <GenderSelect id={profileData.gender.genderID} setGender={(gender) => handleEdit('gender', gender ? String(gender.genderID) : '')} />
                 </div>
-                <div className='w-full md:w-1/2'>
+                <div className='w-full'>
                   <p className='text-neutral-900'>สถานะสมรส</p>
                   <MaritalStatusSelector 
                     id={profileData.maritalStatus.maritalStatusID} 
@@ -491,14 +549,16 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className='flex flex-col md:flex-row gap-2 md:gap-4 items-baseline'>
+              <hr className='mt-4 mb-3 border-neutral-300' />
+
+              <div className='flex flex-col md:flex-row gap-2 lg:gap-4 items-baseline'>
                 <div className='w-full'>
                   <p className='text-neutral-900'>ที่อยู่</p>
                   <input type="text" value={editableProfileData.addressDetails} onChange={(e) => handleEdit('addressDetails', e.target.value)} className="border rounded p-1 w-full" />
                 </div>
               </div>
               
-              <div className='flex flex-col md:flex-row gap-2 md:gap-4'>
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4'>
                 <div className=''>
                   <p className='text-neutral-900'>จังหวัด</p>
                   <ProvinceSelector id={editableProfileData.province.provinceID} onProvinceChange={handleProvinceChange} />
@@ -516,15 +576,43 @@ export default function ProfilePage() {
                 </div>
                 <div className=''>
                   <p className='text-neutral-900'>รหัสไปรษณีย์</p>
-                  <input type="text" value={editableProfileData.postalCode} onChange={(e) => handleEdit('postalCode', e.target.value)} className="border rounded p-1 bg-gray-100 text-gray-500" disabled />
+                  <input type="text" value={editableProfileData.postalCode} onChange={(e) => handleEdit('postalCode', e.target.value)} className="border rounded p-1 bg-gray-100 text-gray-500 w-full" disabled />
+                </div>
+              </div>
+
+              <hr className='mt-4 mb-3 border-neutral-300' />
+
+              <div className='flex flex-col gap-2'>
+                <p className='text-neutral-900'>เรซูเม่</p>
+                <div className='resume-box flex gap-5 md:gap-7 border-[3px] text-primary-700 border-primary-700 rounded-xl px-2 py-1 md:px-4 md:py-2 w-full md:w-fit items-center max-w-full transition-all cursor-pointer group justify-between'>
+                  <p className='text-sm md:text-lg'>{editableProfileData.cvUrl.split('\\').pop()}</p>
+                  <div className='flex gap-1 md:gap-2'>
+                    <IconButton onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = '.pdf,.doc,.docx';
+                      input.onchange = (e) => {
+                        const file = (e.target as HTMLInputElement).files?.[0];
+                        if (file) {
+                          handleUpdateCV(file);
+                        }
+                      };
+                      input.click();
+                    }}>
+                      <EditIcon className='text-primary-700' size={18} />
+                    </IconButton>
+                    <IconButton onClick={handleOpenCV}>
+                      <DownloadIcon className='text-primary-700' size={18} />
+                    </IconButton>
+                  </div>
                 </div>
               </div>
 
               <div className="flex flex-col gap-1">
                 <p className='text-neutral-900'>ภาษา</p>
                 <div className="language-list">
-                  <div className="flex flex-wrap gap-2">
-                    {profileData.candidateLanguages.map((language) => (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {editableProfileData.candidateLanguages.map((language) => (
                       <Chip key={language.languageID} label={`${languages.find((l) => l.languageID === language.languageID)?.description || '-'} - ${languageLevelLabel[language.level - 1].label}`} onDelete={() => handleLanguageDelete(language.languageID)} />
                     ))}
                   </div>
@@ -577,11 +665,11 @@ export default function ProfilePage() {
               </div>
               <div className='flex gap-2 items-baseline'>
                 <label className="font-medium">เพศ :</label>
-                <div>{profileData.gender.description}</div>
+                <div>{genders.find((g) => g.genderID === Number(profileData.gender.genderID))?.description || '-'}</div>
               </div>
               <div className='flex gap-2 items-baseline'>
                 <label className="font-medium">สถานะสมรส :</label>
-                <div>{profileData.maritalStatus.description}</div>
+                <div>{maritalStatuses.find((m) => m.maritalStatusID === Number(profileData.maritalStatus.maritalStatusID))?.description || '-'}</div>
               </div>
               <div className='flex flex-col md:flex-row gap-2 items-baseline'>
                 <label className="font-medium flex-none">ที่อยู่ :</label>
@@ -636,13 +724,7 @@ export default function ProfilePage() {
               {profileData.cvUrl && (
                 <div className='flex gap-2 items-baseline'>
                   <label className="font-medium block">เรซูเม่ : </label>
-                  <div>
-                    {isEditing ? (
-                      <input type="file" accept=".pdf" onChange={handleUploadCV} className='text-primary-700 underline' />
-                    ) : (
-                      <button onClick={() => handleOpenCV()} className='text-primary-700 underline'>ดาวน์โหลดเรซูเม่</button>
-                    )}
-                  </div>
+                  <button onClick={() => handleOpenCV()} className='text-primary-700 underline'>ดาวน์โหลดเรซูเม่</button>
                 </div>
               )}
               <hr className='mt-4 mb-3 border-neutral-300' />
@@ -658,7 +740,7 @@ export default function ProfilePage() {
       {appliedJobs.length > 0 && (
         <div className="flex flex-col pt-4">
           <h3 className="text-2xl font-bold mb-4">ประวัติการสมัครงาน</h3>
-          <div className="grid lg:grid-cols-3 gap-4 mb-7">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-7">
             {appliedJobs.map((job) => (
               <JobBlock key={job.appliedJobID} job={job.job} status={job.status.statusID} applyDate={job.appliedDate} />
             ))}

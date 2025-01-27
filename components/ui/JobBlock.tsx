@@ -47,7 +47,7 @@ const appliedStatus = (status: number) => {
         }
     ]
     const statusItem = statuses.find(item => item.statusID === status);
-    return statusItem ? <span style={{ color: statusItem.color, borderColor: statusItem.color }} className={`border rounded-full px-2 py-1 text-[16px]`}>{statusItem.name}</span> : <span>ไม่พบสถานะ</span>;
+    return statusItem ? <span style={{ color: statusItem.color, borderColor: statusItem.color }} className={`border rounded-full px-2 py-[3px] ml-2 text-[16px] inline-block -translate-y-[4px]`}>{statusItem.name}</span> : <span>ไม่พบสถานะ</span>;
 }
 
 function JobBlock({className = '', job, status, applyDate}: JobBlockProps) {
