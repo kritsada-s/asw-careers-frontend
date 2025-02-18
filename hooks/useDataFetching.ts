@@ -7,8 +7,8 @@ import { subDistricts as subDistrictsData } from '@/lib/data';
 import { provinces as provincesData } from '@/lib/data';
 import { Candidate } from '@/lib/form';
 import FormData from 'form-data';
-import Swal from 'sweetalert2';
-import { AppliedJob } from '@/lib/types';
+import { bConnectionID } from '@/lib/utils';
+import { AppliedJob, Job } from '@/lib/types';
 
 // Hook for fetching Data
 export function useWorkLocation(comp: string, loc: string) {
@@ -859,4 +859,59 @@ export function useSourceInformation() {
   return { sourceInformations, isLoading, error };
 }
 
+
+export function useFetchPositions() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const path = "/JobAnnouncement/JobAnnouncementsByPage";
+    
+  useEffect(() => {
+      const dataObj = {
+          companyID: "00000000-0000-0000-0000-000000000000",
+          bConnectionID: bConnectionID,
+          departmentName: "",
+          jobPosition: "",
+          perPage: 10,
+          page: 1,
+          total: 1,
+          searchStr: "",
+          urgently: true,
+          announce: true,
+          published: true
+      };
+
+      const config = {
+          method: 'post',
+          maxBodyLength: Infinity,
+          url: prodUrl+path,
+          headers: { 
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Access-Control-Allow-Origin': true,
+              'Accept': 'text/plain'
+          },
+          data : dataObj
+      };
+
+      axios.request(config).then((response:any) => {
+          // Sort jobs to put urgent ones first
+          const sortedJobs = [...response.data.jobs].sort((a, b) => {
+              if (a.urgently && !b.urgently) return -1;
+              if (!a.urgently && b.urgently) return 1;
+              return 0;
+          });
+          response.data.jobs = sortedJobs;
+          setJobs(response.data.jobs)
+          setIsLoading(false)
+      }).catch((error:any) => {
+          console.log(error);
+          setIsLoading(false)
+      });
+
+  }, []);
+  return { jobs, isLoading, error };
+}
+
+// Default Export
 export default useSubmitJobApplication
