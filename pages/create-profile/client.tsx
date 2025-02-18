@@ -14,8 +14,8 @@ import { useSearchParams } from 'next/navigation';
 import CustomDatePicker from '../../components/ui/DatePicker';
 import CandidateLanguage from '../../components/ui/CandidateLanguage';
 import { CandidateLanguageProps } from '@/lib/types';
-import { DeleteIcon, Loader2, X } from 'lucide-react';
-import { Alert, Chip, FormControl, FormHelperText, OutlinedInput, Snackbar, TextField } from '@mui/material';
+import { DeleteIcon, Loader2, X, Asterisk } from 'lucide-react';
+import { Alert, Checkbox, Chip, FormControl, FormControlLabel, FormHelperText, OutlinedInput, Snackbar, TextField } from '@mui/material';
 import { useFormControl } from '@mui/material/FormControl';
 import { Candidate } from '@/lib/form';
 import { AuthContext } from '../providers'
@@ -240,6 +240,8 @@ function Client() {
     }
   };
 
+  const asterisk = <span className="text-red-500 text-2xl leading-none">*</span>
+
   useEffect(() => {
     if (position) {
       setJobTitle(position);
@@ -248,18 +250,19 @@ function Client() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="th">
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-4xl mx-auto px-4 py-5 md:p-6">
         <h2 className="text-4xl font-medium text-center mt-4 mb-3">สร้างโปรไฟล์ใหม่</h2>
-        <form className="space-y-8 bg-white p-6 rounded-lg shadow">
+        <form className="space-y-4 md:space-y-8 bg-white px-4 py-7 md:p-8 rounded-lg shadow">
           {/* Basic Information */}
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="md:w-2/5">
+          <div className="flex flex-col md:flex-row gap-4 md:gap-8">
+            {/* Profile Image */}
+            <div className="md:w-3/12">
               <div className="flex flex-col items-center">
                 <div className="w-48 h-52 bg-gray-100 rounded mb-4 flex items-center justify-center border border-gray-300">
                   { profileImage ? (
                     <Image src={URL.createObjectURL(profileImage)} width={350} height={480} alt="Profile Image" className="w-full h-full object-cover rounded-sm" />
                   ) : (
-                    <span className="text-gray-400">รูปภาพประจำตัว</span>
+                    <span className="text-gray-400">รูปภาพ</span>
                   )}
                 </div>
                 <input
@@ -291,276 +294,270 @@ function Client() {
                 <FormHelperText>ขนาดไฟล์ไม่เกิน 1MB</FormHelperText>
               </div>
             </div>
-            <div className="space-y-4 flex-1">
-              <div>
-                <label htmlFor="experience" className="block mb-1">ประสบการณ์การทำงาน (ปี) <span className="text-red-500">*</span></label>
-                <TextField 
-                  id="experience"
-                  name="experience"
-                  type="number" 
-                  slotProps={{
-                    htmlInput: {
-                      min: 0,
-                      max: 100,
-                      pattern: '[0-9]*',
-                      defaultValue: '0'
-                    }
-                  }}
-                  required
-                  defaultValue="0"
-                  onKeyDown={(e) => {
-                    if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '.') {
-                      e.preventDefault();
-                    }
-                  }}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (parseInt(value) > 100) {
-                      alert('this field allow only 0-100');
-                      e.target.value = '0';
-                    }
-                  }}
-                />
-              </div>
-              <div>
-                <label className="block mb-1">ค่าจ้างที่คาดหวัง <span className="text-red-500">*</span></label>
-                <TextField
-                  id="salary"
-                  name="salary"
-                  type="text"
-                  inputMode="numeric"
-                  slotProps={{
-                    htmlInput: {
-                      pattern: '[0-9]*',
-                      min: 0,
-                      required: true
-                    }
-                  }}
-                  required
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9,]/g, '').replace(/,/g, '');
-                    if (value) {
-                      e.target.value = Number(value).toLocaleString();
-                    }
-                  }}
-                />
-              </div>
-              <div>
-                <label className="block mb-1">เอกสารประกอบการสมัคร (CV/Resume) <span className="text-red-500">*</span> <span className="text-xs font-normal text-gray-500">ขนาดไฟล์ไม่เกิน 5 MB</span></label>
-                <div className="flex items-center gap-2">
-                  <FileUploadButton onChange={handleResumeFileChange} file={resumeFile} />
+
+
+            {/* Personal Information */}
+            <div className="md:w-9/12">
+              <div className="space-y-4 flex-1">
+                <h4 className="text-2xl font-medium">ข้อมูลส่วนตัว</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-lg mb-4">
+                  <div>
+                    <label className="">ชื่อ {asterisk}</label>
+                    <input type="text" required id="firstname" name="firstname" className="w-full border rounded p-2 border-gray-300 max-h-[50px]" />
+                  </div>
+                  <div>
+                    <label className="">นามสกุล {asterisk}</label>
+                    <input type="text" required id="lastname" name="lastname" className="w-full border rounded p-2 border-gray-300 max-h-[50px]" />
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Personal Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xl mb-4">
-            <div>
-              <label className="block mb-1">ชื่อ <span className="text-red-500">*</span></label>
-              <input type="text" required id="firstname" name="firstname" className="w-full border rounded p-2 border-gray-300" />
-            </div>
-            <div>
-              <label className="block mb-1">นามสกุล <span className="text-red-500">*</span></label>
-              <input type="text" required id="lastname" name="lastname" className="w-full border rounded p-2 border-gray-300" />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xl">
-            <div>
-              <label className='block mb-1'>คำนำหน้า <span className="text-red-500">*</span></label>
-              <Select<Option>
-                instanceId="title-select"
-                options={titles.map(title => ({
-                  value: title.titleID,
-                  label: title.nameTH
-                }))}
-                onChange={(selectedOption) => {
-                  handleTitleChange(selectedOption as Option);
-                }}
-                placeholder="เลือกคำนำหน้า"
-                styles={districtSelectorStyle}
-              />
-            </div>
-            <div>
-              <label className="block mb-1">เพศ <span className="text-red-500">*</span></label>
-              <Select<Option>
-                options={genders.map(gender => ({
-                  value: gender.genderID,
-                  label: gender.description
-                }))}
-                onChange={(selectedOption) => {
-                  handleGenderChange(selectedOption as Option);
-                }}
-                placeholder="เลือกเพศ"
-                styles={districtSelectorStyle}
-              />
-            </div>
-            <div>
-              <label className="block mb-1">ชื่อเล่น <span className="text-red-500">*</span></label>
-              <input type="text" required id="nickname" name="nickname" className="w-full border rounded p-2 border-gray-300" />
-            </div>
-            <div>
-              <label className="block mb-1">วันเกิด(ปี ค.ศ.) <span className="text-red-500">*</span></label>
-              <CustomDatePicker onBlur={handleBirthDateChange} />
-            </div>
-            <div>
-              <label className="block mb-1">สถานะสมรส <span className="text-red-500">*</span></label>
-              <Select<Option>
-                options={maritalStatuses.map(maritalStatus => ({
-                  value: maritalStatus.maritalStatusID,
-                  label: maritalStatus.description
-                }))}
-                onChange={(selectedOption) => {
-                  handleMaritalStatusChange(selectedOption as Option);
-                }}
-                placeholder="เลือกสถานะสมรส"
-                styles={districtSelectorStyle}
-              />
-            </div>
-            <div>
-              <label className="block mb-1">เบอร์โทรศัพท์ <span className="text-red-500">*</span></label>
-              <input type="tel" required id="phone" name="phone" className="w-full border rounded p-2 border-gray-300" />
-            </div>
-            <div>
-              <label className="block mb-1">อีเมล <span className="text-red-500">*</span></label>
-              <input type="email" required id="email" name="email" className="w-full bg-neutral-100 text-neutral-500 border rounded p-2 border-gray-300" disabled value={email}/>
-              <span className="text-gray-500 text-sm">อีเมลไม่สามารถแก้ไขได้</span>
-            </div>
-          </div>
-
-          {/* Address Information */}
-          <div className="space-y-4">
-            <div>
-              <label className="block mb-1">ที่อยู่ <span className="text-red-500">*</span></label>
-              <input type="text" required id="address" name="address" className="w-full h-[50px] border border-gray-300 rounded px-2 py-1 text-xl" />
-            </div>
-            <div className="custom-selector grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label className="block mb-1">จังหวัด <span className="text-red-500">*</span></label>
-                <Select<Option>
-                  instanceId="province-select"
-                  options={provinces.map(province => ({
-                    value: province.ProvinceID,
-                    label: province.NameTH
-                  }))}
-                  onChange={(selectedOption) => {
-                    handleProvinceChange(selectedOption as Option);
-                  }}
-                  placeholder="เลือกจังหวัด"
-                  styles={districtSelectorStyle}
-                />
-              </div>
-              <div>
-                <label className="block mb-1">อำเภอ <span className="text-red-500">*</span></label>
-                <Select<Option>
-                  options={districts
-                    .filter((district) => district.ProvinceID === province)
-                    .map((district) => ({
-                      value: district.DistrictID,
-                      label: district.NameTH
-                    }))}
-                  value={district ? {
-                    value: district,
-                    label: districts.find(d => d.DistrictID === district)?.NameTH || ''
-                  } as Option : null}
-                  onChange={(selectedOption) => handleDistrictChange(selectedOption as Option)}
-                  placeholder="เลือกอำเภอ"
-                  styles={districtSelectorStyle}
-                />
-              </div>
-              <div>
-                <label className="block mb-1">ตำบล <span className="text-red-500">*</span></label>
-                <Select<Option>
-                  options={subDistricts
-                    .filter((subDistrict) => subDistrict.DistrictID === district)
-                    .map((subDistrict) => ({
-                      value: subDistrict.SubDistrictID,
-                      label: subDistrict.NameTH,
-                      postCode: subDistrict.PostCode.toString()
-                    }))}
-                  value={subDistrict ? {
-                    value: subDistrict,
-                    label: subDistricts.find(s => s.SubDistrictID === subDistrict)?.NameTH || '',
-                    postCode: subDistricts.find(s => s.SubDistrictID === subDistrict)?.PostCode || ''
-                  } as Option : null}
-                  onChange={(selectedOption) => handleSubDistrictChange(selectedOption as Option)}
-                  placeholder="เลือกตำบล"
-                  styles={districtSelectorStyle}
-                />
-              </div>
-              <div>
-                <label className="block mb-1">รหัสไปรษณีย์</label>
-                <input type="text" name="zipcode" className="w-full h-[50px] border rounded px-2 py-1 text-xl bg-neutral-200 text-neutral-400 border-gray-300" value={postcode || ''} disabled />
-              </div>
-            </div>
-          </div>
-
-          {/* Other Information */}
-          <div className="space-y-6">
-            <div>
-              <label className='block mb-1'>ท่านทราบข่าวการสมัครงานจากช่องทางใด <span className="text-red-500">*</span></label>
-              <Select<Option>
-                options={sourceInformations.map(sourceInformation => ({
-                  value: sourceInformation.sourceInformationID,
-                  label: sourceInformation.description
-                }))}
-                onChange={(selectedOption) => {
-                  handleSourceInformationChange(selectedOption as Option);
-                }}
-                placeholder="เลือกช่องทาง"
-                styles={districtSelectorStyle}
-              />
-            </div>
-            <div>
-              <h3 className="font-medium mb-2">ประวัติการศึกษา <span className="text-red-500">*</span></h3>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="custom-selector">
-                    <label className="block mb-1">ระดับการศึกษา</label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-lg">
+                  <div>
+                    <label className='block mb-1'>คำนำหน้า {asterisk}</label>
                     <Select<Option>
-                      options={educations.map(education => ({
-                        value: education.educationID,
-                        label: education.description
+                      instanceId="title-select"
+                      options={titles.map(title => ({
+                        value: title.titleID,
+                        label: title.nameTH
                       }))}
-                      instanceId="education-level"
                       onChange={(selectedOption) => {
-                        handleEducationChange(selectedOption as Option);
+                        handleTitleChange(selectedOption as Option);
                       }}
-                      placeholder="เลือกระดับการศึกษา"
+                      placeholder="เลือกคำนำหน้า"
                       styles={districtSelectorStyle}
                     />
                   </div>
                   <div>
-                    <label className="block mb-1">สาขาวิชา</label>
-                    <input type="text" name="major" className="w-full border border-gray-300 rounded p-2" />
+                    <label className="block mb-1">เพศ {asterisk}</label>
+                    <Select<Option>
+                      options={genders.map(gender => ({
+                        value: gender.genderID,
+                        label: gender.description
+                      }))}
+                      onChange={(selectedOption) => {
+                        handleGenderChange(selectedOption as Option);
+                      }}
+                      placeholder="เลือกเพศ"
+                      styles={districtSelectorStyle}
+                    />
                   </div>
-                </div>
-              </div>
-            </div>
+                  <div>
+                    <label className="block mb-1">ชื่อเล่น {asterisk}</label>
+                    <input type="text" required id="nickname" name="nickname" className="w-full border rounded p-2 border-gray-300 max-h-[50px]" />
+                  </div>
+                  <div>
+                    <label className="block mb-1">วันเกิด(ปี ค.ศ.) {asterisk}</label>
+                    <CustomDatePicker onBlur={handleBirthDateChange} />
+                  </div>
+                  <div>
+                    <label className="block mb-1">สถานะสมรส {asterisk}</label>
+                    <Select<Option>
+                      options={maritalStatuses.map(maritalStatus => ({
+                        value: maritalStatus.maritalStatusID,
+                        label: maritalStatus.description
+                      }))}
+                      onChange={(selectedOption) => {
+                        handleMaritalStatusChange(selectedOption as Option);
+                      }}
+                      placeholder="เลือกสถานะสมรส"
+                      styles={districtSelectorStyle}
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1">เบอร์โทรศัพท์ {asterisk}</label>
+                    <input type="tel" required id="phone" name="phone" className="w-full border rounded p-2 border-gray-300 max-h-[50px]" />
+                  </div>
+                  <div>
+                    <label className="block mb-1">อีเมล {asterisk}</label>
+                    <input type="email" required id="email" name="email" className="w-full bg-neutral-100 text-neutral-500 border rounded p-2 border-gray-300 max-h-[50px]" disabled value={email}/>
+                    <span className="text-gray-500 text-sm">อีเมลไม่สามารถแก้ไขได้</span>
+                  </div>
 
-            <div>
-              <h3 className="font-medium mb-2">ภาษา <span className="text-red-500">*</span></h3>
-              <div className="flex flex-col gap-4">
-                <div className="language-list">
-                  <div className="flex flex-wrap gap-2">
-                    {candidateLanguages.map((language, index) => (
-                      <Chip key={index} label={`${language.languageName} - ${languageLevelLabel[language.level - 1].label}`} onDelete={() => handleLanguageDelete(language.languageID)} />
-                    ))}
+                  <div>
+                    <label htmlFor="experience" className="block mb-1">ประสบการณ์การทำงาน (ปี) {asterisk}</label>
+                    <TextField 
+                      id="experience"
+                      name="experience"
+                      type="number" 
+                      slotProps={{
+                        htmlInput: {
+                          min: 0,
+                          max: 100,
+                          pattern: '[0-9]*',
+                          defaultValue: '0'
+                        }
+                      }}
+                      required
+                      defaultValue="0"
+                      onKeyDown={(e) => {
+                        if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '.') {
+                          e.preventDefault();
+                        }
+                      }}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (parseInt(value) > 100) {
+                          alert('this field allow only 0-100');
+                          e.target.value = '0';
+                        }
+                      }}
+                      className="max-h-[50px] w-full"
+                    />
                   </div>
                 </div>
-                <CandidateLanguage handleLanguageAdd={handleLanguageAdd} />
+                
+                <div>
+                  <label className="block mb-1 text-lg">เอกสารประกอบการสมัคร (CV/Resume) {asterisk} <span className="text-xs font-normal text-gray-500">ขนาดไฟล์ไม่เกิน 5 MB</span></label>
+                  <div className="flex items-center gap-2">
+                    <FileUploadButton onChange={handleResumeFileChange} file={resumeFile} />
+                  </div>
+                </div>
+
+                <hr />
+
+                {/* Address Information */}
+                <h4 className="text-2xl font-medium">ข้อมูลการติดต่อ</h4>
+                <div>
+                  <label className="block mb-1 text-lg">ที่อยู่ {asterisk}</label>
+                  <input type="text" required id="address" name="address" className="w-full h-[50px] border border-gray-300 rounded px-2 py-1 text-xl" />
+                </div>
+                <div className="custom-selector grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block mb-1 text-lg">จังหวัด {asterisk}</label>
+                    <Select<Option>
+                      instanceId="province-select"
+                      options={provinces.map(province => ({
+                        value: province.ProvinceID,
+                        label: province.NameTH
+                      }))}
+                      onChange={(selectedOption) => {
+                        handleProvinceChange(selectedOption as Option);
+                      }}
+                      placeholder="เลือกจังหวัด"
+                      styles={districtSelectorStyle}
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-lg">อำเภอ {asterisk}</label>
+                    <Select<Option>
+                      options={districts
+                        .filter((district) => district.ProvinceID === province)
+                        .map((district) => ({
+                          value: district.DistrictID,
+                          label: district.NameTH
+                        }))}
+                      value={district ? {
+                        value: district,
+                        label: districts.find(d => d.DistrictID === district)?.NameTH || ''
+                      } as Option : null}
+                      onChange={(selectedOption) => handleDistrictChange(selectedOption as Option)}
+                      placeholder="เลือกอำเภอ"
+                      styles={districtSelectorStyle}
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-lg">ตำบล {asterisk}</label>
+                    <Select<Option>
+                      options={subDistricts
+                        .filter((subDistrict) => subDistrict.DistrictID === district)
+                        .map((subDistrict) => ({
+                          value: subDistrict.SubDistrictID,
+                          label: subDistrict.NameTH,
+                          postCode: subDistrict.PostCode.toString()
+                        }))}
+                      value={subDistrict ? {
+                        value: subDistrict,
+                        label: subDistricts.find(s => s.SubDistrictID === subDistrict)?.NameTH || '',
+                        postCode: subDistricts.find(s => s.SubDistrictID === subDistrict)?.PostCode || ''
+                      } as Option : null}
+                      onChange={(selectedOption) => handleSubDistrictChange(selectedOption as Option)}
+                      placeholder="เลือกตำบล"
+                      styles={districtSelectorStyle}
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-lg">รหัสไปรษณีย์</label>
+                    <input type="text" name="zipcode" className="w-full h-[50px] border rounded px-2 py-1 text-xl bg-neutral-200 text-neutral-400 border-gray-300" value={postcode || ''} disabled />
+                  </div>
+                </div>
+
+                <hr />
+
+                {/* Source Information */}
+                <h4 className="text-2xl font-medium">ข้อมูลอื่น ๆ</h4>
+                <div>
+                  <label className='block mb-1 text-lg'>ท่านทราบข่าวการสมัครงานจากช่องทางใด</label>
+                  <Select<Option>
+                    options={sourceInformations.map(sourceInformation => ({
+                      value: sourceInformation.sourceInformationID,
+                      label: sourceInformation.description
+                    }))}
+                    onChange={(selectedOption) => {
+                      handleSourceInformationChange(selectedOption as Option);
+                    }}
+                    placeholder="เลือกช่องทาง"
+                    styles={districtSelectorStyle}
+                  />
+                </div>
+                <div>
+                  <h3 className="font-medium mb-2">ประวัติการศึกษา {asterisk}</h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="custom-selector">
+                        <label className="block mb-1 text-lg">ระดับการศึกษา</label>
+                        <Select<Option>
+                          options={educations.map(education => ({
+                            value: education.educationID,
+                            label: education.description
+                          }))}
+                          instanceId="education-level"
+                          onChange={(selectedOption) => {
+                            handleEducationChange(selectedOption as Option);
+                          }}
+                          placeholder="เลือกระดับการศึกษา"
+                          styles={districtSelectorStyle}
+                        />
+                      </div>
+                      <div>
+                        <label className="block mb-1 text-lg">สาขาวิชา</label>
+                        <input type="text" name="major" className="w-full border border-gray-300 rounded p-2" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-medium mb-2 text-lg">ภาษา {asterisk}</h3>
+                  <div className="flex flex-col gap-4">
+                    <div className="language-list">
+                      <div className="flex flex-wrap gap-2">
+                        {candidateLanguages.map((language, index) => (
+                          <Chip key={index} label={`${language.languageName} - ${languageLevelLabel[language.level - 1].label}`} onDelete={() => handleLanguageDelete(language.languageID)} />
+                        ))}
+                      </div>
+                    </div>
+                    <CandidateLanguage handleLanguageAdd={handleLanguageAdd} />
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end">
-            <button
-              type="button"
-              className="px-6 py-2 bg-blue-500 text-white rounded"
-              onClick={handleSubmitProfile}
-            >
-              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin " /> : 'ส่งข้อมูล'}
-            </button>
+          <hr />
+
+          <div className="form-action flex flex-col gap-2">
+            <div className="flex mb-2 md:w-2/3 mx-auto leading-tight align-top">
+              <FormControlLabel control={<Checkbox defaultChecked size='small' />} label="ข้าพเจ้าขอรับรองว่าข้อมูลที่กรอกมีความถูกต้องตามจริง และยินยอมให้บริษัทสามารถใช้ข้อมูลนี้ในการติดต่อกลับเพื่อขอข้อมูลเพิ่มเติม" sx={{ span: { lineHeight: '1.2', color: 'gray' } }} />
+            </div>
+            <div className="flex justify-center">
+              <button
+                type="button"
+                className="px-6 py-2 bg-blue-500 text-white rounded"
+                onClick={handleSubmitProfile}
+              >
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin " /> : 'ส่งข้อมูล'}
+              </button>
+            </div>
           </div>
         </form>
 

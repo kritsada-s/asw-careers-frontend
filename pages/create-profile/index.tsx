@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 function page() {
   return (
-    <div id="createProfile">
+    <div id="createProfile" className="bg-gradient-to-b from-blue-100/50 to-white">
       <Client />
     </div>
   );
