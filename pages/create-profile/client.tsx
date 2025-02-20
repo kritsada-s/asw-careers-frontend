@@ -168,10 +168,12 @@ function Client() {
     setIsSubmitting(true);
     const form = document.querySelector('form');
     const formData = new FormData(form as HTMLFormElement);
+    const jobId = sessionStorage.getItem('jobId');
 
     const formDataToSend = new FormData();
 
     // Basic Info
+    formDataToSend.append('JobID', jobId || '');
     formDataToSend.append('Candidate.Image', profileImage as File);
     formDataToSend.append('Candidate.FirstName', formData.get('firstname') as string);
     formDataToSend.append('Candidate.LastName', formData.get('lastname') as string); 

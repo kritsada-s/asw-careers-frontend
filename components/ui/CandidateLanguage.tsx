@@ -17,9 +17,9 @@ const CandidateLanguage: React.FC<CandidateLanguageComponentProps> = ({
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
   const languages = useLanguages();
 
-  useEffect(() => {
-    console.log('selectedLevel', selectedLevel);
-  }, [selectedLevel]);
+  // useEffect(() => {
+  //   console.log('selectedLevel', selectedLevel);
+  // }, [selectedLevel]);
 
   return (
     <div id="candidateLanguagesPanel" className="flex flex-col md:flex-row gap-2 md:gap-4 custom-selector">
