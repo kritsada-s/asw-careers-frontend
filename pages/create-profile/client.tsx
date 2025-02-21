@@ -225,17 +225,14 @@ function Client() {
         setSnackbarMessage('บันทึกข้อมูลสำเร็จ');
         setSnackBarType('success');
         setSnackbarOpen(true);
-
-        if (sessionStorage.getItem('jobId')) {
-          router.push(`/jobs?jobId=${sessionStorage.getItem('jobId')}`);
-        } else {
-          router.push('/profile');
-        }
+        setTimeout(() => {
+          router.push(`/profile`);
+        }, 1000);
       }
       
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      setSnackbarMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    } catch (error: any) {
+      console.error('Error submitting form:', error.response);
+      setSnackbarMessage(error.response.data || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
       setSnackbarOpen(true);
       setSnackBarType('error');
       setIsSubmitting(false);
@@ -419,7 +416,7 @@ function Client() {
                 {/* Address Information */}
                 <h4 className="text-2xl font-medium">ข้อมูลการติดต่อ</h4>
                 <div>
-                  <label className="block mb-1 text-lg">ที่อยู่ {asterisk}</label>
+                  <label className="block mb-1 text-lg">ที่อยู่</label>
                   <input type="text" required id="address" name="address" className="w-full h-[50px] border border-gray-300 rounded px-2 py-1 text-xl" />
                 </div>
                 <div className="custom-selector grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -439,7 +436,7 @@ function Client() {
                     />
                   </div>
                   <div>
-                    <label className="block mb-1 text-lg">อำเภอ {asterisk}</label>
+                    <label className="block mb-1 text-lg">อำเภอ</label>
                     <Select<Option>
                       options={districts
                         .filter((district) => district.ProvinceID === province)
@@ -457,7 +454,7 @@ function Client() {
                     />
                   </div>
                   <div>
-                    <label className="block mb-1 text-lg">ตำบล {asterisk}</label>
+                    <label className="block mb-1 text-lg">ตำบล</label>
                     <Select<Option>
                       options={subDistricts
                         .filter((subDistrict) => subDistrict.DistrictID === district)
@@ -501,11 +498,10 @@ function Client() {
                   />
                 </div>
                 <div>
-                  <h3 className="font-medium mb-2">ประวัติการศึกษา {asterisk}</h3>
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="custom-selector">
-                        <label className="block mb-1 text-lg">ระดับการศึกษา</label>
+                        <label className="block mb-1 text-lg">ระดับการศึกษา {asterisk}</label>
                         <Select<Option>
                           options={educations.map(education => ({
                             value: education.educationID,
@@ -520,7 +516,7 @@ function Client() {
                         />
                       </div>
                       <div>
-                        <label className="block mb-1 text-lg">สาขาวิชา</label>
+                        <label className="block mb-1 text-lg">สาขาวิชา {asterisk}</label>
                         <input type="text" name="major" className="w-full border border-gray-300 rounded p-2" />
                       </div>
                     </div>
@@ -528,7 +524,7 @@ function Client() {
                 </div>
 
                 <div>
-                  <h3 className="font-medium mb-2 text-lg">ภาษา {asterisk}</h3>
+                  <h3 className="font-medium mb-2 text-lg">ภาษา</h3>
                   <div className="flex flex-col gap-4">
                     <div className="language-list">
                       <div className="flex flex-wrap gap-2">
