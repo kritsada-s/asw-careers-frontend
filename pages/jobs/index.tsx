@@ -245,7 +245,7 @@ const JobsPage = () => {
       const isAuthenticated = authContext?.isAuth;
       const candidateId = authContext?.CandidateID;
 
-      if (isAuthenticated) {
+      if (candidateId) {
         setIsSummaryModalOpen(true);
       } else {
         sessionStorage.setItem('jobId', selectedJob?.jobID || '');

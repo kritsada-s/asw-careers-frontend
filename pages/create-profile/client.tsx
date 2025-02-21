@@ -5,19 +5,17 @@ import gsap from 'gsap';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useEffect, useRef, useState } from 'react';
-import ProgressSteps from '../../components/layout/FormProgress';
 import FileUploadButton from '../../components/ui/FileUploadButton';
 import { DistrictSelector, ProvinceSelector, SubDistrictSelector } from '../../components/ui/FormInput';
 import Select, { StylesConfig } from 'react-select';
 import { districts, provinces, subDistricts } from '@/lib/data';
-//import BuddhistDatePicker from '../../components/ui/DatePicker';
 import useSubmitJobApplication, { useEducations, useJobTitle, useTitles, useGenders, useMaritalStatus, useSourceInformation } from '../../hooks/useDataFetching';
 import { useSearchParams } from 'next/navigation';
 import CustomDatePicker from '../../components/ui/DatePicker';
 import CandidateLanguage from '../../components/ui/CandidateLanguage';
 import { CandidateLanguageProps } from '@/lib/types';
-import { DeleteIcon, Loader2, X } from 'lucide-react';
-import { Alert, Chip, FormControl, FormHelperText, OutlinedInput, Snackbar, TextField } from '@mui/material';
+import { DeleteIcon, Loader2, X, Asterisk } from 'lucide-react';
+import { Alert, Checkbox, Chip, FormControl, FormControlLabel, FormHelperText, OutlinedInput, Snackbar, TextField } from '@mui/material';
 import { useFormControl } from '@mui/material/FormControl';
 import { Candidate } from '@/lib/form';
 import { AuthContext } from '../providers'
@@ -30,14 +28,7 @@ gsap.registerPlugin(useGSAP);
 const districtSelectorStyle: StylesConfig<Option, false> = {
   input: (base) => ({
     ...base,
-    //height: 38,
   }),
-}
-
-interface Step {
-  title: string;
-  isCompleted: boolean;
-  ref: React.RefObject<HTMLElement>;
 }
 
 interface Option {
@@ -52,25 +43,6 @@ interface Education {
 }
 
 function Client() {
-  // Create refs for each section
-  const basicInfoRef = useRef<HTMLElement>(null);
-  const personalInfoRef = useRef<HTMLElement>(null);
-  const addressInfoRef = useRef<HTMLElement>(null);
-  const otherInfoRef = useRef<HTMLElement>(null);
-  const provinceSelect = useRef<any>(null);
-  const districtSelect = useRef<any>(null);
-  const subDistrictSelect = useRef<any>(null);
-
-  const [isLastStep, setIsLastStep] = useState(false);
-  const steps: Step[] = [
-    { title: 'เบื้องต้น', isCompleted: false, ref: basicInfoRef },
-    { title: 'ข้อมูลส่วนตัว', isCompleted: false, ref: personalInfoRef },
-    { title: 'ที่อยู่', isCompleted: false, ref: addressInfoRef },
-    { title: 'อื่นๆ', isCompleted: false, ref: otherInfoRef }
-  ];
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const currentStep = steps[currentStepIndex];
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [isValid, setIsValid] = useState(false);
   const [invalidFields, setInvalidFields] = useState<string[]>([]);
   const [province, setProvince] = useState<number>(0);
@@ -80,6 +52,7 @@ function Client() {
   const params = useSearchParams();
   const [jobTitle, setJobTitle] = useState<string>('');
   const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
   const { educations } = useEducations();
   const { genders } = useGenders();
   const [education, setEducation] = useState<Education | null>(null);
@@ -116,148 +89,6 @@ function Client() {
     label: 'เชี่ยวชาญ'
   }]
 
-  useGSAP(() => {
-    // Hide all sections except first on start
-    setCurrentStepIndex(0);
-    setIsLastStep(false);
-    steps.forEach((step, index) => {
-      if (index === 0) {
-        gsap.set(step.ref.current, { opacity: 1, x: 0, display: 'block' });
-      } else {
-        gsap.set(step.ref.current, { opacity: 0, x: 50, display: 'none' });
-      }
-    });
-  }, []);
-
-  const handleSectionTransition = (direction: 'next' | 'previous') => {
-    if (direction === 'next') {
-      const nextIndex = currentStepIndex + 1;
-      if (nextIndex < steps.length) {
-        // Hide current section
-        gsap.to(currentStep.ref.current, {
-          opacity: 0,
-          x: -50,
-          display: 'none',
-          duration: 0.3,
-          ease: "power2.inOut"
-        });
-
-        // Show next section
-        gsap.to(steps[nextIndex].ref.current, {
-          opacity: 1,
-          x: 0,
-          duration: 0.3,
-          ease: "power2.inOut",
-          display: 'block',
-          delay: 0.33
-        });
-
-        setCurrentStepIndex(nextIndex);
-        setIsLastStep(nextIndex === steps.length - 1);
-      }
-    } else {
-      const prevIndex = currentStepIndex - 1;
-      if (prevIndex >= 0) {
-        // Hide current section
-        gsap.to(currentStep.ref.current, {
-          opacity: 0,
-          x: 50,
-          duration: 0.3,
-          ease: "power2.inOut",
-          display: 'none'
-        });
-
-        // Show previous section
-        gsap.to(steps[prevIndex].ref.current, {
-          opacity: 1,
-          x: 0,
-          duration: 0.3,
-          delay: 0.33,
-          ease: "power2.inOut",
-          display: 'block'
-        });
-
-        setCurrentStepIndex(prevIndex);
-        setIsLastStep(false);
-      }
-    }
-  }
-
-  const checkInvalidFields = useCallback(() => {
-    const currentStepRef = currentStep.ref.current;
-    let hasEmptyFields = false;
-    const newInvalidFields: string[] = [];
-
-    if (currentStepRef) {
-      const inputs = currentStepRef.querySelectorAll('input, select');
-      
-      inputs.forEach((input: Element) => {
-        const inputElement = input as HTMLInputElement | HTMLSelectElement;
-        const { name, value, required } = inputElement;
-        
-        // Only validate if the field is required or has the required attribute
-        if (required && (!value || value.trim() === '')) {
-          hasEmptyFields = true;
-          newInvalidFields.push(name);
-        }
-      });
-
-      // Additional validation for specific steps
-      if (currentStepIndex === 0) {
-        // Basic Info validation
-        if (!profileImage) {
-          hasEmptyFields = true;
-          newInvalidFields.push('profile-image');
-        }
-        if (!resumeFile) {
-          hasEmptyFields = true;
-          newInvalidFields.push('resume');
-        }
-      } else if (currentStepIndex === 1) {
-        // Personal Info validation
-        if (!birthDate) {
-          hasEmptyFields = true;
-          newInvalidFields.push('birthDate');
-        }
-        if (!gender) {
-          hasEmptyFields = true;
-          newInvalidFields.push('gender');
-        }
-      } else if (currentStepIndex === 2) {
-        // Address validation
-        if (!province || !district || !subDistrict) {
-          hasEmptyFields = true;
-          if (!province) newInvalidFields.push('province');
-          if (!district) newInvalidFields.push('district');
-          if (!subDistrict) newInvalidFields.push('subDistrict');
-        }
-      } else if (currentStepIndex === 3) {
-        // Other Info validation
-        if (!education) {
-          hasEmptyFields = true;
-          newInvalidFields.push('education');
-        }
-      }
-
-      setInvalidFields(newInvalidFields);
-    }
-
-    return hasEmptyFields;
-  }, [currentStepIndex, profileImage, resumeFile, birthDate, gender, province, district, subDistrict, education]);
-
-  const handleNext = () => {    
-    if (checkInvalidFields()) {
-      setSnackbarMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
-      setSnackbarOpen(true);
-      return;
-    }
-    handleSectionTransition('next');
-  };
-
-  const handlePrevious = () => {
-    handleSectionTransition('previous');
-  };
-
   const handleResumeFileChange = (file: File) => {
     if (!['application/pdf', 'image/jpeg', 'image/jpg'].includes(file.type)) {
       setSnackbarMessage('ไฟล์ต้องเป็น PDF, JPG หรือ JPEG');
@@ -265,7 +96,6 @@ function Client() {
       return;
     }
     setResumeFile(file);
-    //console.log(file.name);
   };
 
   const handleProvinceChange = (province: any) => {
@@ -282,26 +112,6 @@ function Client() {
   const handleSubDistrictChange = (subDistrict: any) => {
     setSubDistrict(subDistrict.value);
     setPostcode(subDistrict.postCode);
-    console.log(subDistrict.postCode);
-  };
-
-  const setInvalidField = (field: string) => {
-    if (!invalidFields.includes(field)) {
-      setInvalidFields([...invalidFields, field]);
-    }
-  };
-
-  const removeInvalidField = (field: string) => {
-    setInvalidFields(invalidFields.filter(f => f !== field));
-  };
-
-  const handleValidateField = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    if (value === '') {
-      setInvalidField(event.target.name);
-    } else {
-      removeInvalidField(event.target.name);
-    }
   };
 
   const handleProfileImageChange = (file: File) => {
@@ -309,7 +119,6 @@ function Client() {
   };
 
   const handleBirthDateChange = (date: Date | null) => {
-    console.log(date);
     if (date instanceof Date && !isNaN(date.getTime())) {
       setBirthDate(date);
     }
@@ -355,27 +164,16 @@ function Client() {
     setCandidateLanguages(candidateLanguages.filter(l => l.languageID !== languageID));
   };
 
-  function FormInputHelper() {
-    const { focused } = useFormControl() || {};
-    const helperText = React.useMemo(() => {
-      if (focused) {
-        return 'This field is being focused';
-      }
-  
-      return 'Helper text';
-    }, [focused]);
-  
-    return <FormHelperText>{helperText}</FormHelperText>;
-  }
-
   const handleSubmitProfile = async () => {
     setIsSubmitting(true);
     const form = document.querySelector('form');
     const formData = new FormData(form as HTMLFormElement);
+    const jobId = sessionStorage.getItem('jobId');
 
     const formDataToSend = new FormData();
 
     // Basic Info
+    formDataToSend.append('JobID', jobId || '');
     formDataToSend.append('Candidate.Image', profileImage as File);
     formDataToSend.append('Candidate.FirstName', formData.get('firstname') as string);
     formDataToSend.append('Candidate.LastName', formData.get('lastname') as string); 
@@ -397,6 +195,7 @@ function Client() {
     formDataToSend.append('Candidate.Subdistrict.SubDistrictID', subDistrict.toString());
     formDataToSend.append('Candidate.PostalCode', postcode.toString());
     formDataToSend.append('Candidate.SourceInformation.SourceInformationID', sourceInformation.toString());
+    
     // Other Info
     formDataToSend.append('Candidate.CandidateEducations[0].educationID', education?.toString() || '0');
     formDataToSend.append('Candidate.CandidateEducations[0].major', formData.get('major') as string);
@@ -407,7 +206,6 @@ function Client() {
       formDataToSend.append(`Candidate.CandidateLanguages[${index}].level`, language.level.toString());
     });
 
-    // TODO: Add API call to submit data
     try {
       const response = await axios.post(`${prodUrl}/secure/Candidate/Create`, formDataToSend, {
         headers: {
@@ -427,35 +225,21 @@ function Client() {
         setSnackbarMessage('บันทึกข้อมูลสำเร็จ');
         setSnackBarType('success');
         setSnackbarOpen(true);
-
-        if (sessionStorage.getItem('jobId')) {
-          router.push(`/jobs?jobId=${sessionStorage.getItem('jobId')}`);
-        } else {
-          router.push('/profile');
-        }
+        setTimeout(() => {
+          router.push(`/profile`);
+        }, 1000);
       }
       
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      setSnackbarMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    } catch (error: any) {
+      console.error('Error submitting form:', error.response);
+      setSnackbarMessage(error.response.data || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
       setSnackbarOpen(true);
       setSnackBarType('error');
       setIsSubmitting(false);
     }
   };
 
-  useEffect(() => {
-    if (currentStep) {
-      const currentStepRef = currentStep.ref.current;
-      const fields = currentStepRef?.querySelectorAll('input, select');
-      if (fields) {
-        // console.log('==============');
-        // fields.forEach(field => {
-        //   console.log((field as HTMLInputElement).name);
-        // });
-      }
-    }
-  }, [currentStep]);
+  const asterisk = <span className="text-red-500 text-2xl leading-none">*</span>
 
   useEffect(() => {
     if (position) {
@@ -465,55 +249,130 @@ function Client() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="th">
-      <div className="max-w-4xl mx-auto p-6">
-        <ProgressSteps currentStep={currentStepIndex} steps={steps} />
+      <div className="max-w-4xl mx-auto px-4 py-5 md:p-6">
         <h2 className="text-4xl font-medium text-center mt-4 mb-3">สร้างโปรไฟล์ใหม่</h2>
-        <form className="space-y-4">
-          <div className="form-wrapper min-h-[300px]">
-            {/* Basic Information Section */}
-            <section ref={basicInfoRef} className={`bg-white px-6 py-10 rounded-lg shadow relative`}>
-              <div className="flex flex-col md:flex-row gap-6">
-                <div className="md:w-2/5">
-                  <div className="flex flex-col items-center">
-                    <div className="w-48 h-52 bg-gray-100 rounded mb-4 flex items-center justify-center border border-gray-300">
-                      { profileImage ? (
-                        <Image src={URL.createObjectURL(profileImage)} width={350} height={480} alt="Profile Image" className="w-full h-full object-cover rounded-sm" />
-                      ) : (
-                        <span className="text-gray-400">รูปภาพประจำตัว</span>
-                      )}
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/jpeg, image/jpg, image/png"
-                      className="hidden"
-                      id="profile-image" 
-                      name="profile-image"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          if (file.size > 1024 * 1024) { // Check if file size > 1MB
-                            setSnackbarMessage('ขนาดไฟล์ไม่เกิน 1MB');
-                            setSnackBarType('error');
-                            setSnackbarOpen(true);
-                            e.target.value = ''; // Clear the input
-                            return;
-                          }
-                          handleProfileImageChange(file);
-                        }
-                      }}
-                    />
-                    <label
-                      htmlFor="profile-image"
-                      className="bg-primary-700 !text-base text-white px-4 py-1 rounded cursor-pointer"
-                    >
-                      อัพโหลดรูปภาพ <span className="text-red-500">*</span>
-                    </label>
-                    <FormHelperText>ขนาดไฟล์ไม่เกิน 1MB</FormHelperText>
+        <form className="space-y-4 md:space-y-8 bg-white px-4 py-7 md:p-8 rounded-lg shadow">
+          {/* Basic Information */}
+          <div className="flex flex-col md:flex-row gap-4 md:gap-8">
+            {/* Profile Image */}
+            <div className="md:w-3/12">
+              <div className="flex flex-col items-center">
+                <div className="w-48 h-52 bg-gray-100 rounded mb-4 flex items-center justify-center border border-gray-300">
+                  { profileImage ? (
+                    <Image src={URL.createObjectURL(profileImage)} width={350} height={480} alt="Profile Image" className="w-full h-full object-cover rounded-sm" />
+                  ) : (
+                    <span className="text-gray-400">รูปภาพ</span>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept="image/jpeg, image/jpg, image/png"
+                  className="hidden"
+                  id="profile-image" 
+                  name="profile-image"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (file.size > 1024 * 1024) {
+                        setSnackbarMessage('ขนาดไฟล์ไม่เกิน 1MB');
+                        setSnackBarType('error');
+                        setSnackbarOpen(true);
+                        e.target.value = '';
+                        return;
+                      }
+                      handleProfileImageChange(file);
+                    }
+                  }}
+                />
+                <label
+                  htmlFor="profile-image"
+                  className="bg-primary-700 !text-base text-white px-4 py-1 rounded cursor-pointer"
+                >
+                  อัพโหลดรูปภาพ <span className="text-red-500">*</span>
+                </label>
+                <FormHelperText>ขนาดไฟล์ไม่เกิน 1MB</FormHelperText>
+              </div>
+            </div>
+
+
+            {/* Personal Information */}
+            <div className="md:w-9/12">
+              <div className="space-y-4 flex-1">
+                <h4 className="text-2xl font-medium">ข้อมูลส่วนตัว</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-lg mb-4">
+                  <div>
+                    <label className="">ชื่อ {asterisk}</label>
+                    <input type="text" required id="firstname" name="firstname" className="w-full border rounded p-2 border-gray-300 max-h-[50px]" />
+                  </div>
+                  <div>
+                    <label className="">นามสกุล {asterisk}</label>
+                    <input type="text" required id="lastname" name="lastname" className="w-full border rounded p-2 border-gray-300 max-h-[50px]" />
                   </div>
                 </div>
-                <div className="space-y-4 flex-1">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-lg">
                   <div>
-                    <label htmlFor="experience" className="block mb-1">ประสบการณ์การทำงาน (ปี) <span className="text-red-500">*</span></label>
+                    <label className='block mb-1'>คำนำหน้า {asterisk}</label>
+                    <Select<Option>
+                      instanceId="title-select"
+                      options={titles.map(title => ({
+                        value: title.titleID,
+                        label: title.nameTH
+                      }))}
+                      onChange={(selectedOption) => {
+                        handleTitleChange(selectedOption as Option);
+                      }}
+                      placeholder="เลือกคำนำหน้า"
+                      styles={districtSelectorStyle}
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1">เพศ {asterisk}</label>
+                    <Select<Option>
+                      options={genders.map(gender => ({
+                        value: gender.genderID,
+                        label: gender.description
+                      }))}
+                      onChange={(selectedOption) => {
+                        handleGenderChange(selectedOption as Option);
+                      }}
+                      placeholder="เลือกเพศ"
+                      styles={districtSelectorStyle}
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1">ชื่อเล่น {asterisk}</label>
+                    <input type="text" required id="nickname" name="nickname" className="w-full border rounded p-2 border-gray-300 max-h-[50px]" />
+                  </div>
+                  <div>
+                    <label className="block mb-1">วันเกิด(ปี ค.ศ.) {asterisk}</label>
+                    <CustomDatePicker onBlur={handleBirthDateChange} />
+                  </div>
+                  <div>
+                    <label className="block mb-1">สถานะสมรส {asterisk}</label>
+                    <Select<Option>
+                      options={maritalStatuses.map(maritalStatus => ({
+                        value: maritalStatus.maritalStatusID,
+                        label: maritalStatus.description
+                      }))}
+                      onChange={(selectedOption) => {
+                        handleMaritalStatusChange(selectedOption as Option);
+                      }}
+                      placeholder="เลือกสถานะสมรส"
+                      styles={districtSelectorStyle}
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1">เบอร์โทรศัพท์ {asterisk}</label>
+                    <input type="tel" required id="phone" name="phone" className="w-full border rounded p-2 border-gray-300 max-h-[50px]" />
+                  </div>
+                  <div>
+                    <label className="block mb-1">อีเมล {asterisk}</label>
+                    <input type="email" required id="email" name="email" className="w-full bg-neutral-100 text-neutral-500 border rounded p-2 border-gray-300 max-h-[50px]" disabled value={email}/>
+                    <span className="text-gray-500 text-sm">อีเมลไม่สามารถแก้ไขได้</span>
+                  </div>
+
+                  <div>
+                    <label htmlFor="experience" className="block mb-1">ประสบการณ์การทำงาน (ปี) {asterisk}</label>
                     <TextField 
                       id="experience"
                       name="experience"
@@ -534,138 +393,35 @@ function Client() {
                         }
                       }}
                       onChange={(e) => {
-                        handleValidateField(e as React.ChangeEvent<HTMLInputElement>);
                         const value = e.target.value;
                         if (parseInt(value) > 100) {
                           alert('this field allow only 0-100');
                           e.target.value = '0';
                         }
                       }}
+                      className="max-h-[50px] w-full"
                     />
-                    {invalidFields.includes('experience') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
-                  </div>
-                  <div>
-                    <label className="block mb-1">ค่าจ้างที่คาดหวัง <span className="text-red-500">*</span></label>
-                    <TextField
-                      id="salary"
-                      name="salary"
-                      type="text"
-                      inputMode="numeric"
-                      slotProps={{
-                        htmlInput: {
-                          pattern: '[0-9]*',
-                          min: 0,
-                          required: true
-                        }
-                      }}
-                      required
-                      onChange={(e) => {
-                        handleValidateField(e as React.ChangeEvent<HTMLInputElement>);
-                        const value = e.target.value.replace(/[^0-9,]/g, '').replace(/,/g, '');
-                        if (value) {
-                          e.target.value = Number(value).toLocaleString();
-                        }
-                      }}
-                    />
-                    {invalidFields.includes('salary') && <p className="text-red-500 text-sm">กรุณากรอกข้อมูล</p>}
-                  </div>
-                  <div>
-                    <label className="block mb-1">เอกสารประกอบการสมัคร (CV/Resume) <span className="text-red-500">*</span> <span className="text-xs font-normal text-gray-500">ขนาดไฟล์ไม่เกิน 5 MB</span></label>
-                    <div className="flex items-center gap-2">
-                      <FileUploadButton onChange={handleResumeFileChange} file={resumeFile} />
-                    </div>
-                    {invalidFields.includes('resume') && <p className="text-red-500 text-sm">กรุณาอัพโหลดไฟล์</p>}
                   </div>
                 </div>
-              </div>
-            </section>
+                
+                <div>
+                  <label className="block mb-1 text-lg">เอกสารประกอบการสมัคร (CV/Resume) {asterisk} <span className="text-xs font-normal text-gray-500">ขนาดไฟล์ไม่เกิน 5 MB</span></label>
+                  <div className="flex items-center gap-2">
+                    <FileUploadButton onChange={handleResumeFileChange} file={resumeFile} />
+                  </div>
+                </div>
 
-            {/* Personal Information Section */}
-            <section ref={personalInfoRef} className={`bg-white p-6 rounded-lg shadow relative`}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xl mb-4">
-                <div>
-                  <label className="block mb-1">ชื่อ <span className="text-red-500">*</span></label>
-                  <input type="text" required id="firstname" name="firstname" className="w-full border rounded p-2 border-gray-300" />
-                </div>
-                <div>
-                  <label className="block mb-1">นามสกุล <span className="text-red-500">*</span></label>
-                  <input type="text" required id="lastname" name="lastname" className="w-full border rounded p-2 border-gray-300" />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xl">
-                <div>
-                  <label className='block mb-1'>คำนำหน้า <span className="text-red-500">*</span></label>
-                  <Select<Option>
-                    instanceId="title-select"
-                    options={titles.map(title => ({
-                      value: title.titleID,
-                      label: title.nameTH
-                    }))}
-                    onChange={(selectedOption) => {
-                      handleTitleChange(selectedOption as Option);
-                    }}
-                    placeholder="เลือกคำนำหน้า"
-                    styles={districtSelectorStyle}
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">เพศ <span className="text-red-500">*</span></label>
-                  <Select<Option>
-                    options={genders.map(gender => ({
-                      value: gender.genderID,
-                      label: gender.description
-                    }))}
-                    onChange={(selectedOption) => {
-                      handleGenderChange(selectedOption as Option);
-                    }}
-                    placeholder="เลือกเพศ"
-                    styles={districtSelectorStyle}
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">ชื่อเล่น <span className="text-red-500">*</span></label>
-                  <input type="text" required id="nickname" name="nickname" className="w-full border rounded p-2 border-gray-300" />
-                </div>
-                <div>
-                  <label className="block mb-1">วันเกิด(ปี ค.ศ.) <span className="text-red-500">*</span></label>
-                  <CustomDatePicker onBlur={handleBirthDateChange} />
-                </div>
-                <div>
-                  <label className="block mb-1">สถานะสมรส <span className="text-red-500">*</span></label>
-                  <Select<Option>
-                    options={maritalStatuses.map(maritalStatus => ({
-                      value: maritalStatus.maritalStatusID,
-                      label: maritalStatus.description
-                    }))}
-                    onChange={(selectedOption) => {
-                      handleMaritalStatusChange(selectedOption as Option);
-                    }}
-                    placeholder="เลือกสถานะสมรส"
-                    styles={districtSelectorStyle}
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">เบอร์โทรศัพท์ <span className="text-red-500">*</span></label>
-                  <input type="tel" required id="phone" name="phone" className="w-full border rounded p-2 border-gray-300" />
-                </div>
-                <div>
-                  <label className="block mb-1">อีเมล <span className="text-red-500">*</span></label>
-                  <input type="email" required id="email" name="email" className="w-full bg-neutral-100 text-neutral-500 border rounded p-2 border-gray-300" disabled value={email}/>
-                  <span className="text-gray-500 text-sm">อีเมลไม่สามารถแก้ไขได้</span>
-                </div>
-              </div>
-            </section>
+                <hr />
 
-            {/* Address Information Section */}
-            <section ref={addressInfoRef} className={`bg-white p-6 rounded-lg shadow relative`} >
-              <div className="space-y-4">
+                {/* Address Information */}
+                <h4 className="text-2xl font-medium">ข้อมูลการติดต่อ</h4>
                 <div>
-                  <label className="block mb-1">ที่อยู่ <span className="text-red-500">*</span></label>
+                  <label className="block mb-1 text-lg">ที่อยู่</label>
                   <input type="text" required id="address" name="address" className="w-full h-[50px] border border-gray-300 rounded px-2 py-1 text-xl" />
                 </div>
                 <div className="custom-selector grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block mb-1">จังหวัด <span className="text-red-500">*</span></label>
+                    <label className="block mb-1 text-lg">จังหวัด {asterisk}</label>
                     <Select<Option>
                       instanceId="province-select"
                       options={provinces.map(province => ({
@@ -680,10 +436,8 @@ function Client() {
                     />
                   </div>
                   <div>
-                    <label className="block mb-1">อำเภอ <span className="text-red-500">*</span></label>
+                    <label className="block mb-1 text-lg">อำเภอ</label>
                     <Select<Option>
-                      ref={districtSelect}
-                      instanceId="district-select"
                       options={districts
                         .filter((district) => district.ProvinceID === province)
                         .map((district) => ({
@@ -700,10 +454,8 @@ function Client() {
                     />
                   </div>
                   <div>
-                    <label className="block mb-1">ตำบล <span className="text-red-500">*</span></label>
+                    <label className="block mb-1 text-lg">ตำบล</label>
                     <Select<Option>
-                      ref={subDistrictSelect}
-                      instanceId="sub-district-select"
                       options={subDistricts
                         .filter((subDistrict) => subDistrict.DistrictID === district)
                         .map((subDistrict) => ({
@@ -722,18 +474,17 @@ function Client() {
                     />
                   </div>
                   <div>
-                    <label className="block mb-1">รหัสไปรษณีย์</label>
+                    <label className="block mb-1 text-lg">รหัสไปรษณีย์</label>
                     <input type="text" name="zipcode" className="w-full h-[50px] border rounded px-2 py-1 text-xl bg-neutral-200 text-neutral-400 border-gray-300" value={postcode || ''} disabled />
                   </div>
                 </div>
-              </div>
-            </section>
 
-            {/* Other Information Section */}
-            <section ref={otherInfoRef} className={`bg-white p-6 rounded-lg shadow relative`}>
-              <div className="space-y-6">
+                <hr />
+
+                {/* Source Information */}
+                <h4 className="text-2xl font-medium">ข้อมูลอื่น ๆ</h4>
                 <div>
-                  <label className='block mb-1'>ท่านทราบข่าวการสมัครงานจากช่องทางใด <span className="text-red-500">*</span></label>
+                  <label className='block mb-1 text-lg'>ท่านทราบข่าวการสมัครงานจากช่องทางใด</label>
                   <Select<Option>
                     options={sourceInformations.map(sourceInformation => ({
                       value: sourceInformation.sourceInformationID,
@@ -747,11 +498,10 @@ function Client() {
                   />
                 </div>
                 <div>
-                  <h3 className="font-medium mb-2">ประวัติการศึกษา <span className="text-red-500">*</span></h3>
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="custom-selector">
-                        <label className="block mb-1">ระดับการศึกษา</label>
+                        <label className="block mb-1 text-lg">ระดับการศึกษา {asterisk}</label>
                         <Select<Option>
                           options={educations.map(education => ({
                             value: education.educationID,
@@ -766,7 +516,7 @@ function Client() {
                         />
                       </div>
                       <div>
-                        <label className="block mb-1">สาขาวิชา</label>
+                        <label className="block mb-1 text-lg">สาขาวิชา {asterisk}</label>
                         <input type="text" name="major" className="w-full border border-gray-300 rounded p-2" />
                       </div>
                     </div>
@@ -774,7 +524,7 @@ function Client() {
                 </div>
 
                 <div>
-                  <h3 className="font-medium mb-2">ภาษา <span className="text-red-500">*</span></h3>
+                  <h3 className="font-medium mb-2 text-lg">ภาษา</h3>
                   <div className="flex flex-col gap-4">
                     <div className="language-list">
                       <div className="flex flex-wrap gap-2">
@@ -786,22 +536,18 @@ function Client() {
                     <CandidateLanguage handleLanguageAdd={handleLanguageAdd} />
                   </div>
                 </div>
+
               </div>
-            </section>
+            </div>
           </div>
 
-          <div className="flex justify-end space-x-4">
-            {currentStepIndex > 0 && (
-              <button
-                type="button"
-                className="px-6 py-2 border rounded"
-                onClick={handlePrevious}
-              >
-                ก่อนหน้า
-              </button>
-            )}
+          <hr />
 
-            {isLastStep ? (
+          <div className="form-action flex flex-col gap-2">
+            <div className="flex mb-2 md:w-2/3 mx-auto leading-tight align-top">
+              <FormControlLabel control={<Checkbox defaultChecked size='small' />} label="ข้าพเจ้าขอรับรองว่าข้อมูลที่กรอกมีความถูกต้องตามจริง และยินยอมให้บริษัทสามารถใช้ข้อมูลนี้ในการติดต่อกลับเพื่อขอข้อมูลเพิ่มเติม" sx={{ span: { lineHeight: '1.2', color: 'gray' } }} />
+            </div>
+            <div className="flex justify-center">
               <button
                 type="button"
                 className="px-6 py-2 bg-blue-500 text-white rounded"
@@ -809,22 +555,15 @@ function Client() {
               >
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin " /> : 'ส่งข้อมูล'}
               </button>
-            ) : (
-              <button
-                type="button"
-                className="px-6 py-2 bg-blue-500 text-white rounded"
-                onClick={handleNext}
-              >
-                ต่อไป
-              </button>
-            )}
+            </div>
           </div>
-          <Snackbar open={snackbarOpen} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} onClose={() => setSnackbarOpen(false)} autoHideDuration={4500}>
-            <Alert severity={snackBarType} onClose={() => setSnackbarOpen(false)} variant="filled">
-              {snackbarMessage}
-            </Alert>
-          </Snackbar>
         </form>
+
+        <Snackbar open={snackbarOpen} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} onClose={() => setSnackbarOpen(false)} autoHideDuration={4500}>
+          <Alert severity={snackBarType} onClose={() => setSnackbarOpen(false)} variant="filled">
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
       </div>
     </LocalizationProvider>
   );
