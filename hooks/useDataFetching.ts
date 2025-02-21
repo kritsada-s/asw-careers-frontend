@@ -253,7 +253,7 @@ export function useUserProfile (email: string) {
         console.error('Error fetching user profile:', error);
         if (error.response.status === 404) {
           localStorage.removeItem('authToken');
-          console.log('remove authToken...');
+          //console.log('remove authToken...');
           return;
         } else {
           setError(error?.message || 'An unknown error occurred');
