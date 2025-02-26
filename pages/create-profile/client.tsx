@@ -22,6 +22,7 @@ import { AuthContext } from '../providers'
 import { decrypt, prodUrl } from '@/lib/utils';
 import axios from 'axios';
 import router from 'next/router';
+import Link from 'next/link';
 
 gsap.registerPlugin(useGSAP);
 
@@ -544,8 +545,9 @@ function Client() {
           <hr />
 
           <div className="form-action flex flex-col gap-2">
-            <div className="flex mb-2 md:w-2/3 mx-auto leading-tight align-top">
-              <FormControlLabel control={<Checkbox defaultChecked size='small' />} label="ข้าพเจ้าขอรับรองว่าข้อมูลที่กรอกมีความถูกต้องตามจริง และยินยอมให้บริษัทสามารถใช้ข้อมูลนี้ในการติดต่อกลับเพื่อขอข้อมูลเพิ่มเติม" sx={{ span: { lineHeight: '1.2', color: 'gray' } }} />
+            <div className="flex flex-col gap-2 mb-2 md:w-2/3 mx-auto leading-tight align-top">
+              <p className='text-[16px] text-center leading-none'>เพื่อให้ท่านทราบวิธีและกระบวนการ ที่เราดำเนินการจัดเก็บข้อมูล วัตถุประสงค์การใช้ข้อมูล <br className='hidden md:block'/>ท่านสามารถศึกษารายละเอียด แบบแจ้งเกี่ยวกับข้อมูลส่วนบุคคล (Privacy Notice) ได้<Link href={{ pathname: '/privacy-notice' }} title='ประกาศความเป็นส่วนตัว (Privacy Notice) สำหรับผู้สมัคร' className='text-blue-700 underline'>ที่นี่</Link></p>
+              <FormControlLabel control={<Checkbox defaultChecked size='small' />} label={`ข้าพเจ้าขอรับรองว่าข้อมูลที่กรอกมีความถูกต้องตามจริง และยินยอมให้บริษัทสามารถใช้ข้อมูลนี้ในการติดต่อกลับเพื่อข้อมูลเพิ่มเติม`} sx={{ span: { fontSize: '18px', lineHeight: '1.2', color: 'gray' } }} />
             </div>
             <div className="flex justify-center">
               <button
