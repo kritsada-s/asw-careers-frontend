@@ -341,4 +341,57 @@ body {
     align-items: center;
   }
 }
-      
+
+.sub-list {
+  &.sub-list-number {
+    > li {
+      &:before {
+        content: counter(list-item) ". ";
+        @apply absolute left-0 top-0;
+      }
+    }
+  }
+  &.sub-list-bracket {
+    > li {
+      &:before {
+        content: "(" counter(list-item) ") ";
+        @apply absolute left-0 top-0;
+      }
+    }
+  }
+  &.sub-list-val {
+    > li {
+      position: relative;
+      &:before {
+        content: attr(value);
+        @apply absolute left-0 top-0;
+      }
+    }
+  }
+  > li {
+    counter-increment: list-item;
+    @apply  relative pl-5;
+  }
+}
+
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  @apply mt-2 mb-5 text-sm;
+  tr {
+    td:first-child {
+      @apply text-center;
+    }
+  }
+}
+
+table td,
+table th {
+  border: 1px solid #656565;
+  padding: 8px;
+}
+
+table th {
+  @apply bg-neutral-200 font-semibold text-center;
+}
