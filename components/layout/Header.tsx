@@ -78,7 +78,11 @@ const Header = () => {
             <Link href={{ pathname:'/jobs' }} title="">ตำแหน่งงาน</Link>
             <Link href="/#welfareBenefit" title="">สวัสดิการ</Link>
           </nav>
-          <button onClick={()=>checkLogin()} className="leading-none px-4 py-1 font-semibold text-white bg-leadfrog-green hover:bg-kryptonite-green rounded-full">ตรวจสอบสถานะ</button>
+          {authContext?.CandidateID ? (
+            <Link href="/profile" className="leading-none px-4 py-1 font-semibold text-white bg-leadfrog-green hover:bg-kryptonite-green rounded-full">ตรวจสอบสถานะ</Link>
+          ) : (
+            <button onClick={()=>checkLogin()} className="leading-none px-4 py-1 font-semibold text-white bg-leadfrog-green hover:bg-kryptonite-green rounded-full">เข้าสู่ระบบ / ฝากประวัติ</button>
+          )}
         </div>
       </div>
     </section>
